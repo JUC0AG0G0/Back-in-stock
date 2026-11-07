@@ -44,6 +44,10 @@ echo "==> GET /api/health"
 health="$(curl -fsS "http://127.0.0.1:$PORT/api/health")" || fail "/api/health unreachable"
 [[ "$health" == *'"status":"ok"'* ]] || fail "unexpected /api/health body: $health"
 
+echo "==> GET /api/plugins (plugin SDK loads at runtime)"
+plugins="$(curl -fsS "http://127.0.0.1:$PORT/api/plugins")" || fail "/api/plugins unreachable"
+[[ "$plugins" == *'"sources":'* ]] || fail "unexpected /api/plugins body: $plugins"
+
 echo "==> GET / and a client-side route"
 curl -fsS "http://127.0.0.1:$PORT/" | grep -q '<div id="root">' || fail "web UI not served on /"
 curl -fsS "http://127.0.0.1:$PORT/some/page" | grep -q '<div id="root">' || fail "SPA fallback broken"

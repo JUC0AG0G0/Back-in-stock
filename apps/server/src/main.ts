@@ -1,13 +1,18 @@
 import { loadConfig } from './config.js';
 import { buildApp } from './http/app.js';
+import { NotifierRegistry, SourceRegistry } from './infrastructure/plugins/registry.js';
 import { readVersion } from './version.js';
 
 // Composition root: this is the only place that wires concrete dependencies together.
 const config = loadConfig();
+// Built-in plugins (plugins/*) and external ones (npm, /data/plugins) will register here (M1, M4).
+const plugins = { sources: new SourceRegistry(), notifiers: new NotifierRegistry() };
+
 const app = await buildApp({
   version: readVersion(),
   webDir: config.webDir,
   logger: { level: config.logLevel },
+  plugins,
 });
 
 const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
