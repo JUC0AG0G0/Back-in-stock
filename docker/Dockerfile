@@ -9,6 +9,7 @@ RUN corepack enable
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/server/package.json apps/server/
 COPY apps/web/package.json apps/web/
+COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 
