@@ -10,12 +10,14 @@
     "node": ">=22"
   },
   "scripts": {
+    "dev": "pnpm --parallel --filter './apps/*' run dev",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc -p tsconfig.json && pnpm -r --if-present run typecheck",
     "test": "vitest run",
-    "build": "pnpm -r --if-present run build"
+    "build": "pnpm -r --if-present run build",
+    "smoke:docker": "bash scripts/docker-smoke.sh"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

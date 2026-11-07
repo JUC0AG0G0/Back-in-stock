@@ -4,7 +4,11 @@ import { readVersion } from './version.js';
 
 // Composition root: this is the only place that wires concrete dependencies together.
 const config = loadConfig();
-const app = buildApp({ version: readVersion(), logger: { level: config.logLevel } });
+const app = await buildApp({
+  version: readVersion(),
+  webDir: config.webDir,
+  logger: { level: config.logLevel },
+});
 
 const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
   app.log.info({ signal }, 'shutting down');

@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/build
+**/coverage
+**/.docusaurus
+.git
+.github
+data
+*.log
+.env
+.env.*
+docker-compose.yml
