@@ -1,0 +1,9 @@
+pnpm-lock.yaml
+CHANGELOG.md
+dist/
+build/
+coverage/
+.docusaurus/
+# Hand-written docs and GitHub config: keep their current layout.
+/*.md
+.github/
