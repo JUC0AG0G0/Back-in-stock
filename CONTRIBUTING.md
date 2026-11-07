@@ -23,7 +23,7 @@ Merci de ton intérêt ! Les contributions les plus utiles sont **les nouveaux s
 Le titre de la PR devient le message du commit sur `main` et sert à générer le changelog et la version. Il est vérifié par la CI.
 
 ```
-<type>(<scope optionnel>): <description en minuscule>
+<type>(<scope optionnel>): <description>
 ```
 
 | Type | Effet sur la version |
