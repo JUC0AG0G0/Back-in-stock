@@ -41,7 +41,7 @@ Sans ce secret, la PR de release est créée par `GITHUB_TOKEN`, et GitHub **ne 
 
 Quand d'autres mainteneurs arriveront, passe *Required approvals* à 1 dans le ruleset `main`.
 
-> Le ruleset `main` exige les checks `ci` et `pr-title`. Ils doivent avoir tourné au moins une fois (sur la PR qui ajoute cette configuration) pour être proposés dans la liste.
+> ⚠️ Importe le ruleset `main` **après** avoir fusionné la PR qui ajoute cette configuration. Le workflow `pr-title` est lu depuis `main` (`pull_request_target`), il ne tourne donc pas sur cette première PR : elle resterait bloquée en attendant ce check.
 
 ## 5. Settings → Code security
 
