@@ -1,0 +1,47 @@
+{
+  "app": {
+    "name": "Back in stock !",
+    "tagline": "Soyez prévenu dès qu'un produit revient en stock.",
+    "language": "Langue",
+    "health": {
+      "checking": "Connexion au serveur…",
+      "ok": "Serveur OK · v{{version}}",
+      "error": "Serveur injoignable",
+      "retry": "Vérifier à nouveau"
+    }
+  },
+  "status": {
+    "IN_STOCK": "en stock",
+    "OUT_OF_STOCK": "en rupture",
+    "PREORDER": "en précommande"
+  },
+  "notifications": {
+    "watchStarted": {
+      "title": "Alertes activées : {{watch}}",
+      "product": "Statut actuel : {{status}}.",
+      "listing_one": "{{count}} article visible actuellement. Vous serez prévenu des nouveaux.",
+      "listing_other": "{{count}} articles visibles actuellement. Vous serez prévenu des nouveaux."
+    },
+    "productRestocked": {
+      "title": "De retour en stock : {{watch}}",
+      "text": "{{product}} est de nouveau disponible."
+    },
+    "productOutOfStock": {
+      "title": "En rupture : {{watch}}",
+      "text": "{{product}} n'est plus disponible."
+    },
+    "productPreorder": {
+      "title": "Précommande ouverte : {{watch}}",
+      "text": "{{product}} est disponible en précommande."
+    },
+    "listingItemAdded": {
+      "title": "Nouvel article : {{item}}",
+      "text": "Nouveau sur {{watch}}."
+    },
+    "listingItemRemoved": {
+      "title": "Article retiré : {{item}}",
+      "text": "N'est plus proposé sur {{watch}}."
+    },
+    "price": "Prix : {{price}}"
+  }
+}

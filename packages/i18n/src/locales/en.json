@@ -1,0 +1,47 @@
+{
+  "app": {
+    "name": "Back in stock !",
+    "tagline": "Get notified as soon as a product is back in stock.",
+    "language": "Language",
+    "health": {
+      "checking": "Connecting to the server…",
+      "ok": "Server OK · v{{version}}",
+      "error": "Server unreachable",
+      "retry": "Check again"
+    }
+  },
+  "status": {
+    "IN_STOCK": "in stock",
+    "OUT_OF_STOCK": "out of stock",
+    "PREORDER": "available for preorder"
+  },
+  "notifications": {
+    "watchStarted": {
+      "title": "Alerts on: {{watch}}",
+      "product": "Current status: {{status}}.",
+      "listing_one": "{{count}} item currently listed. You will be told about new ones.",
+      "listing_other": "{{count}} items currently listed. You will be told about new ones."
+    },
+    "productRestocked": {
+      "title": "Back in stock: {{watch}}",
+      "text": "{{product}} is available again."
+    },
+    "productOutOfStock": {
+      "title": "Out of stock: {{watch}}",
+      "text": "{{product}} is no longer available."
+    },
+    "productPreorder": {
+      "title": "Preorder open: {{watch}}",
+      "text": "{{product}} is available for preorder."
+    },
+    "listingItemAdded": {
+      "title": "New item: {{item}}",
+      "text": "New on {{watch}}."
+    },
+    "listingItemRemoved": {
+      "title": "Item removed: {{item}}",
+      "text": "No longer listed on {{watch}}."
+    },
+    "price": "Price: {{price}}"
+  }
+}

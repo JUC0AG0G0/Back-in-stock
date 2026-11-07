@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { Button } from '@/components/ui/button';
 
 interface Health {
@@ -12,20 +14,25 @@ async function fetchHealth(): Promise<Health> {
   return (await res.json()) as Health;
 }
 
-// Placeholder screen for M0: proves the SPA builds and can reach the API.
+// Placeholder screen for M0: proves the SPA builds, is translated and can reach the API.
 export function App() {
+  const { t } = useTranslation();
   const health = useQuery({ queryKey: ['health'], queryFn: fetchHealth, retry: false });
 
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col items-center justify-center gap-6 p-6 text-center">
-      <h1 className="text-4xl font-bold tracking-tight">Back in stock !</h1>
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
+      <h1 className="text-4xl font-bold tracking-tight">{t('app.name')}</h1>
+      <p>{t('app.tagline')}</p>
       <p className="text-muted-foreground">
-        {health.isPending && 'Connexion au serveur…'}
-        {health.isSuccess && `Serveur OK · v${health.data.version}`}
-        {health.isError && 'Serveur injoignable'}
+        {health.isPending && t('app.health.checking')}
+        {health.isSuccess && t('app.health.ok', { version: health.data.version })}
+        {health.isError && t('app.health.error')}
       </p>
       <Button onClick={() => void health.refetch()} disabled={health.isFetching}>
-        Vérifier à nouveau
+        {t('app.health.retry')}
       </Button>
     </main>
   );
