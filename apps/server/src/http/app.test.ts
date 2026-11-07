@@ -25,6 +25,22 @@ describe('GET /api/health', () => {
   });
 });
 
+describe('GET /api/health with a database', () => {
+  it('fails with 503 when the database does not answer', async () => {
+    app = await buildApp({ version: '1.2.3', databasePing: () => false });
+
+    const res = await app.inject({ method: 'GET', url: '/api/health' });
+
+    expect(res.statusCode).toBe(503);
+    expect(res.json()).toEqual({ status: 'error', version: '1.2.3', database: 'unavailable' });
+  });
+
+  it('answers ok when the database answers', async () => {
+    app = await buildApp({ version: '1.2.3', databasePing: () => true });
+    expect((await app.inject({ method: 'GET', url: '/api/health' })).statusCode).toBe(200);
+  });
+});
+
 describe('web UI', () => {
   let webDir: string;
 

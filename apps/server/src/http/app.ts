@@ -10,6 +10,8 @@ export interface AppOptions {
   webDir?: string;
   logger?: FastifyServerOptions['logger'];
   plugins?: { sources: SourceRegistry; notifiers: NotifierRegistry };
+  /** Returns false when the database cannot answer: /api/health then fails. */
+  databasePing?: () => boolean;
 }
 
 /**
@@ -21,10 +23,17 @@ export async function buildApp({
   webDir,
   logger = false,
   plugins,
+  databasePing,
 }: AppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger });
 
-  app.get('/api/health', async () => ({ status: 'ok' as const, version }));
+  // Used by the Docker HEALTHCHECK: an unreachable database makes the container unhealthy.
+  app.get('/api/health', async (_request, reply) => {
+    if (databasePing && !databasePing()) {
+      return reply.code(503).send({ status: 'error', version, database: 'unavailable' });
+    }
+    return { status: 'ok' as const, version };
+  });
 
   if (plugins) {
     // Lets the UI show installed plugins and explain why a plugin was not loaded.

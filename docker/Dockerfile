@@ -20,6 +20,10 @@ RUN pnpm --filter "@back-in-stock/server..." --filter @back-in-stock/web run bui
 # Production-only copy of the server and its dependencies (no dev tools, no TS sources).
 RUN pnpm --filter @back-in-stock/server deploy --prod --legacy /out/server
 
+# better-sqlite3 ships its C sources and binaries for every OS: keep only the Alpine (musl) ones.
+RUN find /out/server/node_modules/.pnpm -path '*/node_modules/better-sqlite3' -type d \
+      -exec sh -c 'cd "$1" && rm -rf deps src && find prebuilds -type f ! -name "linuxmusl-*" -delete' _ {} \;
+
 # Files copied from the host keep their permissions (e.g. 600 with a strict umask),
 # which the non-root runtime user could not read. Make everything world-readable.
 RUN chmod -R a+rX /repo/package.json /repo/apps/web/dist /out
