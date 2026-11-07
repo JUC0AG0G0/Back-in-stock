@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://juc0ag0g0.github.io/back-in-stock/
+    about: Guides d'installation, de configuration et de développement de plugins.
+  - name: Signaler une faille de sécurité
+    url: https://github.com/JUC0AG0G0/Back-in-stock/security/advisories/new
+    about: Merci de ne pas ouvrir d'issue publique pour une faille de sécurité.

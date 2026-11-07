@@ -1,0 +1,24 @@
+name: 🛒 Demande de nouveau site
+description: Proposer le support d'une nouvelle boutique.
+labels: ["new-site"]
+body:
+  - type: input
+    id: shop
+    attributes:
+      label: Boutique
+      placeholder: "Fanatec EU"
+    validations:
+      required: true
+  - type: textarea
+    id: urls
+    attributes:
+      label: URLs d'exemple
+      description: Une page produit et/ou une page liste (ex. reconditionné).
+    validations:
+      required: true
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contribution
+      options:
+        - label: Je veux bien écrire ce plugin moi-même (voir la doc « Ajouter un site »).

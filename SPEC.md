@@ -1,6 +1,6 @@
 # Back in stock ! — Spécification
 
-> Version 0.5 (brouillon) · 7 novembre 2026
+> Version 0.6 (brouillon) · 7 novembre 2026
 > Statut : à valider. Les points marqués **[À VALIDER]** sont des choix par défaut proposés.
 
 ## 1. Vision
@@ -320,12 +320,14 @@ watches         (id, type[product|listing], url, name, source_id, source_config_
                  created_at, updated_at)
 watch_channels  (watch_id, channel_id)
 product_snapshots (id, watch_id, checked_at, status, price_cents, currency,
-                   title, signal, http_status, duration_ms, error)
-listing_items   (watch_id, item_id, title, price_cents, currency, url, image_url,
+                   title, image_id, signal, http_status, duration_ms, error)
+listing_items   (watch_id, item_id, title, price_cents, currency, url, image_url, image_id,
                  attrs_json, first_seen_at, last_seen_at, missing_count, removed_at)
 check_runs      (id, watch_id, started_at, duration_ms, ok, error, item_count)
 events          (id, watch_id, type, payload_json, created_at)
 deliveries      (id, event_id, channel_id, status, attempts, last_error, sent_at)
+images          (id, source_url, sha256, mime, width, height, bytes, path,
+                 fetched_at, last_used_at)
 ```
 
 - `interval_sec = NULL` signifie que la veille suit la fréquence globale.
@@ -362,6 +364,7 @@ Les contrats sont partagés entre le front et le back via des schémas **Zod**, 
 | Validation | **Zod** | Partagée front/back et plugins, génère les formulaires |
 | ORM / BDD | **Drizzle ORM + SQLite** (`better-sqlite3`) | Zéro infra, un fichier dans `/data`, parfait pour de l'auto-hébergement |
 | Parsing HTML | **cheerio** | Léger |
+| Images | **sharp** | Redimensionnement et conversion des images produit |
 | Navigateur | **Playwright** (optionnel) | Sites JS |
 | Ordonnancement | Scheduler maison + **p-queue** | Pas besoin de Redis |
 | Front | **React + Vite + TanStack Query + TanStack Router**, **shadcn/ui** (Tailwind) | Standard, rapide à construire [À VALIDER] |
@@ -445,6 +448,35 @@ services:
   MacBook Air M3 15" 16 Go / 512 Go — 1 189 €
   https://...
   ```
+
+### Images produit dans les notifications
+
+Chaque notification peut contenir **la photo du produit**.
+
+**Récupération de l'image**
+- Le plugin source renvoie `imageUrl` dans ses snapshots, aussi bien pour un produit que pour chaque article d'une liste. Le plugin dédié (ex. `fanatec`) sait où trouver la bonne image.
+- Sinon, le cœur la cherche automatiquement, dans cet ordre : `image` du JSON-LD `Product`, `og:image`, `twitter:image`, puis la première grande image de la zone produit.
+- L'URL est rendue absolue. Pour une variante (couleur), on prend l'image de la variante si elle existe.
+
+**Téléchargement et cache local**
+- L'image est **téléchargée par le serveur** (avec le même fetcher, donc la même politesse et les mêmes cookies), puis stockée dans `/data/images/`. On ne fait pas de hotlink : beaucoup de boutiques bloquent l'accès direct, et certaines URL expirent.
+- Elle est redimensionnée et convertie avec **sharp** (largeur max 1 024 px, JPEG ou WebP, quelques centaines de Ko) pour respecter les limites des canaux.
+- Cache par empreinte (hash de l'URL et du contenu) : une image n'est téléchargée qu'une fois, même si l'article apparaît dans plusieurs veilles.
+- Nettoyage automatique des images qui ne sont plus référencées depuis 30 jours.
+- Si le téléchargement échoue, la notification part quand même, sans image.
+
+**Envoi selon le canal**
+
+| Canal | Comportement |
+|---|---|
+| Telegram | `sendPhoto` avec l'image en pièce jointe et le texte en légende. Pour un groupe d'articles d'une liste : `sendMediaGroup` (album de 10 images max), puis un message récapitulatif avec les liens. |
+| Email | Image **intégrée dans le HTML** (pièce jointe inline `cid:`), donc visible même si le client bloque les images distantes. Version texte sans image. |
+| ntfy | Image envoyée en pièce jointe (`attach`) et affichée dans la notification mobile. |
+| Webhook | Champ `image` dans le JSON avec l'URL d'origine, plus l'image en base64 en option. |
+
+- Réglage **« Inclure les images »** par canal, activé par défaut.
+- Côté plugin notifier, `NotificationMessage.image` contient le fichier local (chemin, type MIME, taille) et l'URL d'origine. Le notifier choisit ce qu'il utilise. Un notifier qui ne gère pas les images les ignore simplement.
+- L'interface web affiche aussi ces images : vignettes dans le tableau de bord, la liste des articles d'une veille liste et l'historique.
 
 ## 14. Sécurité et éthique
 
@@ -554,7 +586,7 @@ Les rulesets sont versionnés dans `.github/rulesets/*.json` pour pouvoir les **
 | Jalon | Contenu |
 |---|---|
 | **M0 — Socle** | Monorepo, **CI/CD complète, release-please, rulesets**, SDK de plugins, domaine (veille, state machine, diff de listes), SQLite + migrations, **i18n FR/EN en place (front et back)**, squelette Docusaurus publié sur GitHub Pages |
-| **M1 — MVP produit** | Veilles `product`, plugins `structured-data` et `css-rule`, scheduler avec fréquence globale et par veille, notifiers **Telegram et email avec assistants guidés**, ntfy, API, interface (liste, ajout avec aperçu), **assistant de premier lancement**, image Docker, **guide de démarrage et de configuration** dans la doc |
+| **M1 — MVP produit** | Veilles `product`, plugins `structured-data` et `css-rule`, scheduler avec fréquence globale et par veille, notifiers **Telegram et email avec assistants guidés et images produit**, ntfy, API, interface (liste, ajout avec aperçu), **assistant de premier lancement**, image Docker, **guide de démarrage et de configuration** dans la doc |
 | **M2 — Pages liste** | Veilles `listing` (sans filtres), **plugin `fanatec` (reconditionné EU)**, plugin Shopify, groupement des notifications |
 | **M3 — Robustesse** | Fetcher navigateur (image `:full`), backoff, alertes `WatchFailing`, outbox avec retries, auth, chiffrement des secrets, **bandeau de nouvelle version + service `updater`** |
 | **M4 — Écosystème** | Chargement de plugins npm et locaux, testkit, `create-plugin`, **tutoriels Docusaurus « Ajouter un site » et « Ajouter un notifier » (exemple Discord)**, référence TypeDoc, publication du SDK sur npm |
@@ -580,6 +612,7 @@ Les rulesets sont versionnés dans `.github/rulesets/*.json` pour pouvoir les **
 | Branches | `main` protégée + branches courtes fusionnées par PR (squash) |
 | Releases | release-please, publications fréquentes, image `:edge` à chaque fusion |
 | Mises à jour | Bandeau dans l'interface + installation en un clic via le service `updater` |
+| Images | Photo du produit récupérée, mise en cache localement et jointe aux notifications |
 
 ## 18. Questions ouvertes
 

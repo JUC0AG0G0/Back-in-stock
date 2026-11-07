@@ -1,0 +1,30 @@
+name: 🐛 Bug
+description: Quelque chose ne fonctionne pas comme prévu.
+labels: ["bug", "triage"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Que se passe-t-il ?
+      description: Ce que tu as fait, ce que tu attendais, ce qui s'est passé.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Visible en bas de l'interface ou dans Paramètres.
+      placeholder: "1.2.3"
+    validations:
+      required: true
+  - type: dropdown
+    id: image
+    attributes:
+      label: Image Docker
+      options: ["slim (par défaut)", "full (avec navigateur)", "edge"]
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Sortie de `docker compose logs back-in-stock` (retire tes tokens !).
+      render: shell

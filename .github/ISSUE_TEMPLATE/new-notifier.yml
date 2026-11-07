@@ -1,0 +1,22 @@
+name: 🔔 Demande de moyen de notification
+description: Proposer un nouveau canal (Discord, Gotify, Pushover, SMS…).
+labels: ["new-notifier"]
+body:
+  - type: input
+    id: service
+    attributes:
+      label: Service
+      placeholder: "Discord"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Pourquoi ce canal ?
+      description: Lien vers la doc de son API si possible.
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contribution
+      options:
+        - label: Je veux bien écrire ce plugin moi-même (voir la doc « Ajouter un notifier »).
