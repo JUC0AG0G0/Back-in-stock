@@ -205,3 +205,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload "v$VERSION" dist/* --clobber --repo "$GITHUB_REPOSITORY"
+
+      # The image itself lives in the registry: the release notes say how to get it.
+      - name: Add the image to the release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          body="$(gh release view "v$VERSION" --json body --jq .body --repo "$GITHUB_REPOSITORY")"
+          if grep -q 'docker pull' <<< "$body"; then exit 0; fi
+          {
+            printf '%s\n\n' "$body"
+            printf '## 🐳 Image Docker\n\n'
+            printf '```bash\ndocker pull %s:%s\n```\n\n' "$IMAGE" "$VERSION"
+            printf 'amd64 et arm64. Avec docker compose : télécharge `back-in-stock-%s.docker-compose.yml` ci-dessous.\n' "$VERSION"
+          } > notes.md
+          gh release edit "v$VERSION" --notes-file notes.md --repo "$GITHUB_REPOSITORY"
