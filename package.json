@@ -2,6 +2,7 @@
   "name": "back-in-stock",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "description": "Self-hosted, open source back-in-stock and new-listing monitor with pluggable sites and notifiers.",
   "license": "MIT",
   "packageManager": "pnpm@10.28.0",
@@ -9,9 +10,26 @@
     "node": ">=22"
   },
   "scripts": {
-    "lint": "pnpm -r --if-present run lint",
-    "typecheck": "pnpm -r --if-present run typecheck",
-    "test": "pnpm -r --if-present run test",
-    "build": "pnpm -r --if-present run build"
+    "dev": "pnpm --parallel --filter './apps/*' run dev",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc -p tsconfig.json && pnpm -r --if-present run typecheck",
+    "test": "vitest run",
+    "build": "pnpm -r --if-present run build",
+    "smoke:docker": "bash scripts/docker-smoke.sh"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.20.5",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.14.0",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.1.0"
   }
 }

@@ -1,0 +1,14 @@
+services:
+  back-in-stock:
+    image: ghcr.io/juc0ag0g0/back-in-stock:latest
+    # To build from your local copy instead: docker compose up --build
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./data:/data
+    environment:
+      TZ: Europe/Paris

@@ -18,7 +18,8 @@
   ],
   "packages": {
     ".": {
-      "package-name": "back-in-stock"
+      "package-name": "back-in-stock",
+      "release-as": "0.1.0"
     }
   }
 }
