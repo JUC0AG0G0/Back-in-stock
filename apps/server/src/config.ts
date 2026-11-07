@@ -9,6 +9,8 @@ export interface ServerConfig {
   webDir: string;
   /** SQLite file, inside BIS_DATA_DIR (/data in Docker, ./data in development). */
   databasePath: string;
+  /** Swagger UI at /api/docs: on in development, always off in production (NODE_ENV=production). */
+  apiDocs: boolean;
 }
 
 // Same relative layout in the repo and in the Docker image: apps/server/dist -> apps/web/dist.
@@ -26,5 +28,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     logLevel: env.LOG_LEVEL ?? 'info',
     webDir: env.BIS_WEB_DIR ?? defaultWebDir,
     databasePath: join(resolve(env.BIS_DATA_DIR ?? 'data'), 'back-in-stock.db'),
+    apiDocs: env.NODE_ENV !== 'production',
   };
 }

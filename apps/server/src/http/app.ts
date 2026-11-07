@@ -3,6 +3,8 @@ import { join } from 'node:path';
 import fastifyStatic from '@fastify/static';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
 import type { NotifierRegistry, SourceRegistry } from '../infrastructure/plugins/registry.js';
+import { registerApiDocs } from './api-docs.js';
+import { healthSchema, pluginsSchema } from './schemas.js';
 
 export interface AppOptions {
   version: string;
@@ -12,6 +14,8 @@ export interface AppOptions {
   plugins?: { sources: SourceRegistry; notifiers: NotifierRegistry };
   /** Returns false when the database cannot answer: /api/health then fails. */
   databasePing?: () => boolean;
+  /** Serves the Swagger UI at /api/docs. Development only (needs the server's devDependencies). */
+  apiDocs?: boolean;
 }
 
 /**
@@ -24,11 +28,14 @@ export async function buildApp({
   logger = false,
   plugins,
   databasePing,
+  apiDocs = false,
 }: AppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger });
 
+  if (apiDocs) await registerApiDocs(app, version);
+
   // Used by the Docker HEALTHCHECK: an unreachable database makes the container unhealthy.
-  app.get('/api/health', async (_request, reply) => {
+  app.get('/api/health', { schema: healthSchema }, async (_request, reply) => {
     if (databasePing && !databasePing()) {
       return reply.code(503).send({ status: 'error', version, database: 'unavailable' });
     }
@@ -37,7 +44,7 @@ export async function buildApp({
 
   if (plugins) {
     // Lets the UI show installed plugins and explain why a plugin was not loaded.
-    app.get('/api/plugins', async () => ({
+    app.get('/api/plugins', { schema: pluginsSchema }, async () => ({
       sources: plugins.sources.list().map(({ id, name, version, supports }) => ({
         id,
         name,

@@ -17,7 +17,9 @@ const app = await buildApp({
   logger: { level: config.logLevel },
   plugins,
   databasePing: database.ping,
+  apiDocs: config.apiDocs,
 });
+if (config.apiDocs) app.log.info(`API docs: http://localhost:${config.port}/api/docs`);
 app.log.info({ database: config.databasePath }, 'database ready');
 
 const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
