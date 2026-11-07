@@ -1,0 +1,207 @@
+name: Docker image
+
+# Publishes the image on ghcr.io/<owner>/back-in-stock:
+#   - every merge to main          → :edge (latest development version)
+#   - every release (release-please calls this workflow) → :X.Y.Z, :X.Y, :X, :latest,
+#     plus docker-compose.yml, SBOM and checksums attached to the GitHub release
+#   - by hand (Actions → Docker image → Run workflow) to republish an existing release
+#
+# Each architecture builds on its own native runner (no QEMU emulation, which crashes Node
+# on arm64), is smoke-tested, then pushed by digest. The "merge" job then names them.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'apps/docs/**'
+      - '**/*.md'
+  workflow_call:
+    inputs:
+      version:
+        description: Released version, e.g. 0.1.0
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version already released to publish again, e.g. 0.1.0 (empty = edge from main)
+        type: string
+        required: false
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: docker-publish-${{ inputs.version || 'edge' }}
+  cancel-in-progress: ${{ !inputs.version }}
+
+env:
+  # A release builds its tag; edge builds the pushed commit.
+  REF: ${{ inputs.version && format('v{0}', inputs.version) || github.sha }}
+
+jobs:
+  build:
+    name: build (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { arch: amd64, platform: linux/amd64, runner: ubuntu-24.04 }
+          - { arch: arm64, platform: linux/arm64, runner: ubuntu-24.04-arm }
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.REF }}
+
+      # Registry names must be lowercase, GitHub owners may not be.
+      - run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/back-in-stock" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.IMAGE }}
+
+      # Same image as the one pushed below (shared cache): never publish one that does not start.
+      - name: Build for the smoke test
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/Dockerfile
+          platforms: ${{ matrix.platform }}
+          load: true
+          tags: back-in-stock:smoke
+          cache-from: type=gha,scope=${{ matrix.arch }}
+          cache-to: type=gha,scope=${{ matrix.arch }},mode=max
+
+      - run: scripts/docker-smoke.sh back-in-stock:smoke
+
+      - id: push
+        name: Push by digest
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/Dockerfile
+          platforms: ${{ matrix.platform }}
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+          # No attestations in the registry: they show up as unnamed "sha256:…" versions
+          # in the package page. The SBOM is attached to the release instead.
+          provenance: false
+          sbom: false
+          cache-from: type=gha,scope=${{ matrix.arch }}
+
+      - run: |
+          mkdir -p "$RUNNER_TEMP/digests"
+          touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
+        env:
+          DIGEST: ${{ steps.push.outputs.digest }}
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    name: tag
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/back-in-stock" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v6
+        env:
+          # Annotations on the multi-arch index: links the package to this repository.
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: index
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
+            type=semver,pattern={{major}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
+            type=raw,value=latest,enable=${{ inputs.version != '' }}
+            type=raw,value=edge,enable=${{ inputs.version == '' }}
+
+      - name: Create the multi-arch image with its tags
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          args=()
+          while IFS= read -r tag; do args+=(--tag "$tag"); done < <(jq -r '.tags[]' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          while IFS= read -r a; do args+=(--annotation "$a"); done < <(jq -r '.annotations[]' <<< "$DOCKER_METADATA_OUTPUT_JSON")
+          docker buildx imagetools create "${args[@]}" $(printf "$IMAGE@sha256:%s " *)
+
+      - run: docker buildx imagetools inspect "$IMAGE:${{ steps.meta.outputs.version }}"
+
+  release-assets:
+    name: release assets
+    needs: merge
+    if: inputs.version != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      packages: read
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.REF }}
+
+      - run: |
+          echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/back-in-stock" >> "$GITHUB_ENV"
+          mkdir -p dist
+
+      - name: SBOM of the published image
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ env.IMAGE }}:${{ env.VERSION }}
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          format: spdx-json
+          output-file: dist/back-in-stock-${{ env.VERSION }}.sbom.spdx.json
+          upload-artifact: false
+          upload-release-assets: false
+
+      - name: docker-compose.yml pinned to this version
+        run: |
+          sed -e "s#back-in-stock:latest#back-in-stock:$VERSION#" \
+              -e '/# To build from your local copy/,/dockerfile:/d' \
+              docker-compose.yml > "dist/back-in-stock-$VERSION.docker-compose.yml"
+          cat "dist/back-in-stock-$VERSION.docker-compose.yml"
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum back-in-stock-* > "back-in-stock-$VERSION.sha256sums.txt"
+
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "v$VERSION" dist/* --clobber --repo "$GITHUB_REPOSITORY"
