@@ -9,14 +9,20 @@ RUN corepack enable
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/server/package.json apps/server/
 COPY apps/web/package.json apps/web/
+COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm --filter @back-in-stock/server --filter @back-in-stock/web run build
+# "server..." also builds the workspace packages the server depends on (plugin SDK).
+RUN pnpm --filter "@back-in-stock/server..." --filter @back-in-stock/web run build
 
 # Production-only copy of the server and its dependencies (no dev tools, no TS sources).
 RUN pnpm --filter @back-in-stock/server deploy --prod --legacy /out/server
+
+# better-sqlite3 ships its C sources and binaries for every OS: keep only the Alpine (musl) ones.
+RUN find /out/server/node_modules/.pnpm -path '*/node_modules/better-sqlite3' -type d \
+      -exec sh -c 'cd "$1" && rm -rf deps src && find prebuilds -type f ! -name "linuxmusl-*" -delete' _ {} \;
 
 # Files copied from the host keep their permissions (e.g. 600 with a strict umask),
 # which the non-root runtime user could not read. Make everything world-readable.

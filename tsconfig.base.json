@@ -9,6 +9,9 @@
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "resolveJsonModule": true,
+    // Workspace packages export their TypeScript sources under this condition,
+    // so editors, typecheck and tests see changes without building them first.
+    "customConditions": ["@back-in-stock/source"],
 
     "strict": true,
     "noUncheckedIndexedAccess": true,

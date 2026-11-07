@@ -3,6 +3,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { FastifyInstance } from 'fastify';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { defineSourcePlugin } from '@back-in-stock/plugin-sdk';
+import { NotifierRegistry, SourceRegistry } from '../infrastructure/plugins/registry.js';
 import { buildApp } from './app.js';
 
 let app: FastifyInstance | undefined;
@@ -20,6 +22,22 @@ describe('GET /api/health', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.json()).toEqual({ status: 'ok', version: '1.2.3' });
+  });
+});
+
+describe('GET /api/health with a database', () => {
+  it('fails with 503 when the database does not answer', async () => {
+    app = await buildApp({ version: '1.2.3', databasePing: () => false });
+
+    const res = await app.inject({ method: 'GET', url: '/api/health' });
+
+    expect(res.statusCode).toBe(503);
+    expect(res.json()).toEqual({ status: 'error', version: '1.2.3', database: 'unavailable' });
+  });
+
+  it('answers ok when the database answers', async () => {
+    app = await buildApp({ version: '1.2.3', databasePing: () => true });
+    expect((await app.inject({ method: 'GET', url: '/api/health' })).statusCode).toBe(200);
   });
 });
 
@@ -70,5 +88,35 @@ describe('web UI', () => {
     const res = await app.inject({ method: 'GET', url: '/' });
 
     expect(res.statusCode).toBe(404);
+  });
+});
+
+describe('GET /api/plugins', () => {
+  it('lists registered and rejected plugins', async () => {
+    const sources = new SourceRegistry();
+    sources.register(
+      defineSourcePlugin({
+        id: 'fanatec',
+        name: 'Fanatec',
+        version: '1.0.0',
+        supports: ['listing'],
+        match: () => 1,
+        checkListing: async () => ({ items: [], complete: true }),
+      }),
+    );
+    sources.register({ id: 'broken' }, '/data/plugins/broken');
+    app = await buildApp({
+      version: '1.2.3',
+      plugins: { sources, notifiers: new NotifierRegistry() },
+    });
+
+    const res = await app.inject({ method: 'GET', url: '/api/plugins' });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({
+      sources: [{ id: 'fanatec', name: 'Fanatec', version: '1.0.0', supports: ['listing'] }],
+      notifiers: [],
+      rejected: [expect.objectContaining({ origin: '/data/plugins/broken', id: 'broken' })],
+    });
   });
 });

@@ -6,3 +6,7 @@ packages:
 # Packages allowed to run install scripts (pnpm blocks them by default).
 onlyBuiltDependencies:
   - esbuild
+
+# Ships prebuilt binaries (glibc, musl, macOS, Windows): its node-gyp fallback is not needed.
+ignoredBuiltDependencies:
+  - better-sqlite3

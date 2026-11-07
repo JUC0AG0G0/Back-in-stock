@@ -1,3 +1,4 @@
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export interface ServerConfig {
@@ -6,6 +7,8 @@ export interface ServerConfig {
   logLevel: string;
   /** Folder holding the built web UI (index.html + assets). */
   webDir: string;
+  /** SQLite file, inside BIS_DATA_DIR (/data in Docker, ./data in development). */
+  databasePath: string;
 }
 
 // Same relative layout in the repo and in the Docker image: apps/server/dist -> apps/web/dist.
@@ -22,5 +25,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): ServerConfig {
     port,
     logLevel: env.LOG_LEVEL ?? 'info',
     webDir: env.BIS_WEB_DIR ?? defaultWebDir,
+    databasePath: join(resolve(env.BIS_DATA_DIR ?? 'data'), 'back-in-stock.db'),
   };
 }
