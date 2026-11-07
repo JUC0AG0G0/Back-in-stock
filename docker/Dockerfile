@@ -6,7 +6,7 @@ WORKDIR /repo
 RUN corepack enable
 
 # Dependencies first, so this layer stays cached while only source code changes.
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .pnpmfile.cjs ./
 COPY apps/server/package.json apps/server/
 COPY apps/web/package.json apps/web/
 COPY packages/plugin-sdk/package.json packages/plugin-sdk/

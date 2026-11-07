@@ -4,6 +4,8 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+pnpmfileChecksum: sha256-A6Ct/iqcBOppkGuTEOH+BuDJ+3nuDzCvnR/buDbBqx0=
+
 importers:
 
   .:
@@ -104,7 +106,7 @@ importers:
         version: 5.12.8
       i18next:
         specifier: ^27.0.1
-        version: 27.0.1(typescript@6.0.3)
+        version: 27.0.1
     devDependencies:
       '@fastify/swagger':
         specifier: ^9.9.3
@@ -144,7 +146,7 @@ importers:
         version: 0.5.2
       i18next:
         specifier: ^27.0.1
-        version: 27.0.1(typescript@6.0.3)
+        version: 27.0.1
       i18next-browser-languagedetector:
         specifier: ^8.3.0
         version: 8.3.0
@@ -162,7 +164,7 @@ importers:
         version: 19.3.1(react@19.3.1)
       react-i18next:
         specifier: ^18.0.0
-        version: 18.0.0(i18next@27.0.1(typescript@6.0.3))(react@19.3.1)(typescript@6.0.3)
+        version: 18.0.0(i18next@27.0.1)(react@19.3.1)(typescript@6.0.3)
       shadcn:
         specifier: ^4.23.0
         version: 4.23.0
@@ -193,7 +195,7 @@ importers:
     dependencies:
       i18next:
         specifier: ^27.0.1
-        version: 27.0.1(typescript@6.0.3)
+        version: 27.0.1
     devDependencies:
       '@types/node':
         specifier: ^22.20.5
@@ -5157,11 +5159,6 @@ packages:
   i18next@27.0.1:
     resolution: {integrity: sha512-KaE5ozP8UUeVpOJIwMVbbnpRKpyYQuxd9ZbseJoDzezE3nvLnZZQn20pkzyIJwPI2Uet/Qs3WzPTG812f6F/Eg==}
     engines: {node: '>=22'}
-    peerDependencies:
-      typescript: ^5 || ^6 || ^7
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
@@ -14205,9 +14202,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.29.13
 
-  i18next@27.0.1(typescript@6.0.3):
-    optionalDependencies:
-      typescript: 6.0.3
+  i18next@27.0.1: {}
 
   iconv-lite@0.4.24:
     dependencies:
@@ -16128,10 +16123,10 @@ snapshots:
 
   react-fast-compare@3.2.2: {}
 
-  react-i18next@18.0.0(i18next@27.0.1(typescript@6.0.3))(react@19.3.1)(typescript@6.0.3):
+  react-i18next@18.0.0(i18next@27.0.1)(react@19.3.1)(typescript@6.0.3):
     dependencies:
       html-parse-stringify: 4.0.1
-      i18next: 27.0.1(typescript@6.0.3)
+      i18next: 27.0.1
       react: 19.3.1
     optionalDependencies:
       typescript: 6.0.3
