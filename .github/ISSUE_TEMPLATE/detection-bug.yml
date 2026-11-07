@@ -1,0 +1,29 @@
+name: 🔍 Mauvaise détection
+description: Un produit est mal détecté (faux "en stock", article manqué, page en erreur).
+labels: ["detection", "triage"]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: URL de la page
+    validations:
+      required: true
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type de veille
+      options: ["Produit (retour en stock)", "Liste (nouveaux articles)"]
+    validations:
+      required: true
+  - type: input
+    id: plugin
+    attributes:
+      label: Plugin utilisé
+      placeholder: "structured-data, css-rule, fanatec…"
+  - type: textarea
+    id: expected
+    attributes:
+      label: Attendu / obtenu
+      description: Ex. "La page affiche Rupture mais l'application dit En stock".
+    validations:
+      required: true

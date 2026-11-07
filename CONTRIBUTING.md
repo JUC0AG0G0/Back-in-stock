@@ -1,0 +1,63 @@
+# Contribuer à Back in stock !
+
+Merci de ton intérêt ! Les contributions les plus utiles sont **les nouveaux sites** et **les nouveaux moyens de notification**. Ils s'écrivent comme des plugins isolés, sans toucher au cœur de l'application.
+
+## Workflow Git
+
+- `main` est la seule branche principale. Elle est **toujours déployable** et protégée : on ne pousse jamais directement dessus.
+- Chaque modification passe par une **branche courte** créée depuis `main`, puis une **pull request** :
+
+  | Préfixe | Usage |
+  |---|---|
+  | `feat/<sujet>` | Nouvelle fonctionnalité, nouveau site, nouveau notifier |
+  | `fix/<sujet>` | Correction de bug |
+  | `docs/<sujet>` | Documentation |
+  | `refactor/<sujet>` | Refactorisation sans changement de comportement |
+  | `chore/<sujet>`, `ci/<sujet>` | Maintenance, CI, dépendances |
+
+- Les PR sont fusionnées en **squash merge** : un commit par PR sur `main`, et la branche est supprimée automatiquement.
+- Garde les PR **petites** : mieux vaut plusieurs petites PR fusionnées vite qu'une grosse qui traîne.
+
+## Titre de PR : Conventional Commits
+
+Le titre de la PR devient le message du commit sur `main` et sert à générer le changelog et la version. Il est vérifié par la CI.
+
+```
+<type>(<scope optionnel>): <description en minuscule>
+```
+
+| Type | Effet sur la version |
+|---|---|
+| `fix:` | patch (1.2.**3**) |
+| `feat:` | mineure (1.**3**.0) |
+| `feat!:` ou `BREAKING CHANGE:` dans le corps | majeure (**2**.0.0) |
+| `docs:`, `refactor:`, `test:`, `ci:`, `chore:`, `build:`, `perf:` | pas de release seule |
+
+Exemples : `feat(fanatec): detect new refurbished items`, `fix(telegram): escape markdown in product names`.
+
+## Releases
+
+Les releases sont automatiques grâce à [release-please](https://github.com/googleapis/release-please) :
+
+1. À chaque fusion sur `main`, une PR **« chore(main): release x.y.z »** est créée ou mise à jour avec le changelog.
+2. **Fusionner cette PR publie la version** : tag `vX.Y.Z`, release GitHub, images Docker sur GHCR (`latest`, `X.Y.Z`, `X.Y`, `X`).
+3. Les instances auto-hébergées voient alors le bandeau « Nouvelle version disponible ».
+
+## Avant d'ouvrir une PR
+
+```bash
+pnpm install
+pnpm lint && pnpm typecheck && pnpm test
+```
+
+- Ajoute ou mets à jour les tests. Un plugin de site doit fournir des **pages HTML enregistrées** (fixtures).
+- Tout texte de l'interface doit exister en **français et en anglais**.
+- Mets à jour la documentation si ton changement la concerne.
+
+## Ajouter un site ou un moyen de notification
+
+Les guides pas à pas seront publiés dans la documentation (Docusaurus) : « Ajouter un site » et « Ajouter un notifier ». En attendant, le contrat des plugins est décrit dans [SPEC.md](./SPEC.md#4-système-de-plugins).
+
+## Code de conduite
+
+Ce projet suit le [code de conduite](./CODE_OF_CONDUCT.md). En participant, tu acceptes de le respecter.
