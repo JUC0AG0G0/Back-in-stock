@@ -30,6 +30,3 @@ jobs:
             chore
             revert
           requireScope: false
-          subjectPattern: ^[a-z].+$
-          subjectPatternError: |
-            Le sujet "{subject}" du titre "{title}" doit commencer par une minuscule.
