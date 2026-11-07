@@ -1,0 +1,55 @@
+---
+sidebar_position: 2
+title: Démarrage rapide
+---
+
+# Démarrage rapide
+
+Il te faut une machine avec [Docker](https://docs.docker.com/get-docker/) et Docker Compose : un NAS, un Raspberry Pi 4 ou plus, un petit serveur ou ton ordinateur.
+
+## 1. Créer le fichier `docker-compose.yml`
+
+```yaml title="docker-compose.yml"
+services:
+  back-in-stock:
+    image: ghcr.io/juc0ag0g0/back-in-stock:latest
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./data:/data
+    environment:
+      TZ: Europe/Paris
+```
+
+Le dossier `./data` contient toute la base de données (fichier SQLite). C'est le seul dossier à sauvegarder.
+
+## 2. Démarrer
+
+```bash
+docker compose up -d
+```
+
+Ouvre ensuite [http://localhost:8080](http://localhost:8080) (ou l'adresse de ta machine sur le port 8080).
+
+## 3. Vérifier que tout fonctionne
+
+```bash
+curl http://localhost:8080/api/health
+# {"status":"ok","version":"0.1.0"}
+```
+
+Docker suit aussi cet état : `docker compose ps` affiche `healthy` quand l'application est prête.
+
+## Mettre à jour
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+Tes données dans `./data` sont conservées, et la base est migrée automatiquement au démarrage.
+
+:::info À venir
+Un assistant de premier lancement te guidera pour configurer ton premier canal de notification (Telegram ou email) et ajouter ta première veille. Une mise à jour en un clic sera aussi proposée depuis l'interface.
+:::

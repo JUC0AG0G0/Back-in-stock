@@ -1,0 +1,12 @@
+{
+  // Only used for editor support and `pnpm typecheck`: Docusaurus compiles the site itself.
+  "extends": "@docusaurus/tsconfig",
+  "compilerOptions": {
+    // The preset still sets baseUrl, deprecated in TypeScript 6: use a relative path instead.
+    "baseUrl": null,
+    "paths": { "@site/*": ["./*"] },
+    "strict": true,
+    "noEmit": true
+  },
+  "include": ["docusaurus.config.ts", "sidebars.ts", "src"]
+}

@@ -50,7 +50,7 @@ Ouvre ensuite <http://localhost:8080> : l'assistant te guide pour créer ton com
 
 ## Documentation
 
-La documentation complète (installation, configuration de chaque canal, écrire un plugin) sera publiée sur **<https://juc0ag0g0.github.io/back-in-stock/>**.
+La documentation complète (installation, configuration de chaque canal, écrire un plugin) est sur **<https://juc0ag0g0.github.io/Back-in-stock/>** (en français et en anglais).
 
 ## Contribuer
 

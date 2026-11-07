@@ -56,7 +56,7 @@ pnpm lint && pnpm typecheck && pnpm test
 
 ## Ajouter un site ou un moyen de notification
 
-Les guides pas à pas seront publiés dans la documentation (Docusaurus) : « Ajouter un site » et « Ajouter un notifier ». En attendant, le contrat des plugins est décrit dans [SPEC.md](./SPEC.md#4-système-de-plugins).
+Les guides sont dans la documentation : [Écrire un plugin](https://juc0ag0g0.github.io/Back-in-stock/plugins/overview). Leurs sources sont dans `apps/docs/` (`pnpm docs:dev` pour la lancer en local). Le contrat complet est décrit dans [SPEC.md](./SPEC.md#4-système-de-plugins).
 
 ## Code de conduite
 

@@ -10,7 +10,8 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "pnpm --parallel --filter './apps/*' run dev",
+    "dev": "pnpm --parallel --filter @back-in-stock/server --filter @back-in-stock/web run dev",
+    "docs:dev": "pnpm --filter @back-in-stock/docs run dev",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
