@@ -14,7 +14,8 @@ RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm --filter @back-in-stock/server --filter @back-in-stock/web run build
+# "server..." also builds the workspace packages the server depends on (plugin SDK).
+RUN pnpm --filter "@back-in-stock/server..." --filter @back-in-stock/web run build
 
 # Production-only copy of the server and its dependencies (no dev tools, no TS sources).
 RUN pnpm --filter @back-in-stock/server deploy --prod --legacy /out/server
