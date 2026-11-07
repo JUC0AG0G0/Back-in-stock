@@ -1,5 +1,5 @@
 export { DomainError } from './errors.js';
-export type { DomainEvent, DomainEventType } from './events.js';
+export type { DomainEvent, DomainEventType, ProductStatus } from './events.js';
 export {
   defaultListingTrackerOptions,
   initialListingState,
@@ -10,6 +10,16 @@ export {
   type ListingTrackerOptions,
   type ListingTransition,
 } from './listing-tracker.js';
+export {
+  checkNotificationRules,
+  defaultNotificationRules,
+  EVENT_TYPES,
+  routeEvent,
+  type NotificationOverrides,
+  type NotificationRule,
+  type NotificationRules,
+  type RoutingContext,
+} from './notification-routing.js';
 export {
   initialProductState,
   trackProduct,

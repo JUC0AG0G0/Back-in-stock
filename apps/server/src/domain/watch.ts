@@ -1,5 +1,6 @@
 import type { WatchType } from '@back-in-stock/plugin-sdk';
 import { DomainError } from './errors.js';
+import type { NotificationOverrides } from './notification-routing.js';
 import { Interval, Url } from './value-objects.js';
 
 /** A monitored URL (SPEC §2). */
@@ -15,6 +16,8 @@ export interface Watch {
   active: boolean;
   confirmRestock: boolean;
   channelIds: readonly string[];
+  /** Per watch exceptions to the global notification rules. */
+  notificationOverrides: NotificationOverrides;
 }
 
 export interface NewWatch {
@@ -27,6 +30,7 @@ export interface NewWatch {
   active?: boolean;
   confirmRestock?: boolean;
   channelIds?: readonly string[];
+  notificationOverrides?: NotificationOverrides;
 }
 
 export function createWatch(input: NewWatch): Watch {
@@ -45,6 +49,7 @@ export function createWatch(input: NewWatch): Watch {
     active: input.active ?? true,
     confirmRestock: input.confirmRestock ?? true,
     channelIds: [...new Set(input.channelIds ?? [])],
+    notificationOverrides: input.notificationOverrides ?? {},
   };
 }
 

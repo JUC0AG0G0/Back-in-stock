@@ -19,26 +19,34 @@ const page = (ids: string[], complete = true): ListingObservation => ({
 });
 const error: ListingObservation = { kind: 'error' };
 
-/** Runs a sequence of checks and returns the events as "Added:a", "Removed:b". */
+/**
+ * Runs a sequence of checks and returns the item events as "Added:a", "Removed:b".
+ * WatchStarted is returned apart, as the item count it announced.
+ */
 function run(observations: ListingObservation[], removeAfterMisses = 3) {
   let state: ListingState = initialListingState;
   const events: string[] = [];
   const suspected: boolean[] = [];
+  const started: number[] = [];
   for (const observation of observations) {
     const result = trackListing(state, observation, { removeAfterMisses });
     state = result.state;
     suspected.push(result.suspectedError);
     for (const event of result.events) {
+      if (event.type === 'WatchStarted' && event.watchType === 'listing') {
+        started.push(event.itemCount);
+      }
       if (event.type === 'ListingItemAdded') events.push(`Added:${event.item.id}`);
       if (event.type === 'ListingItemRemoved') events.push(`Removed:${event.item.id}`);
     }
   }
-  return { state, events, suspected };
+  return { state, events, suspected, started };
 }
 
 describe('trackListing', () => {
-  it('uses the first check as reference without notifying', () => {
-    const { state, events } = run([page(['a', 'b'])]);
+  it('uses the first check as reference and only sends WatchStarted with the count', () => {
+    const { state, events, started } = run([page(['a', 'b']), page(['a', 'b'])]);
+    expect(started).toEqual([2]);
     expect(events).toEqual([]);
     expect(state.baselined).toBe(true);
     expect([...state.items.keys()]).toEqual(['a', 'b']);
@@ -52,7 +60,8 @@ describe('trackListing', () => {
   });
 
   it('never uses an empty page as reference', () => {
-    const { state, events } = run([page([]), page(['a', 'b']), page(['a', 'b', 'c'])]);
+    const { state, events, started } = run([page([]), page(['a', 'b']), page(['a', 'b', 'c'])]);
+    expect(started).toEqual([2]);
     expect(events).toEqual(['Added:c']);
     expect(state.items.size).toBe(3);
   });

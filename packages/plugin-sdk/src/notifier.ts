@@ -2,8 +2,10 @@ import type { ZodType } from 'zod';
 import type { Fetcher, Logger, Price } from './common.js';
 
 export type NotificationEventType =
+  | 'WatchStarted'
   | 'ProductRestocked'
   | 'ProductOutOfStock'
+  | 'ProductPreorder'
   | 'ListingItemAdded'
   | 'ListingItemRemoved'
   | 'WatchFailing'

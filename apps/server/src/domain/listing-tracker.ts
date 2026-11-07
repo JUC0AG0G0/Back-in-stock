@@ -7,7 +7,8 @@ import { ItemId } from './value-objects.js';
  * Diff of a `listing` watch (e.g. a refurbished page): which items appeared or disappeared.
  *
  * Rules (SPEC §2 and §5):
- * - The first non-empty check is the reference: it never notifies.
+ * - The first non-empty check is the reference: it sends `WatchStarted` with the item count,
+ *   but no `ListingItemAdded` for items that were already there.
  * - An id not currently known gives `ListingItemAdded` (an item coming back after removal counts).
  * - An empty list after a non-empty one is a probable error (block, layout change), not "everything sold".
  * - An item is removed only after missing from `removeAfterMisses` complete checks in a row.
@@ -92,7 +93,11 @@ export function trackListing(
 
   if (!state.baselined) {
     const items = new Map(current.map((item) => [item.id, { item, missingCount: 0 }]));
-    return { state: { baselined: true, items }, events: [], suspectedError: false };
+    return {
+      state: { baselined: true, items },
+      events: [{ type: 'WatchStarted', watchType: 'listing', itemCount: items.size }],
+      suspectedError: false,
+    };
   }
 
   const events: DomainEvent[] = [];
