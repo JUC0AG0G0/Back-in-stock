@@ -25,6 +25,8 @@
     "i18next": "^27.0.1"
   },
   "devDependencies": {
+    "@fastify/swagger": "^9.9.3",
+    "@fastify/swagger-ui": "^6.1.3",
     "@types/better-sqlite3": "^9.6.0",
     "@types/node": "^22.20.5",
     "drizzle-kit": "^0.31.11",

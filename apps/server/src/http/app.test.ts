@@ -120,3 +120,33 @@ describe('GET /api/plugins', () => {
     });
   });
 });
+
+describe('API docs (Swagger)', () => {
+  it('are not served unless enabled', async () => {
+    app = await buildApp({ version: '1.2.3' });
+
+    expect((await app.inject({ method: 'GET', url: '/api/docs' })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'GET', url: '/api/docs/json' })).statusCode).toBe(404);
+  });
+
+  it('serve the UI and an OpenAPI document listing the routes when enabled', async () => {
+    app = await buildApp({
+      version: '1.2.3',
+      apiDocs: true,
+      plugins: { sources: new SourceRegistry(), notifiers: new NotifierRegistry() },
+    });
+
+    const ui = await app.inject({ method: 'GET', url: '/api/docs/' });
+    expect(ui.statusCode).toBe(200);
+    expect(ui.headers['content-type']).toContain('text/html');
+
+    const doc = (await app.inject({ method: 'GET', url: '/api/docs/json' })).json<{
+      openapi: string;
+      info: { version: string };
+      paths: Record<string, unknown>;
+    }>();
+    expect(doc.openapi).toMatch(/^3\./);
+    expect(doc.info.version).toBe('1.2.3');
+    expect(Object.keys(doc.paths)).toEqual(expect.arrayContaining(['/api/health', '/api/plugins']));
+  });
+});
