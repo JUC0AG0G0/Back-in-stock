@@ -41,6 +41,17 @@ curl http://localhost:8080/api/health
 
 Docker suit aussi cet état : `docker compose ps` affiche `healthy` quand l'application est prête.
 
+## Choisir la version de l'image
+
+| Tag      | Contenu                                                                           |
+| -------- | --------------------------------------------------------------------------------- |
+| `latest` | Dernière version publiée.                                                         |
+| `0.1.0`  | Une version précise, qui ne change jamais.                                        |
+| `0.1`    | Dernière version corrective de la 0.1 (0.1.0, 0.1.1…).                            |
+| `edge`   | Version de développement, reconstruite à chaque modification. Peut être instable. |
+
+Chaque [release](https://github.com/JUC0AG0G0/Back-in-stock/releases) fournit aussi un `docker-compose.yml` déjà réglé sur sa version, la liste des composants de l'image (SBOM) et un fichier de sommes de contrôle. L'image existe pour `amd64` (PC, NAS Intel) et `arm64` (Raspberry Pi, Mac Apple Silicon).
+
 ## Mettre à jour
 
 ```bash

@@ -40,7 +40,8 @@ Exemples : `feat(fanatec): detect new refurbished items`, `fix(telegram): escape
 Les releases sont automatiques grâce à [release-please](https://github.com/googleapis/release-please) :
 
 1. À chaque fusion sur `main`, une PR **« chore(main): release x.y.z »** est créée ou mise à jour avec le changelog.
-2. **Fusionner cette PR publie la version** : tag `vX.Y.Z`, release GitHub, images Docker sur GHCR (`latest`, `X.Y.Z`, `X.Y`, `X`).
+2. **Fusionner cette PR publie la version** : tag `vX.Y.Z`, release GitHub, images Docker sur GHCR (`latest`, `X.Y.Z`, `X.Y`, `X`), et en assets de la release : `docker-compose.yml` réglé sur la version, SBOM et sommes de contrôle.
+   Chaque fusion sur `main` publie aussi l'image `edge` (version de développement).
 3. Les instances auto-hébergées voient alors le bandeau « Nouvelle version disponible ».
 
 ## Avant d'ouvrir une PR
