@@ -255,16 +255,36 @@ jobs:
           echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/back-in-stock" >> "$GITHUB_ENV"
           mkdir -p dist
 
+      # syft runs from its container image instead of anchore/sbom-action: the action downloads
+      # syft from github.com/anchore/syft/releases, which answered 504 on the v0.2.0 release.
+      # Two registries and a few retries, and a missing SBOM only warns: the compose file and
+      # install scripts users need are still attached to the release.
       - name: SBOM of the published image
-        uses: anchore/sbom-action@v0
-        with:
-          image: ${{ env.IMAGE }}:${{ env.VERSION }}
-          registry-username: ${{ github.actor }}
-          registry-password: ${{ secrets.GITHUB_TOKEN }}
-          format: spdx-json
-          output-file: dist/back-in-stock-${{ env.VERSION }}.sbom.spdx.json
-          upload-artifact: false
-          upload-release-assets: false
+        id: sbom
+        continue-on-error: true
+        env:
+          SYFT_VERSION: v1.42.3
+          SYFT_REGISTRY_AUTH_AUTHORITY: ghcr.io
+          SYFT_REGISTRY_AUTH_USERNAME: ${{ github.actor }}
+          SYFT_REGISTRY_AUTH_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          out="dist/back-in-stock-$VERSION.sbom.spdx.json"
+          for attempt in 1 2 3 4; do
+            for syft in "ghcr.io/anchore/syft:$SYFT_VERSION" "docker.io/anchore/syft:$SYFT_VERSION"; do
+              if docker run --rm \
+                  -e SYFT_REGISTRY_AUTH_AUTHORITY -e SYFT_REGISTRY_AUTH_USERNAME -e SYFT_REGISTRY_AUTH_PASSWORD \
+                  "$syft" scan "registry:$IMAGE:$VERSION" -o spdx-json > "$out.tmp"; then
+                mv "$out.tmp" "$out"
+                echo "SBOM written with $syft (attempt $attempt)"
+                exit 0
+              fi
+              echo "::warning::syft via $syft failed (attempt $attempt)"
+            done
+            sleep $((attempt * 15))
+          done
+          rm -f "$out.tmp"
+          echo "::warning::No SBOM for $VERSION: the other assets are attached anyway. Run 'Docker image' by hand with this version to add it."
+          exit 1
 
       - name: docker-compose.yml pinned to this version
         run: |
