@@ -6,7 +6,7 @@
 
 Open source · Auto-hébergé · Sans serveur central · TypeScript · Docker · 🇫🇷 / 🇬🇧
 
-[![CI](https://github.com/JUC0AG0G0/Back-in-stock/actions/workflows/ci.yml/badge.svg)](https://github.com/JUC0AG0G0/Back-in-stock/actions/workflows/ci.yml)
+[![Docker image](https://github.com/JUC0AG0G0/Back-in-stock/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/JUC0AG0G0/Back-in-stock/actions/workflows/docker-publish.yml)
 [![Release](https://img.shields.io/github/v/release/JUC0AG0G0/Back-in-stock?include_prereleases&sort=semver)](https://github.com/JUC0AG0G0/Back-in-stock/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
