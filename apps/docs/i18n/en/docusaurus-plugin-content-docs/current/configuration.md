@@ -15,6 +15,8 @@ The server is configured with environment variables, in the `environment` sectio
 | `LOG_LEVEL`    | `info`           | `debug`, `info`, `warn` or `error`.                                           |
 | `TZ`           | (none)           | Time zone, e.g. `Europe/Paris`, for displayed times and quiet hours.          |
 
+The variables of the new version check and the one-click update (`BIS_UPDATE_CHECK`, `BIS_UPDATE_CHANNEL`, `BIS_UPDATER_URL`) are described in [Updates](updates.md#settings).
+
 ## Language
 
 The interface follows your browser's language (English or French, English otherwise). You can change it with the switcher at the top of the screen: your choice is remembered.

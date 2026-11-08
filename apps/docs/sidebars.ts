@@ -7,7 +7,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Utiliser',
       collapsed: false,
-      items: ['getting-started', 'configuration'],
+      items: ['getting-started', 'configuration', 'updates'],
     },
     {
       type: 'category',

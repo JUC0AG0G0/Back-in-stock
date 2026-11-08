@@ -43,5 +43,46 @@
       "text": "N'est plus proposé sur {{watch}}."
     },
     "price": "Prix : {{price}}"
+  },
+  "update": {
+    "available": "Version {{latest}} disponible (tu as {{current}})",
+    "breakingWarning": "Cette version contient des changements cassants : lis le guide de migration avant d'installer.",
+    "migrationGuide": "Guide de migration",
+    "whatsNew": "Voir les nouveautés",
+    "install": "Installer",
+    "later": "Plus tard",
+    "close": "Fermer",
+    "changelogTitle": "Nouveautés depuis la {{current}}",
+    "changelogDescription": "Notes de version publiées sur GitHub, de la plus récente à la plus ancienne.",
+    "prerelease": "pré-version",
+    "breaking": "changements cassants",
+    "openOnGitHub": "Voir sur GitHub",
+    "confirmTitle": "Installer la version {{version}} ?",
+    "confirmText": "L'application va s'arrêter quelques instants, le temps de télécharger la nouvelle version et de redémarrer. Tes données sont conservées et la base est sauvegardée avant la mise à jour. En cas de problème, l'ancienne version est remise automatiquement.",
+    "confirm": "Mettre à jour maintenant",
+    "cancel": "Annuler",
+    "manualTitle": "Installer la version {{version}}",
+    "manualText": "La mise à jour en un clic n'est pas activée sur cette installation. Lance ces commandes dans le dossier qui contient ton docker-compose.yml :",
+    "manualPinned": "Si BIS_IMAGE_TAG est une version précise dans ton fichier .env, remplace-la d'abord par {{version}}.",
+    "manualReason": "Raison : {{message}}",
+    "docsLink": "Mise à jour : la documentation",
+    "copy": "Copier",
+    "copied": "Copié",
+    "steps": {
+      "starting": "Démarrage de la mise à jour…",
+      "pull": "Téléchargement de la version {{version}}…",
+      "backup": "Sauvegarde de la base de données…",
+      "recreate": "Redémarrage sur la nouvelle version…",
+      "healthcheck": "Vérification que la nouvelle version fonctionne…",
+      "rollback": "Problème détecté : retour à la version précédente…",
+      "restarting": "L'application redémarre…"
+    },
+    "progressTitle": "Mise à jour vers la {{version}}",
+    "progressHint": "Ne ferme pas cette page : elle se rechargera toute seule.",
+    "succeeded": "Mise à jour réussie : tu utilises maintenant la version {{version}}.",
+    "failed": "La mise à jour vers la {{version}} a échoué : {{message}}",
+    "rolledBack": "La mise à jour vers la {{version}} a échoué, l'ancienne version a été remise et tes données restaurées. Détail : {{message}}",
+    "timeout": "La mise à jour prend plus de temps que prévu. Vérifie l'état des conteneurs avec docker compose ps.",
+    "dismiss": "OK"
   }
 }

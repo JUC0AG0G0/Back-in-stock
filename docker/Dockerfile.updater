@@ -1,0 +1,30 @@
+# syntax=docker/dockerfile:1
+
+# Optional companion service for the one-click update (SPEC §7quater, apps/updater).
+# No dependency besides Node: it talks to the Docker API over the mounted socket.
+# Pure JavaScript: the build stage runs on the native platform, the runtime stage only copies files,
+# so a multi-arch build needs no emulation.
+
+FROM --platform=$BUILDPLATFORM node:22-alpine AS build
+WORKDIR /repo
+RUN corepack enable
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .pnpmfile.cjs tsconfig.base.json ./
+COPY apps/updater/package.json apps/updater/
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile --filter @back-in-stock/updater
+COPY apps/updater apps/updater
+RUN pnpm --filter @back-in-stock/updater run build && chmod -R a+rX apps/updater/dist
+
+FROM node:22-alpine AS runtime
+ENV NODE_ENV=production \
+    BIS_DATA_DIR=/data \
+    BIS_UPDATER_PORT=8090
+WORKDIR /app
+COPY --from=build /repo/apps/updater/package.json ./package.json
+COPY --from=build /repo/apps/updater/dist ./dist
+# Runs as root: the Docker socket and the files of /data (owned by the app user) need it.
+# Never publish its port: only the app reaches it, on the compose network.
+EXPOSE 8090
+HEALTHCHECK --interval=60s --timeout=5s --start-period=10s \
+  CMD wget -qO- "http://127.0.0.1:${BIS_UPDATER_PORT}/health" > /dev/null || exit 1
+CMD ["node", "dist/main.js"]
