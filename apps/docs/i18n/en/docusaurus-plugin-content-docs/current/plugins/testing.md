@@ -14,7 +14,7 @@ The app can test its plugins live, from the UI or the API. Nothing is saved: no 
 
 ## From the UI
 
-The **Test plugins** panel lists the loaded plugins.
+The **Plugins** page of the UI lists the loaded plugins.
 
 - **Test all plugins** runs every test at once and shows a summary (passed, failed, skipped).
 - **Test** on a row tests only that plugin. For a source, you can type a URL and pick the watch type: that page is read instead of the example pages.

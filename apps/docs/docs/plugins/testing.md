@@ -14,7 +14,7 @@ L'application sait tester ses plugins en direct, depuis l'interface ou l'API. Ri
 
 ## Depuis l'interface
 
-Le panneau **Tester les plugins** liste les plugins chargés.
+La page **Plugins** de l’interface liste les plugins chargés.
 
 - **Tester tous les plugins** lance tous les tests d'un coup et affiche un récapitulatif (réussis, échecs, ignorés).
 - **Tester** sur une ligne ne teste que ce plugin. Pour une source, tu peux saisir une URL et choisir le type de veille : la page saisie est lue à la place des pages d'exemple.
