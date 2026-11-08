@@ -7,10 +7,19 @@ on:
 permissions:
   pull-requests: read
 
+# release-please edits its PR (body, then push) at every merge on main: keep only the last run.
+concurrency:
+  group: pr-title-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   pr-title:
     name: pr-title
+    # An edit that leaves the title alone (body, labels…) has nothing to check. The job is then
+    # skipped, which satisfies the required check like a success.
+    if: github.event.action != 'edited' || github.event.changes.title
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       # Le titre de la PR devient le message du commit squashé sur main
       # et alimente le changelog : il doit suivre Conventional Commits.
