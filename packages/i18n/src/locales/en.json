@@ -43,5 +43,46 @@
       "text": "No longer listed on {{watch}}."
     },
     "price": "Price: {{price}}"
+  },
+  "update": {
+    "available": "Version {{latest}} is available (you have {{current}})",
+    "breakingWarning": "This version has breaking changes: read the migration guide before installing.",
+    "migrationGuide": "Migration guide",
+    "whatsNew": "What's new",
+    "install": "Install",
+    "later": "Later",
+    "close": "Close",
+    "changelogTitle": "What's new since {{current}}",
+    "changelogDescription": "Release notes published on GitHub, newest first.",
+    "prerelease": "pre-release",
+    "breaking": "breaking changes",
+    "openOnGitHub": "View on GitHub",
+    "confirmTitle": "Install version {{version}}?",
+    "confirmText": "The app will stop for a few moments while the new version downloads and restarts. Your data is kept and the database is backed up before the update. If anything goes wrong, the previous version is put back automatically.",
+    "confirm": "Update now",
+    "cancel": "Cancel",
+    "manualTitle": "Install version {{version}}",
+    "manualText": "One-click update is not enabled on this installation. Run these commands in the folder that holds your docker-compose.yml:",
+    "manualPinned": "If BIS_IMAGE_TAG is an exact version in your .env file, change it to {{version}} first.",
+    "manualReason": "Reason: {{message}}",
+    "docsLink": "Updating: the documentation",
+    "copy": "Copy",
+    "copied": "Copied",
+    "steps": {
+      "starting": "Starting the update…",
+      "pull": "Downloading version {{version}}…",
+      "backup": "Backing up the database…",
+      "recreate": "Restarting on the new version…",
+      "healthcheck": "Checking that the new version works…",
+      "rollback": "Something went wrong: going back to the previous version…",
+      "restarting": "The app is restarting…"
+    },
+    "progressTitle": "Updating to {{version}}",
+    "progressHint": "Keep this page open: it reloads by itself.",
+    "succeeded": "Update complete: you are now on version {{version}}.",
+    "failed": "The update to {{version}} failed: {{message}}",
+    "rolledBack": "The update to {{version}} failed, so the previous version and your data were restored. Details: {{message}}",
+    "timeout": "The update is taking longer than expected. Check the containers with docker compose ps.",
+    "dismiss": "OK"
   }
 }

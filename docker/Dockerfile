@@ -32,10 +32,18 @@ RUN chmod -R a+rX /repo/package.json /repo/apps/web/dist /out
 # ---- runtime: small image that only runs the app ----
 FROM node:22-alpine AS runtime
 
+# Set by the publish workflow. "release" turns on the new version banner (SPEC §7quater);
+# edge and local builds ("dev") never look for updates. BIS_VERSION lets the updater
+# check which version an image holds before switching to it.
+ARG BIS_BUILD_CHANNEL=dev
+ARG BIS_VERSION=dev
+
 ENV NODE_ENV=production \
     HOST=0.0.0.0 \
     PORT=8080 \
-    BIS_DATA_DIR=/data
+    BIS_DATA_DIR=/data \
+    BIS_BUILD_CHANNEL=$BIS_BUILD_CHANNEL \
+    BIS_VERSION=$BIS_VERSION
 
 # Same layout as the repo, so relative paths (version, web UI) work unchanged.
 WORKDIR /app

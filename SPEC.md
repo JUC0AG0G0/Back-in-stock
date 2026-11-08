@@ -272,6 +272,7 @@ Un plugin sans `setupGuide` reste utilisable : l'interface affiche simplement le
 - Le serveur interroge l'API GitHub Releases (`/repos/juc0ag0g0/back-in-stock/releases`) **toutes les 6 h**, avec cache et en-tête `If-None-Match` pour rester léger.
 - Il compare la version publiée à la sienne (`BIS_VERSION`, injectée dans l'image au build) en **semver**.
 - Canal de mise à jour réglable : **stable** (par défaut, releases uniquement) ou **pré-versions** (`-rc`, `-beta`).
+- Seules les **images publiées** vérifient : le workflow de publication injecte `BIS_BUILD_CHANNEL=release` et `BIS_VERSION` dans les images de release. Les images `edge` (`BIS_BUILD_CHANNEL=edge`) et les builds locaux (`dev`) ne cherchent jamais de mise à jour.
 - Désactivable (`BIS_UPDATE_CHECK=false`, ou dans *Paramètres*). C'est la seule requête sortante de l'application en dehors des sites surveillés et des canaux, et la doc le dit clairement.
 
 ### Bandeau dans l'interface
@@ -291,15 +292,16 @@ Un conteneur ne peut pas se remplacer lui-même. On ajoute donc un **petit servi
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./data:/data
+      - .:/install          # pour réécrire BIS_IMAGE_TAG dans .env quand la version est épinglée
     environment:
-      BIS_TARGET_CONTAINER: back-in-stock
-    # pas de port exposé : joignable uniquement par l'application, sur le réseau interne
+      BIS_TARGET_SERVICE: back-in-stock   # ou BIS_TARGET_CONTAINER: <nom> hors compose
+    # pas de port exposé : joignable uniquement par l'application (BIS_UPDATER_URL=http://updater:8090)
 ```
 
 Quand on clique sur **Installer** :
 1. L'application appelle l'`updater` sur le réseau Docker interne, avec un jeton partagé généré au premier démarrage et stocké dans `/data`.
-2. L'`updater` **sauvegarde la base** (`/data/backups/db-<version>-<date>.sqlite`).
-3. Il télécharge la nouvelle image (en gardant la variante `slim` ou `full`).
+2. Il télécharge la nouvelle image (en gardant la variante `slim` ou `full`) pendant que l'application tourne encore, et vérifie qu'elle contient bien la version demandée. Tag flottant (`latest`, `1`, `1.4`) : il est retéléchargé. Version précise (`1.4.2`) : il passe au tag de la nouvelle version et réécrit la ligne `BIS_IMAGE_TAG` de `.env`.
+3. Il arrête proprement l'application et **sauvegarde la base** (`/data/backups/db-<version>-<date>.sqlite`).
 4. Il recrée le conteneur avec la même configuration (volumes, variables, ports, réseaux).
 5. Il attend que le **healthcheck** passe. Les migrations de base s'appliquent au démarrage.
 6. Si le healthcheck échoue, il fait un **rollback automatique** : il remet l'ancienne image et restaure la sauvegarde.

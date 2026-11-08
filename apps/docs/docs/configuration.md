@@ -15,6 +15,8 @@ Le serveur se règle avec des variables d'environnement, à mettre dans la secti
 | `LOG_LEVEL`    | `info`          | `debug`, `info`, `warn` ou `error`.                                                               |
 | `TZ`           | (aucun)         | Fuseau horaire, par exemple `Europe/Paris`, pour les heures affichées et les plages silencieuses. |
 
+Les variables de la vérification de nouvelle version et de la mise à jour en un clic (`BIS_UPDATE_CHECK`, `BIS_UPDATE_CHANNEL`, `BIS_UPDATER_URL`) sont décrites dans [Mises à jour](updates.md#settings).
+
 ## Langue
 
 L'interface suit la langue de ton navigateur (français ou anglais, anglais par défaut sinon). Tu peux en changer avec le sélecteur en haut de l'écran : ton choix est mémorisé.
