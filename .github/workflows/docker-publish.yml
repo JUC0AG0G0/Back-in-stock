@@ -5,6 +5,7 @@ name: Docker image
 #   - every release (release-please calls this workflow) → :X.Y.Z, :X.Y, :X, :latest,
 #     plus docker-compose.yml, install scripts, SBOM and checksums attached to the GitHub release
 #   - by hand (Actions → Docker image → Run workflow) to republish an existing release
+# then deletes the untagged image versions (every tagged one is kept).
 #
 # Each architecture builds on its own native runner (no QEMU emulation, which crashes Node
 # on arm64), is smoke-tested, then pushed by digest. The "merge" job then names them.
@@ -252,6 +253,24 @@ jobs:
           provenance: false
           sbom: false
           cache-from: type=gha,scope=updater
+
+  # Deletes the untagged versions of both images. Tagged ones (versions, edge-<commit>) are
+  # always kept, with the platform images of each multi-arch image. Only versions older than
+  # a day: a build running in parallel pushes its platform images untagged until its "tag" job.
+  cleanup:
+    name: cleanup untagged images
+    needs: [merge, updater]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      packages: write
+    steps:
+      - uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          packages: back-in-stock,back-in-stock-updater
+          delete-untagged: true
+          older-than: 1 day
+          validate: true
 
   release-assets:
     name: release assets
