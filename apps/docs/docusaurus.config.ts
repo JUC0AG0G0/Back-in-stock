@@ -34,7 +34,7 @@ const config: Config = {
       'classic',
       {
         docs: {
-          routeBasePath: '/', // The docs are the whole site: no separate landing page.
+          routeBasePath: '/', // Docs live at the root (/getting-started…); src/pages/index.tsx is the home page.
           sidebarPath: './sidebars.ts',
           editUrl: `${repoUrl}/edit/main/apps/docs/`,
         },
@@ -50,12 +50,30 @@ const config: Config = {
       title: 'Back in stock !',
       logo: { alt: '', src: 'img/favicon.svg' },
       items: [
+        { type: 'doc', docId: 'intro', label: 'Documentation', position: 'left' },
         { type: 'localeDropdown', position: 'right' },
         { href: repoUrl, label: 'GitHub', position: 'right' },
       ],
     },
     footer: {
       style: 'dark',
+      links: [
+        {
+          title: 'Documentation',
+          items: [
+            { label: 'Démarrage rapide', to: '/getting-started' },
+            { label: 'Écrire un plugin', to: '/plugins/overview' },
+          ],
+        },
+        {
+          title: 'Projet',
+          items: [
+            { label: 'GitHub', href: repoUrl },
+            { label: 'Releases', href: `${repoUrl}/releases` },
+            { label: 'Mentions légales', to: '/legal' },
+          ],
+        },
+      ],
       copyright: `MIT · ${new Date().getFullYear()} Back in stock ! contributors`,
     },
     prism: {

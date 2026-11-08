@@ -1,0 +1,83 @@
+{
+  "home.feature.selfhosted.title": {
+    "message": "Yours, on your own machine"
+  },
+  "home.feature.selfhosted.description": {
+    "message": "One Docker container and one SQLite file on your machine. No central server, no account, no telemetry."
+  },
+  "home.feature.watch.title": {
+    "message": "Two ways to watch"
+  },
+  "home.feature.watch.description": {
+    "message": "A product page (restock, out of stock, preorder) or a listing page, like the Fanatec refurbished page, to spot every new item."
+  },
+  "home.feature.notify.title": {
+    "message": "Notified where you are"
+  },
+  "home.feature.notify.description": {
+    "message": "Telegram today, email next, with several accounts per channel if you want."
+  },
+  "home.feature.frequency.title": {
+    "message": "At your own pace"
+  },
+  "home.feature.frequency.description": {
+    "message": "A default check frequency, which you can tune product by product."
+  },
+  "home.feature.plugins.title": {
+    "message": "Extensible with plugins"
+  },
+  "home.feature.plugins.description": {
+    "message": "Every site and every notification channel is an isolated module written in TypeScript. You can add one without touching the core."
+  },
+  "home.feature.updates.title": {
+    "message": "Always up to date"
+  },
+  "home.feature.updates.description": {
+    "message": "A banner tells you about each new version, and you can install it in one click from the interface."
+  },
+  "home.tagline": {
+    "message": "Get notified as soon as a product is back in stock, or a new item shows up. Open source, self-hosted, in English and French."
+  },
+  "home.cta.start": {
+    "message": "Get started in 2 minutes"
+  },
+  "home.cta.docs": {
+    "message": "Read the docs"
+  },
+  "home.install.title": {
+    "message": "One-command install"
+  },
+  "home.install.description": {
+    "message": "On macOS or Linux, with Docker installed. The script asks a few questions, starts the app and shows you its address."
+  },
+  "home.install.more": {
+    "message": "Windows, manual install with Docker Compose, picking a version: it's all in {link}."
+  },
+  "home.install.more.link": {
+    "message": "Getting started"
+  },
+  "home.links.start": {
+    "message": "Install and configure"
+  },
+  "home.links.telegram": {
+    "message": "Create your Telegram bot"
+  },
+  "home.links.plugins": {
+    "message": "Write a plugin (site or notifier)"
+  },
+  "home.links.contribute": {
+    "message": "Contribute code"
+  },
+  "home.links.github": {
+    "message": "Source code on GitHub"
+  },
+  "home.links.title": {
+    "message": "What's next?"
+  },
+  "home.meta.title": {
+    "message": "Self-hosted back-in-stock alerts"
+  },
+  "home.meta.description": {
+    "message": "Back in stock ! watches product and listing pages and notifies you on Telegram as soon as a product is back in stock. Open source, self-hosted with Docker."
+  }
+}
