@@ -64,3 +64,5 @@ An error must never become an out-of-stock or a restock. When in doubt, return `
 ## Tests
 
 Ship recorded HTML pages (fixtures) with your plugin, and test `checkProduct` / `checkListing` with a `fetch` that returns them. Tests then never depend on the real site.
+
+To test your source live from the app, add example pages with `testTargets`: see [Test a plugin](./testing.md).

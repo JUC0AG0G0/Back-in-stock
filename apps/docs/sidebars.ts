@@ -19,7 +19,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Écrire un plugin',
       collapsed: false,
-      items: ['plugins/overview', 'plugins/source', 'plugins/notifier'],
+      items: ['plugins/overview', 'plugins/source', 'plugins/notifier', 'plugins/testing'],
     },
     {
       type: 'category',

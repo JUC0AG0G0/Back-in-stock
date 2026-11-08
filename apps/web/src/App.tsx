@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { PluginTests } from '@/components/plugin-tests';
 import { Button } from '@/components/ui/button';
 import { UpdateBanner } from '@/features/update/update-banner';
 import { cn } from '@/lib/utils';
@@ -18,11 +19,15 @@ async function fetchHealth(): Promise<Health> {
   return (await res.json()) as Health;
 }
 
-type Page = 'home' | 'channels';
+type Page = 'home' | 'channels' | 'plugins';
 
 /** Hash routing until the app gets TanStack Router with more screens. */
 function usePage(): Page {
-  const read = (): Page => (window.location.hash === '#/channels' ? 'channels' : 'home');
+  const read = (): Page => {
+    if (window.location.hash === '#/channels') return 'channels';
+    if (window.location.hash === '#/plugins') return 'plugins';
+    return 'home';
+  };
   const [page, setPage] = useState(read);
   useEffect(() => {
     const onChange = () => setPage(read());
@@ -38,6 +43,7 @@ export function App() {
   const links: Array<{ page: Page; href: string; label: string }> = [
     { page: 'home', href: '#/', label: t('nav.home') },
     { page: 'channels', href: '#/channels', label: t('nav.channels') },
+    { page: 'plugins', href: '#/plugins', label: t('nav.plugins') },
   ];
 
   return (
@@ -65,7 +71,9 @@ export function App() {
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-4 py-8">
-        {page === 'channels' ? <ChannelsPage /> : <Home />}
+        {page === 'channels' && <ChannelsPage />}
+        {page === 'plugins' && <PluginTests />}
+        {page === 'home' && <Home />}
       </main>
     </div>
   );

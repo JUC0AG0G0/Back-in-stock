@@ -17,6 +17,7 @@ export type {
   SourceContext,
   SourcePlugin,
   SourcePluginDefinition,
+  SourceTestTarget,
   StockStatus,
   WatchType,
 } from './source.js';

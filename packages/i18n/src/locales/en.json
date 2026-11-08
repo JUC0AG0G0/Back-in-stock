@@ -10,6 +10,66 @@
       "retry": "Check again"
     }
   },
+  "pluginTests": {
+    "title": "Test plugins",
+    "intro": "Check that every plugin works. A source reads a page without saving anything, a notifier sends a test notification to each of its channels.",
+    "testAll": "Test all plugins",
+    "test": "Test",
+    "testing": "Testing…",
+    "sources": "Sources",
+    "notifiers": "Notifiers",
+    "none": "No plugin installed yet.",
+    "pluginMeta": "{{id}} · v{{version}}",
+    "loadError": "Could not load the plugin list.",
+    "runError": "The test could not start: {{message}}",
+    "urlLabel": "URL to test (optional)",
+    "typeLabel": "Watch type",
+    "type": {
+      "product": "Product",
+      "listing": "Listing"
+    },
+    "status": {
+      "passed": "Passed",
+      "failed": "Failed",
+      "skipped": "Skipped"
+    },
+    "skip": {
+      "no-test-target": "This plugin has no example page: enter a URL to test it.",
+      "no-channel": "No channel uses this notifier yet."
+    },
+    "duration": "{{ms}} ms",
+    "result": {
+      "product": "Detected status: {{status}}",
+      "unknown": "unknown",
+      "signal": "Signal: {{signal}}",
+      "listing_one": "{{count}} item found",
+      "listing_other": "{{count}} items found",
+      "incomplete": "incomplete list (pagination stopped)",
+      "notifier": "Test notification sent."
+    },
+    "summary": "{{passed}} passed · {{failed}} failed · {{skipped}} skipped",
+    "message": {
+      "preset": "Message to send",
+      "presets": {
+        "default": "Standard test",
+        "text": "Text only",
+        "textLink": "Text + link",
+        "textLinkImage": "Text + link + image",
+        "linkOnly": "Link only, no image"
+      },
+      "fields": {
+        "title": "Title",
+        "text": "Text",
+        "url": "Link",
+        "imageUrl": "Image URL"
+      },
+      "imageHint": "Leave a field empty to leave it out (an empty title uses the default title). The image only shows if the channel allows images.",
+      "channel": "Channel",
+      "allChannels": "Every channel of this notifier",
+      "sampleTitle": "Back in stock: GT DD Pro wheel",
+      "sampleText": "This is a test. The product is available again."
+    }
+  },
   "status": {
     "IN_STOCK": "in stock",
     "OUT_OF_STOCK": "out of stock",
@@ -92,7 +152,8 @@
   "nav": {
     "label": "Main navigation",
     "home": "Home",
-    "channels": "Channels"
+    "channels": "Channels",
+    "plugins": "Plugins"
   },
   "channels": {
     "title": "Notification channels",

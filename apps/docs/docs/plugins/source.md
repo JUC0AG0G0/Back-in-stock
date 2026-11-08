@@ -64,3 +64,5 @@ Une erreur ne doit jamais devenir une rupture ou un retour en stock. En cas de d
 ## Tests
 
 Fournis des pages HTML enregistrées (fixtures) dans ton plugin, et teste `checkProduct` / `checkListing` avec un `fetch` qui les renvoie. Ainsi les tests ne dépendent pas du site réel.
+
+Pour pouvoir tester ta source en direct depuis l'application, ajoute des pages d'exemple avec `testTargets` : voir [Tester un plugin](./testing.md).

@@ -77,6 +77,32 @@ describe('validatePlugin', () => {
   });
 });
 
+describe('testTargets', () => {
+  it('accepts example pages of a supported type', () => {
+    const plugin = {
+      ...source,
+      testTargets: [{ url: 'https://shop.example/p/1', type: 'product', label: 'A product' }],
+    };
+    expect(validatePlugin(plugin).ok).toBe(true);
+  });
+
+  it('rejects a non-http URL and a type the plugin does not support', () => {
+    const productOnly = { ...source, supports: ['product'], checkListing: undefined };
+    expect(
+      errorsOf({
+        ...productOnly,
+        testTargets: [
+          { url: 'ftp://shop.example', type: 'product' },
+          { url: 'https://shop.example/c', type: 'listing' },
+        ],
+      }),
+    ).toEqual([
+      'testTargets.0.url: must be an http(s) URL',
+      'testTargets.1.type: "listing" is not in supports',
+    ]);
+  });
+});
+
 describe('typing', () => {
   it('infers the config type from configSchema', () => {
     const plugin = defineNotifierPlugin({
