@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.1.0...v0.1.1) (2026-11-08)
+
+
+### 📚 Documentation
+
+* **spec:** ajouter le script d'installation Docker à la roadmap M1 ([#10](https://github.com/JUC0AG0G0/Back-in-stock/issues/10)) ([9a03adc](https://github.com/JUC0AG0G0/Back-in-stock/commit/9a03adc1aa85efceb853a8a6fe9d7b2974656cb4))
+
 ## 0.1.0 (2026-11-07)
 
 
