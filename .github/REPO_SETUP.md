@@ -43,6 +43,8 @@ Quand d'autres mainteneurs arriveront, passe *Required approvals* à 1 dans le r
 
 > ℹ️ La CI (`ci.yml`) ne tourne **que sur les PR**, pas après la fusion. C'est l'option *Require branches to be up to date before merging* (`strict_required_status_checks_policy: true`) qui garantit que le commit arrivant sur `main` a déjà passé exactement cette CI. Ne la décoche pas.
 >
+> Le check `ci` est le dernier job de `ci.yml` : il tourne toujours et attend les autres (`lint`, `typecheck`, `test`, `build`, `docker`), qui ne tournent que si la PR touche ce qu'ils vérifient ([`scripts/ci/changes.sh`](../scripts/ci/changes.sh)). N'ajoute pas ces jobs aux checks requis : un job sauté (la PR de release, par exemple) laisserait un check requis en attente pour toujours.
+>
 > Ruleset déjà importé avant une modification du JSON ? GitHub ne le resynchronise pas : ouvre **Settings → Rules → Rulesets → main**, puis soit corrige la règle à la main, soit supprime le ruleset et réimporte `rulesets/main.json`.
 
 > ⚠️ Importe le ruleset `main` **après** avoir fusionné la PR qui ajoute cette configuration. Le workflow `pr-title` est lu depuis `main` (`pull_request_target`), il ne tourne donc pas sur cette première PR : elle resterait bloquée en attendant ce check.

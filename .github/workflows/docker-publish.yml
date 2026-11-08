@@ -1,19 +1,29 @@
 name: Docker image
 
 # Publishes the image on ghcr.io/<owner>/back-in-stock:
-#   - every merge to main          → :edge (latest development version)
+#   - every merge to main          → :edge (latest development version) and :edge-<commit>
 #   - every release (release-please calls this workflow) → :X.Y.Z, :X.Y, :X, :latest,
 #     plus docker-compose.yml, install scripts, SBOM and checksums attached to the GitHub release
 #   - by hand (Actions → Docker image → Run workflow) to republish an existing release
+# then deletes the untagged image versions (every tagged one is kept).
 #
 # Each architecture builds on its own native runner (no QEMU emulation, which crashes Node
 # on arm64), is smoke-tested, then pushed by digest. The "merge" job then names them.
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - 'apps/docs/**'
-      - '**/*.md'
+    # Only what goes into an image. The merge of the release PR (version + changelog) is
+    # skipped below: release-please.yml publishes that version itself.
+    paths:
+      - '**'
+      - '!apps/docs/**'
+      - '!**/*.md'
+      - '!.github/**'
+      - '.github/workflows/docker-publish.yml'
+      - '!.release-please-manifest.json'
+      - '!docker-compose.yml'
+      - '!scripts/install.sh'
+      - '!scripts/install.ps1'
   workflow_call:
     inputs:
       version:
@@ -46,6 +56,10 @@ env:
 jobs:
   build:
     name: build (${{ matrix.arch }})
+    # A merged release PR: its version is published by release-please.yml, not as :edge.
+    if: >-
+      ${{ !(inputs.version == '' && github.event_name == 'push'
+      && startsWith(github.event.head_commit.message, 'chore(main): release ')) }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
     strategy:
@@ -154,6 +168,8 @@ jobs:
             type=semver,pattern={{major}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
             type=raw,value=latest,enable=${{ inputs.version != '' }}
             type=raw,value=edge,enable=${{ inputs.version == '' }}
+            # Every edge build keeps a tag of its own (edge-<commit>), so none ends up untagged.
+            type=sha,prefix=edge-,enable=${{ inputs.version == '' }}
 
       - name: Create the multi-arch image with its tags
         working-directory: ${{ runner.temp }}/digests
@@ -163,12 +179,13 @@ jobs:
           while IFS= read -r a; do args+=(--annotation "$a"); done < <(jq -r '.annotations[]' <<< "$DOCKER_METADATA_OUTPUT_JSON")
           docker buildx imagetools create "${args[@]}" $(printf "$IMAGE@sha256:%s " *)
 
-      - run: docker buildx imagetools inspect "$IMAGE:${{ steps.meta.outputs.version }}"
-
   # Companion service of the one-click update (apps/updater): ghcr.io/<owner>/back-in-stock-updater.
   # Pure JavaScript, so one multi-arch build is enough (no native code, no emulated RUN step).
   updater:
     name: updater image
+    if: >-
+      ${{ !(inputs.version == '' && github.event_name == 'push'
+      && startsWith(github.event.head_commit.message, 'chore(main): release ')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -198,6 +215,8 @@ jobs:
             type=semver,pattern={{major}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
             type=raw,value=latest,enable=${{ inputs.version != '' }}
             type=raw,value=edge,enable=${{ inputs.version == '' }}
+            # Every edge build keeps a tag of its own (edge-<commit>), so none ends up untagged.
+            type=sha,prefix=edge-,enable=${{ inputs.version == '' }}
 
       # Smoke test: the service starts and answers /health without a token.
       - name: Build for the smoke test
@@ -234,6 +253,24 @@ jobs:
           provenance: false
           sbom: false
           cache-from: type=gha,scope=updater
+
+  # Deletes the untagged versions of both images. Tagged ones (versions, edge-<commit>) are
+  # always kept, with the platform images of each multi-arch image. Only versions older than
+  # a day: a build running in parallel pushes its platform images untagged until its "tag" job.
+  cleanup:
+    name: cleanup untagged images
+    needs: [merge, updater]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      packages: write
+    steps:
+      - uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          packages: back-in-stock,back-in-stock-updater
+          delete-untagged: true
+          older-than: 1 day
+          validate: true
 
   release-assets:
     name: release assets

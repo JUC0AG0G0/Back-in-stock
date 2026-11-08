@@ -9,10 +9,16 @@ permissions:
   pull-requests: write
   packages: write
 
+# Two quick merges: the second run waits for the first instead of racing it on the release PR.
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
 jobs:
   release-please:
     name: release-please
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
@@ -27,15 +33,10 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
       # Dépendances de la racine seulement (release-please), pas celles des apps.
-      - run: pnpm install --frozen-lockfile --filter back-in-stock
+      - uses: ./.github/actions/setup-node
+        with:
+          filter: back-in-stock
 
       # RELEASE_PLEASE_TOKEN (PAT fine-grained ou token d'app) est nécessaire pour que
       # la CI se lance sur la PR de release ; sans lui, on retombe sur GITHUB_TOKEN.

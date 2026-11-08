@@ -1,8 +1,15 @@
 import type * as Preset from '@docusaurus/preset-classic';
 import type { Config } from '@docusaurus/types';
+import { readFileSync } from 'node:fs';
 import { themes as prismThemes } from 'prism-react-renderer';
 
 const repoUrl = 'https://github.com/JUC0AG0G0/Back-in-stock';
+
+// Latest released version, as written by release-please on each release.
+// The docs workflow also runs when this file changes, so the footer stays in sync.
+const { '.': version } = JSON.parse(
+  readFileSync(new URL('../../.release-please-manifest.json', import.meta.url), 'utf8'),
+) as Record<string, string>;
 
 const config: Config = {
   title: 'Back in stock !',
@@ -74,7 +81,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `MIT · ${new Date().getFullYear()} Back in stock ! contributors`,
+      copyright: `<a href="${repoUrl}/releases/tag/v${version}">v${version}</a> · MIT · ${new Date().getFullYear()} Back in stock ! contributors`,
     },
     prism: {
       theme: prismThemes.github,
