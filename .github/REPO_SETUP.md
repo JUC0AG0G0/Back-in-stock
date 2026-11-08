@@ -41,6 +41,10 @@ Sans ce secret, la PR de release est créée par `GITHUB_TOKEN`, et GitHub **ne 
 
 Quand d'autres mainteneurs arriveront, passe *Required approvals* à 1 dans le ruleset `main`.
 
+> ℹ️ La CI (`ci.yml`) ne tourne **que sur les PR**, pas après la fusion. C'est l'option *Require branches to be up to date before merging* (`strict_required_status_checks_policy: true`) qui garantit que le commit arrivant sur `main` a déjà passé exactement cette CI. Ne la décoche pas.
+>
+> Ruleset déjà importé avant une modification du JSON ? GitHub ne le resynchronise pas : ouvre **Settings → Rules → Rulesets → main**, puis soit corrige la règle à la main, soit supprime le ruleset et réimporte `rulesets/main.json`.
+
 > ⚠️ Importe le ruleset `main` **après** avoir fusionné la PR qui ajoute cette configuration. Le workflow `pr-title` est lu depuis `main` (`pull_request_target`), il ne tourne donc pas sur cette première PR : elle resterait bloquée en attendant ce check.
 
 ## 5. Settings → Code security
