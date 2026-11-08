@@ -7,6 +7,8 @@ on:
     branches: [main]
     paths:
       - 'apps/docs/**'
+      # Bumped by each release: the footer shows the version.
+      - '.release-please-manifest.json'
       - 'pnpm-lock.yaml'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
