@@ -8,7 +8,7 @@ export default defineConfig({
   resolve: { conditions },
   ssr: { resolve: { conditions } },
   test: {
-    include: ['{apps,packages,plugins}/*/{src,test}/**/*.test.ts'],
+    include: ['{apps,packages,plugins}/*/{src,test}/**/*.test.ts', 'scripts/**/*.test.ts'],
     passWithNoTests: true,
   },
 });
