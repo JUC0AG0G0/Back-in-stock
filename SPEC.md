@@ -577,7 +577,7 @@ L'objectif est de **publier vite et souvent**.
 
 | Workflow | Déclencheur | Rôle |
 |---|---|---|
-| `ci.yml` | PR et push sur `main` | Installation pnpm avec cache, lint, typecheck, tests unitaires, vérification des clés i18n, build. Tests e2e Playwright sur les PR touchant le front. |
+| `ci.yml` | PR uniquement (la branche doit être à jour avec `main` pour fusionner, donc pas de seconde exécution après fusion) | Installation pnpm avec cache, lint, typecheck, tests unitaires, vérification des clés i18n, build. Tests e2e Playwright sur les PR touchant le front. |
 | `pr-title.yml` | Ouverture ou modification de PR | Vérifie le titre Conventional Commits. |
 | `release-please.yml` | Push sur `main` | Met à jour la PR de release. Quand elle est fusionnée, crée le tag et la release GitHub. |
 | `publish.yml` | Release créée | Build des images **multi-arch** (amd64, arm64) `slim` et `full`, plus l'image `updater`, push sur **GHCR** (`ghcr.io/juc0ag0g0/back-in-stock`) avec les tags `X.Y.Z`, `X.Y`, `X`, `latest` (et `-full`). Publication du SDK sur npm (provenance activée). Signature des images avec cosign et SBOM. |

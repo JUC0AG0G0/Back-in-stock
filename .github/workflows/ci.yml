@@ -1,13 +1,15 @@
 name: CI
 
+# Pull requests only: the ruleset requires the branch to be up to date with main before
+# merging, so the commit that lands on main has already passed this exact run.
+# What runs after a merge lives elsewhere: release-please (release-please.yml), the :edge image
+# (docker-publish.yml, which also builds and smoke-tests the image) and the docs.
 on:
   pull_request:
-  push:
-    branches: [main]
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -49,8 +51,10 @@ jobs:
           load: true
           push: false
           tags: back-in-stock:ci
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Same scope as the amd64 build of docker-publish.yml: a PR reuses the layers of
+          # the last :edge build on main (PR caches are not visible from main or other PRs).
+          cache-from: type=gha,scope=amd64
+          cache-to: type=gha,scope=amd64,mode=max
 
       - name: Smoke test Docker image
         run: scripts/docker-smoke.sh back-in-stock:ci
