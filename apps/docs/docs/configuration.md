@@ -36,6 +36,8 @@ Pour chaque type d'évènement (alertes activées, retour en stock, rupture, pr�
 
 Une erreur de lecture d'une page ne change jamais l'état et ne déclenche pas de fausse alerte.
 
+Les canaux se créent dans l'écran **Canaux** de l'interface. Voir le guide [Telegram](./channels/telegram.md).
+
 :::info À venir
-L'écran de réglages et la configuration guidée de Telegram et de l'email arrivent avec le jalon M1.
+L'écran de réglages et la configuration guidée de l'email arrivent avec le jalon M1.
 :::

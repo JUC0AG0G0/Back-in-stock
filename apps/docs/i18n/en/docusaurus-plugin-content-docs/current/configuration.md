@@ -36,6 +36,8 @@ For each event type (alerts enabled, back in stock, out of stock, preorder, new 
 
 A page that cannot be read never changes the state and never triggers a false alert.
 
+Channels are created in the **Channels** screen of the app. See the [Telegram](./channels/telegram.md) guide.
+
 :::info Coming soon
-The settings screen and the guided Telegram and email setup land with milestone M1.
+The settings screen and the guided email setup land with milestone M1.
 :::
