@@ -1,0 +1,23 @@
+{
+  "description": "Recevez les alertes dans une discussion, un groupe ou un canal Telegram, grâce à votre propre bot.",
+  "fields.botToken.label": "Token du bot",
+  "fields.botToken.help": "Donné par @BotFather, de la forme 123456789:AAH…",
+  "fields.chatId.label": "Identifiant de la discussion (chat id)",
+  "fields.chatId.help": "Détecté automatiquement. Un groupe a un identifiant négatif, un canal public peut s'écrire @nom.",
+  "fields.includeImages.label": "Inclure les images",
+  "fields.includeImages.help": "Envoie la photo du produit avec l'alerte.",
+  "fields.silent.label": "Notifications silencieuses",
+  "fields.silent.help": "Les messages arrivent sans son.",
+  "guide.botfather.title": "Ouvrez Telegram et parlez à @BotFather",
+  "guide.botfather.description": "BotFather est le bot officiel de Telegram qui permet de créer votre propre bot. Ouvrez-le sur votre téléphone ou votre ordinateur.",
+  "guide.botfather.link": "Ouvrir @BotFather",
+  "guide.newbot.title": "Créez votre bot",
+  "guide.newbot.description": "Envoyez la commande ci-dessous à BotFather, puis choisissez un nom (libre) et un identifiant qui se termine par « bot », par exemple monstock_bot.",
+  "guide.token.title": "Collez le token du bot",
+  "guide.token.description": "BotFather vous répond avec un token. Collez-le ici : nous vérifions qu'il fonctionne. Gardez-le secret, il donne le contrôle de votre bot.",
+  "guide.chat.title": "Envoyez /start à votre bot",
+  "guide.chat.description": "Ouvrez votre bot et envoyez-lui /start, puis cliquez sur « Détecter ». Pour un groupe : ajoutez le bot au groupe et écrivez-y un message. Pour un canal : ajoutez le bot comme administrateur et publiez un message.",
+  "guide.chat.link": "Ouvrir mon bot",
+  "guide.test.title": "Envoyez un message de test",
+  "guide.test.description": "Nous envoyons un message de test dans la discussion choisie. Vérifiez que vous l'avez bien reçu avant d'enregistrer le canal."
+}

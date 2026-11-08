@@ -11,11 +11,12 @@ COPY apps/server/package.json apps/server/
 COPY apps/web/package.json apps/web/
 COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 COPY packages/i18n/package.json packages/i18n/
+COPY plugins/notifier-telegram/package.json plugins/notifier-telegram/
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 
 COPY . .
-# "server..." also builds the workspace packages the server depends on (plugin SDK).
+# "server..." also builds the workspace packages the server depends on (SDK, built-in plugins).
 RUN pnpm --filter "@back-in-stock/server..." --filter @back-in-stock/web run build
 
 # Production-only copy of the server and its dependencies (no dev tools, no TS sources).

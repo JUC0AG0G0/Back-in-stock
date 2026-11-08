@@ -2,8 +2,12 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import fastifyStatic from '@fastify/static';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
+import type { Fetcher, Logger } from '@back-in-stock/plugin-sdk';
+import type { ChannelRepository } from '../application/ports.js';
+import { pluginLogger } from '../infrastructure/plugin-logger.js';
 import type { NotifierRegistry, SourceRegistry } from '../infrastructure/plugins/registry.js';
 import { registerApiDocs } from './api-docs.js';
+import { registerChannelRoutes } from './channels.js';
 import { healthSchema, pluginsSchema } from './schemas.js';
 import { registerUpdateRoutes, type UpdateRoutesOptions } from './update-routes.js';
 
@@ -19,6 +23,8 @@ export interface AppOptions {
   apiDocs?: boolean;
   /** New version banner and one-click install. */
   updates?: UpdateRoutesOptions;
+  /** Enables the channel routes (/api/channels, /api/notifiers). Needs `plugins`. */
+  channels?: { repository: ChannelRepository; fetch: Fetcher; logger?: Logger };
 }
 
 /**
@@ -33,6 +39,7 @@ export async function buildApp({
   databasePing,
   apiDocs = false,
   updates,
+  channels,
 }: AppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger });
 
@@ -61,6 +68,14 @@ export async function buildApp({
   }
 
   if (updates) registerUpdateRoutes(app, updates);
+  if (plugins && channels) {
+    await registerChannelRoutes(app, {
+      notifiers: plugins.notifiers,
+      channels: channels.repository,
+      fetch: channels.fetch,
+      logger: channels.logger ?? pluginLogger(app.log, { component: 'notifier' }),
+    });
+  }
 
   const serveWeb = webDir !== undefined && existsSync(join(webDir, 'index.html'));
   if (serveWeb) {

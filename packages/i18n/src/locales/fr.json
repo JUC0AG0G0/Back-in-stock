@@ -42,7 +42,11 @@
       "title": "Article retiré : {{item}}",
       "text": "N'est plus proposé sur {{watch}}."
     },
-    "price": "Prix : {{price}}"
+    "price": "Prix : {{price}}",
+    "test": {
+      "title": "Message de test",
+      "text": "Si vous lisez ceci, ce canal fonctionne. Vous recevrez ici vos alertes Back in stock !."
+    }
   },
   "update": {
     "available": "Version {{latest}} disponible (tu as {{current}})",

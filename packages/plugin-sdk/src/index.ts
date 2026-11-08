@@ -1,5 +1,13 @@
 export { SDK_API_VERSION } from './version.js';
-export type { FetchOptions, FetchResult, Fetcher, HtmlHelpers, Logger, Price } from './common.js';
+export type {
+  FetchOptions,
+  FetchResult,
+  Fetcher,
+  HtmlHelpers,
+  Logger,
+  PostOptions,
+  Price,
+} from './common.js';
 export type {
   FetchMode,
   ListingAttributeValue,
@@ -18,6 +26,11 @@ export type {
   NotifierContext,
   NotifierPlugin,
   NotifierPluginDefinition,
+  DiscoveryCandidate,
+  DiscoveryResult,
+  SetupLink,
+  SetupStep,
+  ValidationResult,
 } from './notifier.js';
 export { SourceError, type SourceErrorKind } from './errors.js';
 export { defineNotifierPlugin, defineSourcePlugin } from './define.js';

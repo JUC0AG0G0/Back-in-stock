@@ -26,6 +26,13 @@ export interface FetchResult {
  */
 export interface Fetcher {
   get(url: URL | string, options?: FetchOptions): Promise<FetchResult>;
+  /** Sends `json` as a JSON body (content-type set by the core), or a raw `body`. */
+  post(url: URL | string, options?: PostOptions): Promise<FetchResult>;
+}
+
+export interface PostOptions extends FetchOptions {
+  json?: unknown;
+  body?: string;
 }
 
 /** HTML helpers provided by the core. */

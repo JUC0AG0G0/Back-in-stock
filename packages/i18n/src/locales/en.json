@@ -42,7 +42,11 @@
       "title": "Item removed: {{item}}",
       "text": "No longer listed on {{watch}}."
     },
-    "price": "Price: {{price}}"
+    "price": "Price: {{price}}",
+    "test": {
+      "title": "Test message",
+      "text": "If you can read this, this channel works. Your Back in stock ! alerts will arrive here."
+    }
   },
   "update": {
     "available": "Version {{latest}} is available (you have {{current}})",
