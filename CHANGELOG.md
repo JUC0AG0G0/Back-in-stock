@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.1](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.4.0...v0.4.1) (2026-11-08)
+
+
+### 🐛 Corrections
+
+* **update:** fenêtre des nouveautés sans défilement horizontal ni procédure d'installation ([#25](https://github.com/JUC0AG0G0/Back-in-stock/issues/25)) ([f109e97](https://github.com/JUC0AG0G0/Back-in-stock/commit/f109e977079f7d68b5630450c2e20f8bd2aeedba))
+
+
+### 📚 Documentation
+
+* numéro de version dans le footer ([#22](https://github.com/JUC0AG0G0/Back-in-stock/issues/22)) ([9d61fee](https://github.com/JUC0AG0G0/Back-in-stock/commit/9d61feef4a0535985e6fcf152525578de4700554))
+
 ## [0.4.0](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.3.0...v0.4.0) (2026-11-08)
 
 
