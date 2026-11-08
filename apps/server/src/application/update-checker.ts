@@ -87,10 +87,18 @@ export class UpdateChecker {
   private error: string | null = null;
   private readonly current: SemVer | null;
   private readonly now: () => Date;
+  private readonly options: UpdateCheckerOptions;
 
-  constructor(private readonly options: UpdateCheckerOptions) {
+  constructor(options: UpdateCheckerOptions) {
+    this.options = { ...options };
     this.current = parseSemVer(options.currentVersion);
     this.now = options.now ?? (() => new Date());
+  }
+
+  /** Applies a change made in Settings. Takes effect on the next check, or right away for status. */
+  configure(change: Partial<Pick<UpdateCheckerOptions, 'enabled' | 'channel'>>): void {
+    if (change.enabled !== undefined) this.options.enabled = change.enabled;
+    if (change.channel !== undefined) this.options.channel = change.channel;
   }
 
   /** Whether this instance should look for updates at all. */

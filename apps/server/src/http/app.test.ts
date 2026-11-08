@@ -149,4 +149,18 @@ describe('API docs (Swagger)', () => {
     expect(doc.info.version).toBe('1.2.3');
     expect(Object.keys(doc.paths)).toEqual(expect.arrayContaining(['/api/health', '/api/plugins']));
   });
+
+  it('can be turned on and off at runtime', async () => {
+    let enabled = false;
+    app = await buildApp({ version: '1.2.3', apiDocs: () => enabled });
+
+    expect((await app.inject({ method: 'GET', url: '/api/docs/' })).statusCode).toBe(404);
+    expect((await app.inject({ method: 'GET', url: '/api/docs/json' })).statusCode).toBe(404);
+    enabled = true;
+    expect((await app.inject({ method: 'GET', url: '/api/docs/' })).statusCode).toBe(200);
+    expect((await app.inject({ method: 'GET', url: '/api/docs/json' })).statusCode).toBe(200);
+    // Other /api routes are not affected by the switch.
+    enabled = false;
+    expect((await app.inject({ method: 'GET', url: '/api/health' })).statusCode).toBe(200);
+  });
 });

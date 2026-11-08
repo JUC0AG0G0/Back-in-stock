@@ -220,4 +220,14 @@ describe('SqliteSettingsRepository', () => {
     expect(rules.ProductOutOfStock).toEqual({ enabled: false });
     expect(rules.ListingItemAdded).toEqual({ enabled: true });
   });
+
+  it('saves, reads and forgets a single setting', async () => {
+    const repo = new SqliteSettingsRepository(database.db);
+    expect(await repo.getValue('updates.interval_hours')).toBeUndefined();
+    await repo.setValue('updates.interval_hours', 12);
+    await repo.setValue('updates.interval_hours', 24);
+    expect(await repo.getValue('updates.interval_hours')).toBe(24);
+    await repo.setValue('updates.interval_hours', null);
+    expect(await repo.getValue('updates.interval_hours')).toBeUndefined();
+  });
 });

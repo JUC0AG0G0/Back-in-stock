@@ -73,4 +73,8 @@ export interface ChannelRepository {
 export interface SettingsRepository {
   getNotificationRules(): Promise<NotificationRules>;
   saveNotificationRules(rules: NotificationRules): Promise<void>;
+  /** A setting saved from the UI, parsed from JSON. Undefined when never saved. */
+  getValue(key: string): Promise<unknown>;
+  /** Saves a setting. Null removes it, so the default (environment variable) applies again. */
+  setValue(key: string, value: unknown): Promise<void>;
 }
