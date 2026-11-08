@@ -102,6 +102,20 @@ describe('UpdateChecker', () => {
     );
   });
 
+  it('applies a change of channel or switch made in Settings', async () => {
+    const feed = feedOf([release('v1.3.0'), release('v1.4.0-rc.1', { prerelease: true })]);
+    const c = checker(feed);
+    await c.check();
+    expect(c.status().latestVersion).toBe('1.3.0');
+
+    c.configure({ channel: 'prerelease' });
+    expect(c.status().latestVersion).toBe('1.4.0-rc.1');
+
+    c.configure({ enabled: false });
+    expect(c.active).toBe(false);
+    expect(c.status()).toMatchObject({ enabled: false, disabledReason: 'disabled' });
+  });
+
   it('sends the ETag back and keeps the releases when nothing changed', async () => {
     const fetch = vi
       .fn<ReleaseFeed['fetch']>()

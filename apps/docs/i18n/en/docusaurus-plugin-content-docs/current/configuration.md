@@ -7,15 +7,20 @@ title: Configuration
 
 The server is configured with environment variables, in the `environment` section of your `docker-compose.yml`. Everything functional (check frequency, channels, notification rules) will be set from the interface.
 
-| Variable       | Default (Docker) | Purpose                                                                       |
-| -------------- | ---------------- | ----------------------------------------------------------------------------- |
-| `PORT`         | `8080`           | HTTP port of the server.                                                      |
-| `HOST`         | `0.0.0.0`        | Listen address.                                                               |
-| `BIS_DATA_DIR` | `/data`          | Folder of the SQLite database (`back-in-stock.db`). Outside Docker: `./data`. |
-| `LOG_LEVEL`    | `info`           | `debug`, `info`, `warn` or `error`.                                           |
-| `TZ`           | (none)           | Time zone, e.g. `Europe/Paris`, for displayed times and quiet hours.          |
+| Variable       | Default (Docker) | Purpose                                                                                       |
+| -------------- | ---------------- | --------------------------------------------------------------------------------------------- |
+| `PORT`         | `8080`           | HTTP port of the server.                                                                      |
+| `HOST`         | `0.0.0.0`        | Listen address.                                                                               |
+| `BIS_DATA_DIR` | `/data`          | Folder of the SQLite database (`back-in-stock.db`). Outside Docker: `./data`.                 |
+| `LOG_LEVEL`    | `info`           | `debug`, `info`, `warn` or `error`.                                                           |
+| `TZ`           | (none)           | Time zone, e.g. `Europe/Paris`, for displayed times and quiet hours.                          |
+| `BIS_API_DOCS` | `false`          | `true` turns on the API documentation (Swagger) at `/api/docs`. On by default in development. |
 
-The variables of the new version check and the one-click update (`BIS_UPDATE_CHECK`, `BIS_UPDATE_CHANNEL`, `BIS_UPDATER_URL`) are described in [Updates](updates.md#settings).
+The variables of the new version check and the one-click update (`BIS_UPDATE_CHECK`, `BIS_UPDATE_CHANNEL`, `BIS_UPDATE_INTERVAL`, `BIS_UPDATER_URL`) are described in [Updates](updates.md#settings).
+
+## Settings screen
+
+The **Settings** screen of the UI changes the update check and the API documentation without a restart, and links to this documentation. For these settings, the environment variable gives the **default** and the value saved in the UI **replaces it**. "Back to the default" deletes the saved value: the variable applies again.
 
 ## Language
 
@@ -39,5 +44,5 @@ A page that cannot be read never changes the state and never triggers a false al
 Channels are created in the **Channels** screen of the app. See the [Telegram](./channels/telegram.md) guide.
 
 :::info Coming soon
-The settings screen and the guided email setup land with milestone M1.
+The other settings (watch frequency, time zone, notification language) and the guided email setup land with milestone M1.
 :::

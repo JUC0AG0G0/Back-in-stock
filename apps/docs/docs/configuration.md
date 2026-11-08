@@ -7,15 +7,20 @@ title: Configuration
 
 Le serveur se règle avec des variables d'environnement, à mettre dans la section `environment` de ton `docker-compose.yml`. Tous les réglages fonctionnels (fréquence de vérification, canaux, règles de notification) se feront depuis l'interface.
 
-| Variable       | Défaut (Docker) | Rôle                                                                                              |
-| -------------- | --------------- | ------------------------------------------------------------------------------------------------- |
-| `PORT`         | `8080`          | Port HTTP du serveur.                                                                             |
-| `HOST`         | `0.0.0.0`       | Adresse d'écoute.                                                                                 |
-| `BIS_DATA_DIR` | `/data`         | Dossier de la base SQLite (`back-in-stock.db`). Hors Docker : `./data`.                           |
-| `LOG_LEVEL`    | `info`          | `debug`, `info`, `warn` ou `error`.                                                               |
-| `TZ`           | (aucun)         | Fuseau horaire, par exemple `Europe/Paris`, pour les heures affichées et les plages silencieuses. |
+| Variable       | Défaut (Docker) | Rôle                                                                                                    |
+| -------------- | --------------- | ------------------------------------------------------------------------------------------------------- |
+| `PORT`         | `8080`          | Port HTTP du serveur.                                                                                   |
+| `HOST`         | `0.0.0.0`       | Adresse d'écoute.                                                                                       |
+| `BIS_DATA_DIR` | `/data`         | Dossier de la base SQLite (`back-in-stock.db`). Hors Docker : `./data`.                                 |
+| `LOG_LEVEL`    | `info`          | `debug`, `info`, `warn` ou `error`.                                                                     |
+| `TZ`           | (aucun)         | Fuseau horaire, par exemple `Europe/Paris`, pour les heures affichées et les plages silencieuses.       |
+| `BIS_API_DOCS` | `false`         | `true` active la documentation de l'API (Swagger) sur `/api/docs`. Activée par défaut en développement. |
 
-Les variables de la vérification de nouvelle version et de la mise à jour en un clic (`BIS_UPDATE_CHECK`, `BIS_UPDATE_CHANNEL`, `BIS_UPDATER_URL`) sont décrites dans [Mises à jour](updates.md#settings).
+Les variables de la vérification de nouvelle version et de la mise à jour en un clic (`BIS_UPDATE_CHECK`, `BIS_UPDATE_CHANNEL`, `BIS_UPDATE_INTERVAL`, `BIS_UPDATER_URL`) sont décrites dans [Mises à jour](updates.md#settings).
+
+## Écran Paramètres
+
+L'écran **Paramètres** de l'interface règle sans redémarrage la vérification des mises à jour et la documentation de l'API, et donne un lien vers cette documentation. Pour ces réglages, la variable d'environnement donne la **valeur par défaut** et la valeur enregistrée dans l'interface **la remplace**. « Revenir à la valeur par défaut » efface la valeur enregistrée : la variable s'applique de nouveau.
 
 ## Langue
 
@@ -39,5 +44,5 @@ Une erreur de lecture d'une page ne change jamais l'état et ne déclenche pas d
 Les canaux se créent dans l'écran **Canaux** de l'interface. Voir le guide [Telegram](./channels/telegram.md).
 
 :::info À venir
-L'écran de réglages et la configuration guidée de l'email arrivent avec le jalon M1.
+Les autres paramètres (fréquence des veilles, fuseau horaire, langue des notifications) et la configuration guidée de l'email arrivent avec le jalon M1.
 :::

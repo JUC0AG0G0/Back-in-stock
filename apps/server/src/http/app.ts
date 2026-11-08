@@ -13,6 +13,7 @@ import type { NotifierRegistry, SourceRegistry } from '../infrastructure/plugins
 import { registerApiDocs } from './api-docs.js';
 import { registerChannelRoutes } from './channels.js';
 import { registerPluginTestRoutes } from './plugin-tests.js';
+import { registerSettingsRoutes, type SettingsRoutesOptions } from './settings-routes.js';
 import { healthSchema, pluginsSchema } from './schemas.js';
 import { registerUpdateRoutes, type UpdateRoutesOptions } from './update-routes.js';
 
@@ -24,10 +25,15 @@ export interface AppOptions {
   plugins?: { sources: SourceRegistry; notifiers: NotifierRegistry };
   /** Returns false when the database cannot answer: /api/health then fails. */
   databasePing?: () => boolean;
-  /** Serves the Swagger UI at /api/docs. Development only (needs the server's devDependencies). */
-  apiDocs?: boolean;
+  /**
+   * Serves the Swagger UI at /api/docs. A function is read on every request,
+   * so the Settings screen can turn it on or off at runtime.
+   */
+  apiDocs?: boolean | (() => boolean);
   /** New version banner and one-click install. */
   updates?: UpdateRoutesOptions;
+  /** Settings screen (/api/settings). */
+  settings?: SettingsRoutesOptions;
   /** Enables the channel routes (/api/channels, /api/notifiers). Needs `plugins`. */
   channels?: { repository: ChannelRepository; fetch: Fetcher; logger?: Logger };
   /** Enables the plugin test routes (/api/plugins/.../test). Needs `plugins`. */
@@ -52,12 +58,15 @@ export async function buildApp({
   databasePing,
   apiDocs = false,
   updates,
+  settings,
   channels,
   pluginTests,
 }: AppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger });
 
-  if (apiDocs) await registerApiDocs(app, version);
+  const apiDocsAvailable =
+    apiDocs !== false &&
+    (await registerApiDocs(app, version, typeof apiDocs === 'function' ? apiDocs : () => true));
 
   // Used by the Docker HEALTHCHECK: an unreachable database makes the container unhealthy.
   app.get('/api/health', { schema: healthSchema }, async (_request, reply) => {
@@ -82,6 +91,7 @@ export async function buildApp({
   }
 
   if (updates) registerUpdateRoutes(app, updates);
+  if (settings) registerSettingsRoutes(app, settings, apiDocsAvailable);
   if (plugins && channels) {
     await registerChannelRoutes(app, {
       notifiers: plugins.notifiers,

@@ -8,6 +8,12 @@ describe('loadConfig', () => {
     expect(loadConfig({ NODE_ENV: 'production' }).apiDocs).toBe(false);
   });
 
+  it('lets BIS_API_DOCS override the default', () => {
+    expect(loadConfig({ NODE_ENV: 'production', BIS_API_DOCS: 'true' }).apiDocs).toBe(true);
+    expect(loadConfig({ BIS_API_DOCS: 'off' }).apiDocs).toBe(false);
+    expect(loadConfig({ NODE_ENV: 'production', BIS_API_DOCS: 'what' }).apiDocs).toBe(false);
+  });
+
   it('rejects an invalid port', () => {
     expect(() => loadConfig({ PORT: 'abc' })).toThrow('Invalid PORT');
   });
@@ -16,6 +22,7 @@ describe('loadConfig', () => {
     expect(loadConfig({}).updates).toEqual({
       check: true,
       channel: 'stable',
+      intervalHours: 6,
       buildChannel: 'dev',
       updaterUrl: null,
       repository: 'JUC0AG0G0/Back-in-stock',
@@ -34,5 +41,8 @@ describe('loadConfig', () => {
       updaterUrl: 'http://updater:8090',
     });
     expect(() => loadConfig({ BIS_UPDATE_CHANNEL: 'beta' })).toThrow('BIS_UPDATE_CHANNEL');
+    expect(loadConfig({ BIS_UPDATE_INTERVAL: '24' }).updates.intervalHours).toBe(24);
+    expect(() => loadConfig({ BIS_UPDATE_INTERVAL: '0' })).toThrow('BIS_UPDATE_INTERVAL');
+    expect(() => loadConfig({ BIS_UPDATE_INTERVAL: '1.5' })).toThrow('BIS_UPDATE_INTERVAL');
   });
 });

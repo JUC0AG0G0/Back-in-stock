@@ -19,7 +19,7 @@ When one of the versions has **breaking changes**, the banner is orange and link
 
 ### Where the information comes from
 
-The server asks the GitHub Releases API (`api.github.com/repos/JUC0AG0G0/Back-in-stock/releases`) **every 6 hours**, with no account or token. It sends the `If-None-Match` header: when nothing changed, GitHub answers "304" and nothing is downloaded.
+The server asks the GitHub Releases API (`api.github.com/repos/JUC0AG0G0/Back-in-stock/releases`) **every 6 hours** by default, with no account or token. It sends the `If-None-Match` header: when nothing changed, GitHub answers "304" and nothing is downloaded.
 
 This is the app's **only outgoing request** besides the sites you watch and your notification channels. It sends nothing about you, apart from your IP address and the installed version (in the `User-Agent` header).
 
@@ -27,11 +27,14 @@ Only **published images** check for updates (`latest`, `1`, `1.4`, `1.4.2`…). 
 
 ### Settings {#settings}
 
-| Variable             | Default  | Purpose                                                              |
-| -------------------- | -------- | -------------------------------------------------------------------- |
-| `BIS_UPDATE_CHECK`   | `true`   | `false` turns the check off completely (no GitHub request at all).   |
-| `BIS_UPDATE_CHANNEL` | `stable` | `prerelease` also offers pre-releases (`-rc`, `-beta`).              |
-| `BIS_UPDATER_URL`    | (none)   | Address of the `updater` service, for example `http://updater:8090`. |
+Everything can be set from the **Settings** screen of the UI: a **Check now** button, automatic checks on or off, frequency (1 to 168 hours) and the versions offered. The environment variables below give the defaults; a value saved in the UI replaces them, without a restart, until you click "Back to the default".
+
+| Variable              | Default  | Purpose                                                              |
+| --------------------- | -------- | -------------------------------------------------------------------- |
+| `BIS_UPDATE_CHECK`    | `true`   | `false` turns the check off completely (no GitHub request at all).   |
+| `BIS_UPDATE_CHANNEL`  | `stable` | `prerelease` also offers pre-releases (`-rc`, `-beta`).              |
+| `BIS_UPDATE_INTERVAL` | `6`      | Hours between two checks, 1 to 168.                                  |
+| `BIS_UPDATER_URL`     | (none)   | Address of the `updater` service, for example `http://updater:8090`. |
 
 ## One-click update
 

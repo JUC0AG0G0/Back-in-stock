@@ -1,9 +1,14 @@
 import telegram from '@back-in-stock/plugin-notifier-telegram';
+import { RuntimeSettings } from './application/runtime-settings.js';
 import { UpdateChecker } from './application/update-checker.js';
+import { UpdateScheduler } from './application/update-scheduler.js';
 import { loadConfig } from './config.js';
 import { buildApp } from './http/app.js';
 import { openDatabase } from './infrastructure/db/database.js';
-import { SqliteChannelRepository } from './infrastructure/db/repositories.js';
+import {
+  SqliteChannelRepository,
+  SqliteSettingsRepository,
+} from './infrastructure/db/repositories.js';
 import { HttpFetcher } from './infrastructure/http/http-fetcher.js';
 import { NotifierRegistry, SourceRegistry } from './infrastructure/plugins/registry.js';
 import { GitHubReleaseFeed } from './infrastructure/updates/github-release-feed.js';
@@ -26,24 +31,40 @@ const channels = new SqliteChannelRepository(database.db);
 
 const version = readVersion();
 
-// New version check (SPEC §7quater): release images only, every 6 hours, can be turned off.
+// Settings screen: environment variables are the defaults, values saved from the UI win.
+const settings = new RuntimeSettings(new SqliteSettingsRepository(database.db), {
+  updateCheck: config.updates.check,
+  updateIntervalHours: config.updates.intervalHours,
+  updateChannel: config.updates.channel,
+  apiDocs: config.apiDocs,
+});
+await settings.load();
+
+const HOUR_MS = 60 * 60 * 1000;
+// New version check (SPEC §7quater): release images only, every 6 hours by default.
 const updateChecker = new UpdateChecker({
   currentVersion: version,
   buildChannel: config.updates.buildChannel,
-  channel: config.updates.channel,
-  enabled: config.updates.check,
+  channel: settings.get('updateChannel'),
+  enabled: settings.get('updateCheck'),
   feed: new GitHubReleaseFeed({
     repository: config.updates.repository,
     userAgent: `back-in-stock/${version}`,
   }),
 });
-const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
-let updateTimer: NodeJS.Timeout | undefined;
-if (updateChecker.active) {
-  const check = () => void updateChecker.check();
-  setTimeout(check, 10_000).unref(); // not on the critical path of startup
-  updateTimer = setInterval(check, UPDATE_CHECK_INTERVAL_MS).unref();
-}
+const updateScheduler = new UpdateScheduler({
+  checker: updateChecker,
+  intervalMs: settings.get('updateIntervalHours') * HOUR_MS,
+});
+updateScheduler.start();
+settings.onChange((values, changed) => {
+  updateChecker.configure({ enabled: values.updateCheck, channel: values.updateChannel });
+  if (changed.includes('updateIntervalHours')) {
+    updateScheduler.setInterval(values.updateIntervalHours * HOUR_MS);
+  } else if (changed.includes('updateCheck')) {
+    updateScheduler.reschedule();
+  }
+});
 // One-click install: the updater service reads the same token from /data.
 const updater = config.updates.updaterUrl
   ? new UpdaterClient(config.updates.updaterUrl, ensureUpdaterToken(config.dataDir))
@@ -55,21 +76,28 @@ const app = await buildApp({
   logger: { level: config.logLevel },
   plugins,
   databasePing: database.ping,
-  apiDocs: config.apiDocs,
+  apiDocs: () => settings.get('apiDocs'),
   updates: {
     checker: updateChecker,
     updater,
     readLastJob: () => readLastJob(config.dataDir),
+    onChecked: () => updateScheduler.reschedule(),
+  },
+  settings: {
+    settings,
+    updateCheckSupported: config.updates.buildChannel === 'release',
   },
   channels: { repository: channels, fetch: fetcher },
   pluginTests: { fetch: fetcher, channels },
 });
-if (config.apiDocs) app.log.info(`API docs: http://localhost:${config.port}/api/docs`);
+if (settings.get('apiDocs')) {
+  app.log.info(`API docs: http://localhost:${config.port}/api/docs`);
+}
 app.log.info({ database: config.databasePath }, 'database ready');
 
 const shutdown = async (signal: NodeJS.Signals): Promise<void> => {
   app.log.info({ signal }, 'shutting down');
-  clearInterval(updateTimer);
+  updateScheduler.stop();
   await app.close();
   database.close();
   process.exit(0);

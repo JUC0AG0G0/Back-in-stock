@@ -20,7 +20,7 @@ pnpm dev
 
 - Interface web : [http://localhost:5173](http://localhost:5173) (Vite, rechargement à chaud).
 - API : [http://localhost:8080](http://localhost:8080).
-- Documentation de l'API (Swagger) : [http://localhost:8080/api/docs](http://localhost:8080/api/docs), **en développement uniquement**.
+- Documentation de l'API (Swagger) : [http://localhost:8080/api/docs](http://localhost:8080/api/docs), activée par défaut en développement (en production, depuis l'écran **Paramètres** ou avec `BIS_API_DOCS=true`).
 
 ## Vérifier avant une PR
 

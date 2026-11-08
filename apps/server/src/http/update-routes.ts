@@ -9,12 +9,14 @@ export interface UpdateRoutesOptions {
   updater: UpdaterClient | null;
   /** Last result written by the updater in /data, used when the updater does not answer. */
   readLastJob: () => UpdateJob | null;
+  /** Called after a manual check, e.g. to count the next automatic one from now. */
+  onChecked?: () => void;
 }
 
 /** New version banner and one-click install (SPEC §7quater). */
 export function registerUpdateRoutes(
   app: FastifyInstance,
-  { checker, updater, readLastJob }: UpdateRoutesOptions,
+  { checker, updater, readLastJob, onChecked }: UpdateRoutesOptions,
 ): void {
   const job = async (): Promise<UpdateJob | null> => (await updater?.job()) ?? readLastJob();
 
@@ -26,9 +28,10 @@ export function registerUpdateRoutes(
 
   app.get('/api/update', { schema: updateStatusSchema }, fullStatus);
 
-  // "Check now" button: asks GitHub right away instead of waiting for the next 6 h tick.
+  // "Check now" button (Settings): asks GitHub right away instead of waiting for the next tick.
   app.post('/api/update/check', { schema: updateStatusSchema }, async () => {
     await checker.check();
+    onChecked?.();
     return fullStatus();
   });
 

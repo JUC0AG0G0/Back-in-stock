@@ -11,6 +11,7 @@ on:
       - '.release-please-manifest.json'
       - 'pnpm-lock.yaml'
       - '.github/workflows/docs.yml'
+      - '.github/actions/setup-node/**'
   workflow_dispatch:
 
 permissions:
@@ -28,15 +29,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
       # Only the docs site and its dependencies.
-      - run: pnpm install --frozen-lockfile --filter @back-in-stock/docs...
+      - uses: ./.github/actions/setup-node
+        with:
+          filter: '@back-in-stock/docs...'
+
       - run: pnpm --filter @back-in-stock/docs run build
 
       - uses: actions/upload-pages-artifact@v5
