@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.0](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.1.1...v0.2.0) (2026-11-08)
+
+
+### ✨ Nouveautés
+
+* **install:** script d'installation en une commande ([#16](https://github.com/JUC0AG0G0/Back-in-stock/issues/16)) ([9bcbc94](https://github.com/JUC0AG0G0/Back-in-stock/commit/9bcbc94c60881448f9ae263f19ae5ae773ce76ef))
+* **telegram:** notifier Telegram configurable depuis l'interface ([#15](https://github.com/JUC0AG0G0/Back-in-stock/issues/15)) ([6f29f83](https://github.com/JUC0AG0G0/Back-in-stock/commit/6f29f83ea842b2ca43bdd67ae689c38e1cda7a7d))
+* **update:** bandeau de nouvelle version et mise à jour en un clic ([#17](https://github.com/JUC0AG0G0/Back-in-stock/issues/17)) ([8ecef53](https://github.com/JUC0AG0G0/Back-in-stock/commit/8ecef53f068c7e5cda197901deb55eeb7cf826ae))
+
 ## [0.1.1](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.1.0...v0.1.1) (2026-11-08)
 
 
