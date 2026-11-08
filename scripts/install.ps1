@@ -260,6 +260,10 @@ services:
   Write-Host ''
   Step (T "D\u00e9marrage (le premier t\u00e9l\u00e9chargement de l'image peut prendre une minute)" 'Starting (the first image download can take a minute)')
   Push-Location $dir
+  # The shell environment wins over .env in docker compose: use the values just written.
+  $savedEnv = @{}
+  foreach ($k in 'BIS_IMAGE_TAG', 'BIS_PORT', 'BIS_TZ') { $savedEnv[$k] = [Environment]::GetEnvironmentVariable($k) }
+  $env:BIS_IMAGE_TAG = $version; $env:BIS_PORT = "$port"; $env:BIS_TZ = $tz
   try {
     Compose config -q
     if ($LASTEXITCODE -ne 0) { Fail (T "La configuration g\u00e9n\u00e9r\u00e9e est invalide." 'The generated configuration is invalid.') }
@@ -296,7 +300,10 @@ services:
     }
     Write-Host ''
     Ok ((T "Back in stock ! est pr\u00eat" 'Back in stock ! is ready') + " ($($health.version))")
-  } finally { Pop-Location }
+  } finally {
+    foreach ($k in $savedEnv.Keys) { [Environment]::SetEnvironmentVariable($k, $savedEnv[$k]) }
+    Pop-Location
+  }
 
   # ---------- 5. done ----------
 

@@ -370,6 +370,10 @@ printf '\n'
 step "$(t "Démarrage (le premier téléchargement de l'image peut prendre une minute)" "Starting (the first image download can take a minute)")"
 cd "$DIR"
 
+# The shell environment wins over .env in docker compose: a BIS_PORT= left over in the caller's
+# environment would override the value just written.
+unset BIS_IMAGE_TAG BIS_PORT BIS_TZ
+
 compose config -q || die "$(t "La configuration générée est invalide." "The generated configuration is invalid.")"
 
 if [ "${BIS_SKIP_PULL:-}" != 1 ]; then
