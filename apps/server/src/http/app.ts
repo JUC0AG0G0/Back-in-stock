@@ -5,6 +5,7 @@ import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastif
 import type { NotifierRegistry, SourceRegistry } from '../infrastructure/plugins/registry.js';
 import { registerApiDocs } from './api-docs.js';
 import { healthSchema, pluginsSchema } from './schemas.js';
+import { registerUpdateRoutes, type UpdateRoutesOptions } from './update-routes.js';
 
 export interface AppOptions {
   version: string;
@@ -16,6 +17,8 @@ export interface AppOptions {
   databasePing?: () => boolean;
   /** Serves the Swagger UI at /api/docs. Development only (needs the server's devDependencies). */
   apiDocs?: boolean;
+  /** New version banner and one-click install. */
+  updates?: UpdateRoutesOptions;
 }
 
 /**
@@ -29,6 +32,7 @@ export async function buildApp({
   plugins,
   databasePing,
   apiDocs = false,
+  updates,
 }: AppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger });
 
@@ -55,6 +59,8 @@ export async function buildApp({
       rejected: [...plugins.sources.rejected(), ...plugins.notifiers.rejected()],
     }));
   }
+
+  if (updates) registerUpdateRoutes(app, updates);
 
   const serveWeb = webDir !== undefined && existsSync(join(webDir, 'index.html'));
   if (serveWeb) {

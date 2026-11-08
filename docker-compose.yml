@@ -1,14 +1,34 @@
+# Settings live in .env next to this file (written by the install script):
+#   BIS_IMAGE_TAG=latest   image tag: latest, a major (1), a minor (1.4) or an exact version (1.4.2)
+#   BIS_PORT=8080          port of the web UI on this machine
+#   BIS_TZ=Europe/Paris    time zone
 services:
   back-in-stock:
-    image: ghcr.io/juc0ag0g0/back-in-stock:latest
+    image: ghcr.io/juc0ag0g0/back-in-stock:${BIS_IMAGE_TAG:-latest}
     # To build from your local copy instead: docker compose up --build
     build:
       context: .
       dockerfile: docker/Dockerfile
     restart: unless-stopped
     ports:
-      - '8080:8080'
+      - '${BIS_PORT:-8080}:8080'
     volumes:
       - ./data:/data
     environment:
-      TZ: Europe/Paris
+      TZ: ${BIS_TZ:-Europe/Paris}
+      # One-click update through the updater service below. Remove both to turn it off.
+      BIS_UPDATER_URL: http://updater:8090
+
+  # Optional: installs new versions from the web UI (https://juc0ag0g0.github.io/Back-in-stock/updates).
+  # It has access to the Docker socket, which gives full control of Docker on this machine:
+  # read the documentation before keeping it. No port is published.
+  updater:
+    image: ghcr.io/juc0ag0g0/back-in-stock-updater:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/data
+      # This folder: lets the updater move BIS_IMAGE_TAG in .env when it is pinned to a version.
+      - .:/install
+    environment:
+      BIS_TARGET_SERVICE: back-in-stock

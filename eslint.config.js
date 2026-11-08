@@ -44,7 +44,21 @@ export default defineConfig(
     files: ['apps/web/src/**/*.tsx'],
     ignores: ['apps/web/src/components/ui/**'],
     plugins: { i18next },
-    rules: { 'i18next/no-literal-string': ['error', { mode: 'jsx-only' }] },
+    rules: {
+      'i18next/no-literal-string': [
+        'error',
+        {
+          mode: 'jsx-only',
+          // The plugin's defaults, plus component variants and link attributes: not texts.
+          'jsx-attributes': {
+            exclude: [
+              ...['className', 'styleName', 'style', 'type', 'key', 'id', 'width', 'height'],
+              ...['variant', 'size', 'role', 'href', 'target', 'rel', 'aria-live'],
+            ],
+          },
+        },
+      ],
+    },
   },
   {
     // shadcn/ui components are generated code that also exports variants.

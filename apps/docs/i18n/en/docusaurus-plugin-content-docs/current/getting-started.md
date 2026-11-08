@@ -59,8 +59,8 @@ docker compose pull
 docker compose up -d
 ```
 
-Your data in `./data` is kept, and the database is migrated automatically on startup.
+Your data in `./data` is kept, and the database is migrated automatically on startup. The web UI also shows a banner when a new version is out, and can install it in one click: see [Updates](updates.md).
 
 :::info Coming soon
-A first-run wizard will help you set up your first notification channel (Telegram or email) and add your first watch. One-click updates from the interface are planned too.
+A first-run wizard will help you set up your first notification channel (Telegram or email) and add your first watch.
 :::

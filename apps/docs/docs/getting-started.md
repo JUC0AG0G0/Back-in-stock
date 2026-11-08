@@ -59,8 +59,8 @@ docker compose pull
 docker compose up -d
 ```
 
-Tes données dans `./data` sont conservées, et la base est migrée automatiquement au démarrage.
+Tes données dans `./data` sont conservées, et la base est migrée automatiquement au démarrage. L'interface t'affiche aussi un bandeau quand une nouvelle version sort, et peut l'installer en un clic : voir [Mises à jour](updates.md).
 
 :::info À venir
-Un assistant de premier lancement te guidera pour configurer ton premier canal de notification (Telegram ou email) et ajouter ta première veille. Une mise à jour en un clic sera aussi proposée depuis l'interface.
+Un assistant de premier lancement te guidera pour configurer ton premier canal de notification (Telegram ou email) et ajouter ta première veille.
 :::

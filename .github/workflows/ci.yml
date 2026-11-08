@@ -58,3 +58,22 @@ jobs:
 
       - name: Smoke test Docker image
         run: scripts/docker-smoke.sh back-in-stock:ci
+
+      - name: Build updater image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/Dockerfile.updater
+          load: true
+          push: false
+          tags: back-in-stock-updater:ci
+          cache-from: type=gha,scope=updater
+
+      # Starts, answers /health, and refuses calls without the token.
+      - name: Smoke test updater image
+        run: |
+          docker run -d --name updater-ci -p 127.0.0.1:18090:8090 back-in-stock-updater:ci
+          for i in $(seq 1 20); do curl -fsS http://127.0.0.1:18090/health && break; sleep 1; done
+          curl -fsS http://127.0.0.1:18090/health | grep -q '"ok"'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18090/status)" = 401
+          docker rm -f updater-ci

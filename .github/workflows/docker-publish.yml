@@ -38,6 +38,10 @@ concurrency:
 env:
   # A release builds its tag; edge builds the pushed commit.
   REF: ${{ inputs.version && format('v{0}', inputs.version) || github.sha }}
+  # Only release images show the new version banner (SPEC §7quater); edge never looks for updates.
+  BUILD_ARGS: |
+    BIS_BUILD_CHANNEL=${{ inputs.version && 'release' || 'edge' }}
+    BIS_VERSION=${{ inputs.version || 'edge' }}
 
 jobs:
   build:
@@ -80,6 +84,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           load: true
           tags: back-in-stock:smoke
+          build-args: ${{ env.BUILD_ARGS }}
           cache-from: type=gha,scope=${{ matrix.arch }}
           cache-to: type=gha,scope=${{ matrix.arch }},mode=max
 
@@ -94,6 +99,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=true
+          build-args: ${{ env.BUILD_ARGS }}
           # No attestations in the registry: they show up as unnamed "sha256:…" versions
           # in the package page. The SBOM is attached to the release instead.
           provenance: false
@@ -159,6 +165,76 @@ jobs:
 
       - run: docker buildx imagetools inspect "$IMAGE:${{ steps.meta.outputs.version }}"
 
+  # Companion service of the one-click update (apps/updater): ghcr.io/<owner>/back-in-stock-updater.
+  # Pure JavaScript, so one multi-arch build is enough (no native code, no emulated RUN step).
+  updater:
+    name: updater image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.REF }}
+
+      - run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/back-in-stock-updater" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v6
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: index
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
+            type=semver,pattern={{major}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
+            type=raw,value=latest,enable=${{ inputs.version != '' }}
+            type=raw,value=edge,enable=${{ inputs.version == '' }}
+
+      # Smoke test: the service starts and answers /health without a token.
+      - name: Build for the smoke test
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/Dockerfile.updater
+          load: true
+          tags: back-in-stock-updater:smoke
+          cache-from: type=gha,scope=updater
+          cache-to: type=gha,scope=updater,mode=max
+
+      - name: Smoke test
+        run: |
+          docker run -d --name updater-smoke -p 127.0.0.1:18090:8090 back-in-stock-updater:smoke
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:18090/health && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:18090/health | grep -q '"ok"'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18090/status)" = 401
+          docker rm -f updater-smoke
+
+      - name: Push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: docker/Dockerfile.updater
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
+          provenance: false
+          sbom: false
+          cache-from: type=gha,scope=updater
+
   release-assets:
     name: release assets
     needs: merge
@@ -192,7 +268,7 @@ jobs:
 
       - name: docker-compose.yml pinned to this version
         run: |
-          sed -e "s#back-in-stock:latest#back-in-stock:$VERSION#" \
+          sed -e "s#back-in-stock:\${BIS_IMAGE_TAG:-latest}#back-in-stock:\${BIS_IMAGE_TAG:-$VERSION}#" \
               -e '/# To build from your local copy/,/dockerfile:/d' \
               docker-compose.yml > "dist/back-in-stock-$VERSION.docker-compose.yml"
           cat "dist/back-in-stock-$VERSION.docker-compose.yml"
