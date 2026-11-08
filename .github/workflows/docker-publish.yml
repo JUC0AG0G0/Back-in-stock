@@ -1,7 +1,7 @@
 name: Docker image
 
 # Publishes the image on ghcr.io/<owner>/back-in-stock:
-#   - every merge to main          → :edge (latest development version)
+#   - every merge to main          → :edge (latest development version) and :edge-<commit>
 #   - every release (release-please calls this workflow) → :X.Y.Z, :X.Y, :X, :latest,
 #     plus docker-compose.yml, install scripts, SBOM and checksums attached to the GitHub release
 #   - by hand (Actions → Docker image → Run workflow) to republish an existing release
@@ -167,6 +167,8 @@ jobs:
             type=semver,pattern={{major}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
             type=raw,value=latest,enable=${{ inputs.version != '' }}
             type=raw,value=edge,enable=${{ inputs.version == '' }}
+            # Every edge build keeps a tag of its own (edge-<commit>), so none ends up untagged.
+            type=sha,prefix=edge-,enable=${{ inputs.version == '' }}
 
       - name: Create the multi-arch image with its tags
         working-directory: ${{ runner.temp }}/digests
@@ -212,6 +214,8 @@ jobs:
             type=semver,pattern={{major}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
             type=raw,value=latest,enable=${{ inputs.version != '' }}
             type=raw,value=edge,enable=${{ inputs.version == '' }}
+            # Every edge build keeps a tag of its own (edge-<commit>), so none ends up untagged.
+            type=sha,prefix=edge-,enable=${{ inputs.version == '' }}
 
       # Smoke test: the service starts and answers /health without a token.
       - name: Build for the smoke test
