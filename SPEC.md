@@ -436,6 +436,26 @@ services:
 - La sauvegarde consiste à copier le dossier `./data`.
 - Documentation pour mettre l'application derrière un reverse proxy (Caddy, Traefik) avec HTTPS.
 
+### Script d'installation en une commande [jalon M1]
+
+Un script permet à un nouvel utilisateur d'installer et de démarrer l'application sans écrire de configuration à la main :
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/juc0ag0g0/back-in-stock/main/scripts/install.sh | sh
+```
+
+1. **Vérifie les prérequis** : Docker est installé, le démon répond et Docker Compose v2 (`docker compose`) est disponible. Sinon, le script s'arrête avec un message clair et le lien vers la doc d'installation de Docker.
+2. **Demande le port** d'écoute en proposant **8080** par défaut (Entrée pour accepter). Il vérifie que le port est libre et redemande sinon.
+3. **Génère une configuration prête à l'emploi** dans un dossier dédié (par défaut `./back-in-stock`) : `docker-compose.yml` de la version choisie (la dernière publiée par défaut), `.env` (port, fuseau horaire détecté, fréquence par défaut) et dossier `data/`.
+4. **Démarre le projet** (`docker compose up -d`), attend que `/api/health` réponde, puis affiche l'URL de l'interface (`http://localhost:<port>`), où l'assistant de premier lancement prend le relais.
+
+Règles :
+- Script POSIX `sh` (Linux, macOS, WSL), sans dépendance autre que Docker et `curl`.
+- Idempotent : relancé sur une installation existante, il ne touche pas à `data/` et propose seulement de mettre à jour l'image ou de changer le port.
+- **Choix de la version** : `--version 1.2.3` installe une version précise au lieu de la dernière (l'image est alors épinglée sur le tag `1.2.3`, pas `latest`). Les tags partiels sont acceptés (`--version 1.2` suit les correctifs de la 1.2). Le script vérifie que la version existe sur ghcr.io avant de continuer. Exemple : `curl -fsSL …/install.sh | sh -s -- --version 1.2.3`.
+- Mode non interactif pour l'automatisation : `--port 8080 --dir /opt/back-in-stock --version 1.2.3 --yes`.
+- Publié comme asset de chaque release, avec sa somme sha256, et documenté dans le guide de démarrage.
+
 ## 13. Notifications : comportement
 
 - Une notification par événement et par canal, avec suivi dans `deliveries` et retries.
@@ -586,7 +606,7 @@ Les rulesets sont versionnés dans `.github/rulesets/*.json` pour pouvoir les **
 | Jalon | Contenu |
 |---|---|
 | **M0 — Socle** | Monorepo, **CI/CD complète, release-please, rulesets**, SDK de plugins, domaine (veille, state machine, diff de listes), SQLite + migrations, **i18n FR/EN en place (front et back)**, squelette Docusaurus publié sur GitHub Pages |
-| **M1 — MVP produit** | Veilles `product`, plugins `structured-data` et `css-rule`, scheduler avec fréquence globale et par veille, notifiers **Telegram et email avec assistants guidés et images produit**, ntfy, API, interface (liste, ajout avec aperçu), **assistant de premier lancement**, image Docker, **guide de démarrage et de configuration** dans la doc |
+| **M1 — MVP produit** | Veilles `product`, plugins `structured-data` et `css-rule`, scheduler avec fréquence globale et par veille, notifiers **Telegram et email avec assistants guidés et images produit**, ntfy, API, interface (liste, ajout avec aperçu), **assistant de premier lancement**, image Docker, **script d'installation en une commande** (§12), **guide de démarrage et de configuration** dans la doc |
 | **M2 — Pages liste** | Veilles `listing` (sans filtres), **plugin `fanatec` (reconditionné EU)**, plugin Shopify, groupement des notifications |
 | **M3 — Robustesse** | Fetcher navigateur (image `:full`), backoff, alertes `WatchFailing`, outbox avec retries, auth, chiffrement des secrets, **bandeau de nouvelle version + service `updater`** |
 | **M4 — Écosystème** | Chargement de plugins npm et locaux, testkit, `create-plugin`, **tutoriels Docusaurus « Ajouter un site » et « Ajouter un notifier » (exemple Discord)**, référence TypeDoc, publication du SDK sur npm |
