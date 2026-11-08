@@ -1,7 +1,10 @@
+import telegram from '@back-in-stock/plugin-notifier-telegram';
 import { UpdateChecker } from './application/update-checker.js';
 import { loadConfig } from './config.js';
 import { buildApp } from './http/app.js';
 import { openDatabase } from './infrastructure/db/database.js';
+import { SqliteChannelRepository } from './infrastructure/db/repositories.js';
+import { HttpFetcher } from './infrastructure/http/http-fetcher.js';
 import { NotifierRegistry, SourceRegistry } from './infrastructure/plugins/registry.js';
 import { GitHubReleaseFeed } from './infrastructure/updates/github-release-feed.js';
 import {
@@ -17,6 +20,8 @@ const config = loadConfig();
 const database = openDatabase(config.databasePath);
 // Built-in plugins (plugins/*) and external ones (npm, /data/plugins) will register here (M1, M4).
 const plugins = { sources: new SourceRegistry(), notifiers: new NotifierRegistry() };
+plugins.notifiers.register(telegram);
+const fetcher = new HttpFetcher();
 
 const version = readVersion();
 
@@ -55,6 +60,7 @@ const app = await buildApp({
     updater,
     readLastJob: () => readLastJob(config.dataDir),
   },
+  channels: { repository: new SqliteChannelRepository(database.db), fetch: fetcher },
 });
 if (config.apiDocs) app.log.info(`API docs: http://localhost:${config.port}/api/docs`);
 app.log.info({ database: config.databasePath }, 'database ready');

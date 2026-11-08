@@ -7,6 +7,10 @@
     "message": "Use",
     "description": "The label for category 'Utiliser' in sidebar 'docs'"
   },
+  "sidebar.docs.category.Canaux de notification": {
+    "message": "Notification channels",
+    "description": "The label for category 'Canaux de notification' in sidebar 'docs'"
+  },
   "sidebar.docs.category.Écrire un plugin": {
     "message": "Write a plugin",
     "description": "The label for category 'Écrire un plugin' in sidebar 'docs'"

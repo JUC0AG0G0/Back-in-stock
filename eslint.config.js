@@ -53,7 +53,7 @@ export default defineConfig(
           'jsx-attributes': {
             exclude: [
               ...['className', 'styleName', 'style', 'type', 'key', 'id', 'width', 'height'],
-              ...['variant', 'size', 'role', 'href', 'target', 'rel', 'aria-live'],
+              ...['variant', 'size', 'role', 'href', 'target', 'rel', 'aria-live', 'autoComplete'],
             ],
           },
         },

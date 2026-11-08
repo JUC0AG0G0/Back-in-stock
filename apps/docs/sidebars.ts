@@ -11,6 +11,12 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Canaux de notification',
+      collapsed: false,
+      items: ['channels/telegram'],
+    },
+    {
+      type: 'category',
       label: 'Écrire un plugin',
       collapsed: false,
       items: ['plugins/overview', 'plugins/source', 'plugins/notifier'],

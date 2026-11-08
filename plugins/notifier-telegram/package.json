@@ -1,0 +1,27 @@
+{
+  "name": "@back-in-stock/plugin-notifier-telegram",
+  "version": "0.1.0",
+  "description": "Telegram notifier for Back in stock !, with a guided BotFather setup.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "@back-in-stock/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@back-in-stock/plugin-sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5"
+  }
+}

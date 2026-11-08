@@ -42,7 +42,11 @@
       "title": "Item removed: {{item}}",
       "text": "No longer listed on {{watch}}."
     },
-    "price": "Price: {{price}}"
+    "price": "Price: {{price}}",
+    "test": {
+      "title": "Test message",
+      "text": "If you can read this, this channel works. Your Back in stock ! alerts will arrive here."
+    }
   },
   "update": {
     "available": "Version {{latest}} is available (you have {{current}})",
@@ -84,5 +88,59 @@
     "rolledBack": "The update to {{version}} failed, so the previous version and your data were restored. Details: {{message}}",
     "timeout": "The update is taking longer than expected. Check the containers with docker compose ps.",
     "dismiss": "OK"
+  },
+  "nav": {
+    "label": "Main navigation",
+    "home": "Home",
+    "channels": "Channels"
+  },
+  "channels": {
+    "title": "Notification channels",
+    "intro": "Where your alerts are sent. You can create several channels, including several of the same kind (for example two Telegram accounts).",
+    "add": "Add a channel",
+    "addTitle": "New {{name}} channel",
+    "pickNotifier": "Which kind of channel?",
+    "empty": "No channel yet. Add one to receive your alerts.",
+    "loadError": "Could not load the channels. Is the server running?",
+    "name": "Channel name",
+    "nameHelp": "To recognize it, for example \"My personal Telegram\".",
+    "isDefault": "Default channel",
+    "isDefaultHelp": "Pre-selected when you create a watch.",
+    "default": "Default",
+    "makeDefault": "Make default",
+    "removeDefault": "Remove from defaults",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "pluginMissing": "Plugin missing",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Delete the channel \"{{name}}\"? Watches will stop using it.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "sendTest": "Send a test",
+    "testSent": "Test message sent.",
+    "testFailed": "Sending failed: {{error}}",
+    "secretUnchanged": "Unchanged (leave empty to keep it)",
+    "wizard": {
+      "progress": "{{name}} · step {{current}} of {{total}}",
+      "saveTitle": "Name and save the channel",
+      "next": "Next",
+      "back": "Back",
+      "check": "Check",
+      "ok": "All good!",
+      "botFound": "Bot found: {{name}} (@{{username}})",
+      "detect": "Detect",
+      "nothingDetected": "Nothing detected yet. Send a message to the bot, then try again.",
+      "pickOne": "Pick the chat:",
+      "useTyped": "Continue with the typed id",
+      "didYouReceive": "Message sent. Did you receive it?",
+      "received": "Yes, received",
+      "sendAgain": "Send again",
+      "testReceived": "Test received, the channel works.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "scanWithPhone": "Scan with your phone",
+      "qrCode": "QR code to {{url}}"
+    }
   }
 }

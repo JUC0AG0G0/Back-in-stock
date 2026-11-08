@@ -56,6 +56,24 @@ const notifierSchema = z.object({
   configSchema: zodSchema,
   send: fn,
   test: fn.optional(),
+  validate: fn.optional(),
+  discover: fn.optional(),
+  setupGuide: z
+    .array(
+      z.object({
+        id: z.string().min(1),
+        title: z.string().min(1),
+        description: z.string().optional(),
+        links: z
+          .array(z.object({ label: z.string(), url: z.string(), qrCode: z.boolean().optional() }))
+          .optional(),
+        copyText: z.string().optional(),
+        fields: z.array(z.string()).optional(),
+        action: z.enum(['validate', 'discover', 'test']).optional(),
+      }),
+    )
+    .optional(),
+  translations: z.record(z.string(), z.record(z.string(), z.string())).optional(),
 });
 
 const pluginSchema = z.discriminatedUnion('kind', [sourceSchema, notifierSchema], {
