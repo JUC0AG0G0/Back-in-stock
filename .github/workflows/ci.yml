@@ -4,42 +4,109 @@ name: CI
 # merging, so the commit that lands on main has already passed this exact run.
 # What runs after a merge lives elsewhere: release-please (release-please.yml), the :edge image
 # (docker-publish.yml, which also builds and smoke-tests the image) and the docs.
+#
+# The checks run as parallel jobs, each only when the PR touches what it checks
+# (scripts/ci/changes.sh). The ruleset requires a single check, "ci": the last job, which
+# always runs and fails if any job it waits for failed. A skipped job counts as passed, so
+# the release-please PR (version + changelog only) is green in a few seconds.
 on:
   pull_request:
 
+# A new push to the PR cancels the run of the previous one.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  ci:
-    name: ci
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      node: ${{ steps.filter.outputs.node }}
+      docker: ${{ steps.filter.outputs.docker }}
+    steps:
+      # Only the script: the list of files comes from the API, no history needed.
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: scripts/ci
+          sparse-checkout-cone-mode: false
+
+      - id: filter
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR/files" --jq '.[].filename' > files.txt
+          cat files.txt
+          scripts/ci/changes.sh "$HEAD_REF" < files.txt | tee -a "$GITHUB_OUTPUT"
+
+  lint:
+    name: lint
+    needs: changes
+    if: needs.changes.outputs.node == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-node
+      - run: pnpm run lint
+      - run: pnpm run format:check
+      - name: Lint shell scripts
+        run: shellcheck scripts/*.sh scripts/ci/*.sh
+      # Windows PowerShell 5.1 may decode a downloaded script with a legacy code page.
+      - name: install.ps1 stays ASCII
+        run: "! grep -nP '[^\\x00-\\x7F]' scripts/install.ps1"
+
+  typecheck:
+    name: typecheck
+    needs: changes
+    if: needs.changes.outputs.node == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-node
+      - run: pnpm run typecheck
+
+  test:
+    name: test
+    needs: changes
+    if: needs.changes.outputs.node == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-node
+      - run: pnpm run test
+
+  build:
+    name: build
+    needs: changes
+    if: needs.changes.outputs.node == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-node
+      - run: pnpm run build
+
+  # The images are built inside Docker: no pnpm install on the runner.
+  docker:
+    name: docker
+    needs: changes
+    if: needs.changes.outputs.docker == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
-
-      - uses: pnpm/action-setup@v6
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run lint
-      - name: Lint shell scripts
-        run: shellcheck scripts/*.sh
-      # Windows PowerShell 5.1 may decode a downloaded script with a legacy code page.
-      - name: install.ps1 stays ASCII
-        run: "! grep -nP '[^\\x00-\\x7F]' scripts/install.ps1"
-      - run: pnpm run format:check
-      - run: pnpm run typecheck
-      - run: pnpm run test
-      - run: pnpm run build
 
       # Simulates a contributor with a strict umask (files readable by owner only):
       # the image must not depend on host file permissions.
@@ -48,6 +115,8 @@ jobs:
 
       - uses: docker/setup-buildx-action@v4
 
+      # Tagged with the names the installers use, so their docker compose never pulls
+      # from ghcr.io (an untagged updater image used to be downloaded on every run).
       - name: Build Docker image
         uses: docker/build-push-action@v7
         with:
@@ -55,7 +124,9 @@ jobs:
           file: docker/Dockerfile
           load: true
           push: false
-          tags: back-in-stock:ci
+          tags: |
+            back-in-stock:ci
+            ghcr.io/juc0ag0g0/back-in-stock:ci
           # Same scope as the amd64 build of docker-publish.yml: a PR reuses the layers of
           # the last :edge build on main (PR caches are not visible from main or other PRs).
           cache-from: type=gha,scope=amd64
@@ -71,7 +142,9 @@ jobs:
           file: docker/Dockerfile.updater
           load: true
           push: false
-          tags: back-in-stock-updater:ci
+          tags: |
+            back-in-stock-updater:ci
+            ghcr.io/juc0ag0g0/back-in-stock-updater:latest
           cache-from: type=gha,scope=updater
 
       # Starts, answers /health, and refuses calls without the token.
@@ -83,7 +156,8 @@ jobs:
           test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18090/status)" = 401
           docker rm -f updater-ci
 
-      # The installers, end to end, against the image built above (no download: BIS_SKIP_PULL).
+      # The installers, end to end, against the images built above (no download: BIS_SKIP_PULL,
+      # and both images are already tagged with the names of the generated docker-compose.yml).
       # Both must write the same files; only the port differs.
       - name: Test the installers
         env:
@@ -93,7 +167,6 @@ jobs:
           BIS_LANG: en
           BIS_YES: '1'
         run: |
-          docker tag back-in-stock:ci ghcr.io/juc0ag0g0/back-in-stock:ci
           BIS_DIR="$RUNNER_TEMP/bis-sh" BIS_PORT=18081 sh scripts/install.sh --yes
           BIS_DIR="$RUNNER_TEMP/bis-ps" BIS_PORT=18082 pwsh -NoProfile -File scripts/install.ps1
           curl -fsS http://127.0.0.1:18081/api/health
@@ -105,3 +178,20 @@ jobs:
           grep -qx BIS_PORT=18081 "$RUNNER_TEMP/bis-sh/.env"
           (cd "$RUNNER_TEMP/bis-sh" && docker compose down)
           (cd "$RUNNER_TEMP/bis-ps" && docker compose down)
+
+  # The only check required by the ruleset. Keep this job name: it is the status check context.
+  ci:
+    name: ci
+    needs: [changes, lint, typecheck, test, build, docker]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: |
+          echo "$RESULTS"
+          if jq -e 'any(.[]; . == "failure" or . == "cancelled")' <<< "$RESULTS" > /dev/null; then
+            echo "::error::At least one CI job failed or was cancelled."
+            exit 1
+          fi

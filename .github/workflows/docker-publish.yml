@@ -11,9 +11,18 @@ name: Docker image
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - 'apps/docs/**'
-      - '**/*.md'
+    # Only what goes into an image. The merge of the release PR (version + changelog) is
+    # skipped below: release-please.yml publishes that version itself.
+    paths:
+      - '**'
+      - '!apps/docs/**'
+      - '!**/*.md'
+      - '!.github/**'
+      - '.github/workflows/docker-publish.yml'
+      - '!.release-please-manifest.json'
+      - '!docker-compose.yml'
+      - '!scripts/install.sh'
+      - '!scripts/install.ps1'
   workflow_call:
     inputs:
       version:
@@ -46,6 +55,10 @@ env:
 jobs:
   build:
     name: build (${{ matrix.arch }})
+    # A merged release PR: its version is published by release-please.yml, not as :edge.
+    if: >-
+      ${{ !(inputs.version == '' && github.event_name == 'push'
+      && startsWith(github.event.head_commit.message, 'chore(main): release ')) }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 20
     strategy:
@@ -163,12 +176,13 @@ jobs:
           while IFS= read -r a; do args+=(--annotation "$a"); done < <(jq -r '.annotations[]' <<< "$DOCKER_METADATA_OUTPUT_JSON")
           docker buildx imagetools create "${args[@]}" $(printf "$IMAGE@sha256:%s " *)
 
-      - run: docker buildx imagetools inspect "$IMAGE:${{ steps.meta.outputs.version }}"
-
   # Companion service of the one-click update (apps/updater): ghcr.io/<owner>/back-in-stock-updater.
   # Pure JavaScript, so one multi-arch build is enough (no native code, no emulated RUN step).
   updater:
     name: updater image
+    if: >-
+      ${{ !(inputs.version == '' && github.event_name == 'push'
+      && startsWith(github.event.head_commit.message, 'chore(main): release ')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
