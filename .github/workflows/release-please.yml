@@ -20,14 +20,29 @@ jobs:
     steps:
       # Met à jour la PR "chore(main): release x.y.z" à chaque fusion sur main.
       # La fusionner crée le tag vX.Y.Z et la release GitHub.
+      # release-please tourne via scripts/release-please/run.ts plutôt que via
+      # googleapis/release-please-action : l'action ne sait pas charger la stratégie de
+      # versionnement maison (refactor → mineure, voir scripts/release-please/versioning.ts).
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      # Dépendances de la racine seulement (release-please), pas celles des apps.
+      - run: pnpm install --frozen-lockfile --filter back-in-stock
+
       # RELEASE_PLEASE_TOKEN (PAT fine-grained ou token d'app) est nécessaire pour que
       # la CI se lance sur la PR de release ; sans lui, on retombe sur GITHUB_TOKEN.
       - id: release
-        uses: googleapis/release-please-action@v5
-        with:
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
-          config-file: release-please-config.json
-          manifest-file: .release-please-manifest.json
+        run: node scripts/release-please/run.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
   publish-image:
     name: publish-image
