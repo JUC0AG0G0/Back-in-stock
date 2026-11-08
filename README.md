@@ -27,7 +27,22 @@ Open source · Auto-hébergé · Sans serveur central · TypeScript · Docker ·
 
 ## Démarrage rapide
 
-> Disponible dès la première release.
+Il te faut [Docker](https://docs.docker.com/get-docker/). Puis, sur **macOS ou Linux** :
+
+```bash
+curl -fsSL https://github.com/JUC0AG0G0/Back-in-stock/releases/latest/download/install.sh | sh
+```
+
+Sur **Windows** (PowerShell) :
+
+```powershell
+irm https://github.com/JUC0AG0G0/Back-in-stock/releases/latest/download/install.ps1 | iex
+```
+
+Le script vérifie Docker, te demande le dossier, le port (8080 par défaut) et le fuseau horaire, puis démarre l'application. Relance-le pour mettre à jour.
+
+<details>
+<summary>Installation manuelle avec docker compose</summary>
 
 ```yaml
 # docker-compose.yml
@@ -45,6 +60,8 @@ services:
 ```bash
 docker compose up -d
 ```
+
+</details>
 
 Ouvre ensuite <http://localhost:8080> : l'assistant te guide pour créer ton compte, configurer ton premier canal de notification et ajouter ta première veille.
 

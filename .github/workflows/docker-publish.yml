@@ -3,7 +3,7 @@ name: Docker image
 # Publishes the image on ghcr.io/<owner>/back-in-stock:
 #   - every merge to main          → :edge (latest development version)
 #   - every release (release-please calls this workflow) → :X.Y.Z, :X.Y, :X, :latest,
-#     plus docker-compose.yml, SBOM and checksums attached to the GitHub release
+#     plus docker-compose.yml, install scripts, SBOM and checksums attached to the GitHub release
 #   - by hand (Actions → Docker image → Run workflow) to republish an existing release
 #
 # Each architecture builds on its own native runner (no QEMU emulation, which crashes Node
@@ -273,9 +273,13 @@ jobs:
               docker-compose.yml > "dist/back-in-stock-$VERSION.docker-compose.yml"
           cat "dist/back-in-stock-$VERSION.docker-compose.yml"
 
+      # Unversioned names: releases/latest/download/install.sh always points at the latest one.
+      - name: Install scripts
+        run: cp scripts/install.sh scripts/install.ps1 dist/
+
       - name: Checksums
         working-directory: dist
-        run: sha256sum back-in-stock-* > "back-in-stock-$VERSION.sha256sums.txt"
+        run: sha256sum back-in-stock-* install.sh install.ps1 > "back-in-stock-$VERSION.sha256sums.txt"
 
       - name: Attach to the release
         env:
@@ -291,6 +295,9 @@ jobs:
           if grep -q 'docker pull' <<< "$body"; then exit 0; fi
           {
             printf '%s\n\n' "$body"
+            printf '## 🚀 Installation\n\n'
+            printf 'macOS / Linux :\n\n```bash\ncurl -fsSL https://github.com/%s/releases/latest/download/install.sh | sh\n```\n\n' "$GITHUB_REPOSITORY"
+            printf 'Windows (PowerShell) :\n\n```powershell\nirm https://github.com/%s/releases/latest/download/install.ps1 | iex\n```\n\n' "$GITHUB_REPOSITORY"
             printf '## 🐳 Image Docker\n\n'
             printf '```bash\ndocker pull %s:%s\n```\n\n' "$IMAGE" "$VERSION"
             printf 'amd64 et arm64. Avec docker compose : télécharge `back-in-stock-%s.docker-compose.yml` ci-dessous.\n' "$VERSION"
