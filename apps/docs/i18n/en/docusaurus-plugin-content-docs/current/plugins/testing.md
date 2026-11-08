@@ -48,12 +48,26 @@ These tests hit the **real site**. They complement fixture tests, they do not re
 
 Nothing to add: the test reuses what a channel's "Send a test" button already does. If your notifier defines `test(ctx)`, it is called. Otherwise the core calls `send(ctx, message)` with a translated test message (`event: 'Test'`). The channel config is validated by `configSchema` first.
 
+### Customize the test message
+
+On a notifier row, pick the message to send to check how your channel renders it:
+
+| Preset              | What is sent                                                    |
+| ------------------- | --------------------------------------------------------------- |
+| Standard test       | The plugin test (`test()` if any, else the translated message). |
+| Text only           | A title and a text.                                             |
+| Text + link         | A title, a text and a link.                                     |
+| Text + link + image | A title, a text, a link and an image.                           |
+| Link only, no image | A title and a link, without text or image.                      |
+
+Every field (title, text, link, image URL) can be edited, and an empty field is left out (an empty title uses the default title). A custom message always goes through `send()`, so through the notifier's real rendering. If the notifier has several channels, you can test only one.
+
 ## From the API
 
 ```http
 POST /api/plugins/test                  # every plugin, optional body { "kind": "source" | "notifier" }
 POST /api/plugins/sources/:id/test      # optional body { "url", "type", "config" }
-POST /api/plugins/notifiers/:id/test    # every channel of this notifier
+POST /api/plugins/notifiers/:id/test    # optional body { "channelId", "locale", "message": { "title", "text", "url", "imageUrl" } }
 ```
 
 Each route answers `{ results: [...] }`, with one result per page or per channel:

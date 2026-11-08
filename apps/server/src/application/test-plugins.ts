@@ -9,7 +9,9 @@ import type {
   WatchType,
 } from '@back-in-stock/plugin-sdk';
 import { SourceError } from '@back-in-stock/plugin-sdk';
+import type { Locale } from '@back-in-stock/i18n';
 import type { ChannelRepository } from './ports.js';
+import type { TestMessageContent } from './test-notifier.js';
 
 /**
  * Generic plugin self-test (Plugins screen, "Test" and "Test all plugins" buttons).
@@ -51,7 +53,8 @@ export interface PluginTestResult {
 export type NotifierTestFn = (
   plugin: NotifierPlugin,
   config: unknown,
-  deps: { fetch: Fetcher; logger: Logger; signal: AbortSignal },
+  deps: { fetch: Fetcher; logger: Logger; signal: AbortSignal; locale?: Locale },
+  content?: TestMessageContent,
 ) => Promise<void>;
 
 export interface PluginTesterDeps {
@@ -74,6 +77,15 @@ export interface SourceTestInput {
   /** Watch type to test. Defaults to the first type the plugin supports. */
   type?: WatchType;
   config?: unknown;
+}
+
+export interface NotifierTestInput {
+  /** Only this saved channel. Defaults to every channel of the notifier. */
+  channelId?: string;
+  /** Custom message. Without it, the plugin's own test or the default test message is sent. */
+  message?: TestMessageContent;
+  /** Language of the default texts, e.g. the UI language. */
+  locale?: Locale;
 }
 
 export class UnknownPluginError extends Error {
@@ -122,10 +134,18 @@ export class PluginTester {
     return this.runSource(plugin, input);
   }
 
-  async testNotifier(id: string): Promise<PluginTestResult[]> {
+  async testNotifier(id: string, input: NotifierTestInput = {}): Promise<PluginTestResult[]> {
     const plugin = this.deps.notifiers.get(id);
     if (!plugin) throw new UnknownPluginError('notifier', id);
-    return this.runNotifier(plugin, await this.listChannels());
+    const message = input.message && cleanMessage(input.message);
+    let channels = await this.listChannels();
+    if (input.channelId !== undefined) {
+      channels = channels.filter((c) => c.id === input.channelId && c.notifierId === plugin.id);
+      if (channels.length === 0) {
+        throw new InvalidTestInputError(`channelId: no "${plugin.id}" channel with this id`);
+      }
+    }
+    return this.runNotifier(plugin, channels, { ...input, ...(message ? { message } : {}) });
   }
 
   private async runSource(
@@ -137,7 +157,7 @@ export class PluginTester {
       if (type === undefined || !plugin.supports.includes(type)) {
         throw new InvalidTestInputError(`plugin "${plugin.id}" does not support "${String(type)}"`);
       }
-      if (!URL.canParse(input.url) || !/^https?:$/.test(new URL(input.url).protocol)) {
+      if (!isHttpUrl(input.url)) {
         throw new InvalidTestInputError('url: must be an http(s) URL');
       }
       return [await this.checkPage(plugin, { url: input.url, type, config: input.config })];
@@ -193,6 +213,7 @@ export class PluginTester {
   private async runNotifier(
     plugin: NotifierPlugin,
     channels: Awaited<ReturnType<ChannelRepository['list']>>,
+    input: NotifierTestInput = {},
   ): Promise<PluginTestResult[]> {
     const own = channels.filter((channel) => channel.notifierId === plugin.id);
     if (own.length === 0) {
@@ -214,11 +235,17 @@ export class PluginTester {
           { label: channel.name, channelId: channel.id },
           async (signal) => {
             const config = parseConfig(plugin.configSchema, channel.config);
-            await this.deps.testNotifier(plugin, config, {
-              fetch: this.deps.fetch,
-              logger: this.deps.logger,
-              signal,
-            });
+            await this.deps.testNotifier(
+              plugin,
+              config,
+              {
+                fetch: this.deps.fetch,
+                logger: this.deps.logger,
+                signal,
+                ...(input.locale ? { locale: input.locale } : {}),
+              },
+              input.message,
+            );
             return undefined;
           },
         ),
@@ -262,6 +289,24 @@ export class PluginTester {
       };
     }
   }
+}
+
+/** Trims the fields, drops empty ones, and checks that links are http(s). */
+function cleanMessage(message: TestMessageContent): TestMessageContent {
+  const clean: TestMessageContent = {};
+  for (const key of ['title', 'text', 'url', 'imageUrl'] as const) {
+    const value = message[key]?.trim();
+    if (!value) continue;
+    if ((key === 'url' || key === 'imageUrl') && !isHttpUrl(value)) {
+      throw new InvalidTestInputError(`message.${key}: must be an http(s) URL`);
+    }
+    clean[key] = value;
+  }
+  return clean;
+}
+
+function isHttpUrl(value: string): boolean {
+  return URL.canParse(value) && /^https?:$/.test(new URL(value).protocol);
 }
 
 function parseConfig(

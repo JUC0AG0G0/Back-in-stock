@@ -47,7 +47,28 @@
       "incomplete": "incomplete list (pagination stopped)",
       "notifier": "Test notification sent."
     },
-    "summary": "{{passed}} passed · {{failed}} failed · {{skipped}} skipped"
+    "summary": "{{passed}} passed · {{failed}} failed · {{skipped}} skipped",
+    "message": {
+      "preset": "Message to send",
+      "presets": {
+        "default": "Standard test",
+        "text": "Text only",
+        "textLink": "Text + link",
+        "textLinkImage": "Text + link + image",
+        "linkOnly": "Link only, no image"
+      },
+      "fields": {
+        "title": "Title",
+        "text": "Text",
+        "url": "Link",
+        "imageUrl": "Image URL"
+      },
+      "imageHint": "Leave a field empty to leave it out (an empty title uses the default title). The image only shows if the channel allows images.",
+      "channel": "Channel",
+      "allChannels": "Every channel of this notifier",
+      "sampleTitle": "Back in stock: GT DD Pro wheel",
+      "sampleText": "This is a test. The product is available again."
+    }
   },
   "status": {
     "IN_STOCK": "in stock",

@@ -113,7 +113,8 @@ function tester(
     fetch: fetcher,
     html: htmlHelpers,
     logger: silent,
-    testNotifier: (plugin, config, deps) => testNotifier(plugin, config, { ...deps, locale: 'en' }),
+    testNotifier: (plugin, config, { locale = 'en', ...deps }, content) =>
+      testNotifier(plugin, config, { ...deps, locale }, content),
     now: () => (clock += 5),
     ...overrides,
   });
@@ -261,6 +262,67 @@ describe('PluginTester, notifiers', () => {
         durationMs: 0,
       },
     ]);
+  });
+});
+
+describe('PluginTester, custom test message', () => {
+  it('sends the custom content through send(), even when the plugin has test(), in the UI language', async () => {
+    const test = vi.fn(async () => {});
+    const send = vi.fn(async () => {});
+    const plugin = { ...notifier('telegram', send).plugin, test };
+    const channels = [channel('a', 'telegram'), channel('b', 'telegram')];
+    const t = tester({ notifierPlugins: [plugin], channels: { list: async () => channels } });
+
+    const results = await t.testNotifier('telegram', {
+      channelId: 'b',
+      locale: 'fr',
+      message: { text: '  Volant GT  ', url: 'https://shop.example/p', imageUrl: ' ' },
+    });
+
+    expect(results.map((r) => r.target?.channelId)).toEqual(['b']);
+    expect(test).not.toHaveBeenCalled();
+    expect(send).toHaveBeenCalledWith(expect.anything(), {
+      event: 'Test',
+      locale: 'fr',
+      title: 'Message de test',
+      text: 'Volant GT',
+      url: 'https://shop.example/p',
+    });
+  });
+
+  it('sends a link with an image', async () => {
+    const telegram = notifier('telegram');
+    const t = tester({
+      notifierPlugins: [telegram.plugin],
+      channels: { list: async () => [channel('a', 'telegram')] },
+    });
+
+    await t.testNotifier('telegram', {
+      message: {
+        title: 'T',
+        url: 'https://shop.example/p',
+        imageUrl: 'https://shop.example/i.jpg',
+      },
+    });
+
+    expect(telegram.send).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ title: 'T', text: '', imageUrl: 'https://shop.example/i.jpg' }),
+    );
+  });
+
+  it('rejects a non-http link and an unknown channel', async () => {
+    const t = tester({
+      notifierPlugins: [notifier('telegram').plugin],
+      channels: { list: async () => [channel('a', 'telegram'), channel('n', 'ntfy')] },
+    });
+
+    await expect(
+      t.testNotifier('telegram', { message: { imageUrl: 'file:///etc/passwd' } }),
+    ).rejects.toThrow('message.imageUrl: must be an http(s) URL');
+    await expect(t.testNotifier('telegram', { channelId: 'n' })).rejects.toBeInstanceOf(
+      InvalidTestInputError,
+    );
   });
 });
 

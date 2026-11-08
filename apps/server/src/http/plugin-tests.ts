@@ -1,8 +1,10 @@
+import { toLocale } from '@back-in-stock/i18n';
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import {
   InvalidTestInputError,
   UnknownPluginError,
   type PluginKind,
+  type NotifierTestInput,
   type PluginTester,
   type SourceTestInput,
 } from '../application/test-plugins.js';
@@ -32,12 +34,21 @@ export function registerPluginTestRoutes(app: FastifyInstance, tester: PluginTes
     },
   );
 
-  app.post<{ Params: { id: string } }>(
+  app.post<{
+    Params: { id: string };
+    Body: (Omit<NotifierTestInput, 'locale'> & { locale?: string }) | undefined;
+  }>(
     '/api/plugins/notifiers/:id/test',
     { schema: testNotifierPluginSchema },
     async (request, reply) => {
       try {
-        return { results: await tester.testNotifier(request.params.id) };
+        const { locale, ...input } = request.body ?? {};
+        return {
+          results: await tester.testNotifier(request.params.id, {
+            ...input,
+            ...(locale ? { locale: toLocale(locale) } : {}),
+          }),
+        };
       } catch (err) {
         return sendKnownError(reply, err);
       }

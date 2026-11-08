@@ -48,12 +48,26 @@ Ces tests visent le **vrai site**. Ils complètent les tests sur fixtures, ils n
 
 Il n'y a rien à ajouter : le test réutilise ce que le bouton « Envoyer un test » d'un canal fait déjà. Si ton notifieur définit `test(ctx)`, c'est elle qui est appelée. Sinon, le cœur appelle `send(ctx, message)` avec un message de test traduit (`event: 'Test'`). La configuration du canal est d'abord validée par `configSchema`.
 
+### Personnaliser le message de test
+
+Sur la ligne d'un notifieur, choisis le message à envoyer pour vérifier le rendu de ton canal :
+
+| Préréglage            | Ce qui est envoyé                                                   |
+| --------------------- | ------------------------------------------------------------------- |
+| Test standard         | Le test du plugin (`test()` s'il existe, sinon le message traduit). |
+| Texte seul            | Un titre et un texte.                                               |
+| Texte + lien          | Un titre, un texte et un lien.                                      |
+| Texte + lien + image  | Un titre, un texte, un lien et une image.                           |
+| Lien seul, sans image | Un titre et un lien, sans texte ni image.                           |
+
+Chaque champ (titre, texte, lien, URL de l'image) reste modifiable, et un champ vide n'est pas envoyé (un titre vide reprend le titre par défaut). Un message personnalisé passe toujours par `send()`, donc par le vrai rendu du notifieur. Si le notifieur a plusieurs canaux, tu peux n'en tester qu'un.
+
 ## Depuis l'API
 
 ```http
 POST /api/plugins/test                  # tous les plugins, body facultatif { "kind": "source" | "notifier" }
 POST /api/plugins/sources/:id/test      # body facultatif { "url", "type", "config" }
-POST /api/plugins/notifiers/:id/test    # tous les canaux de ce notifieur
+POST /api/plugins/notifiers/:id/test    # body facultatif { "channelId", "locale", "message": { "title", "text", "url", "imageUrl" } }
 ```
 
 Chaque route répond `{ results: [...] }`, avec un résultat par page ou par canal :

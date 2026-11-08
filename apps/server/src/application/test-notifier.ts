@@ -19,17 +19,31 @@ export function notifierContext<C>(config: C, deps: NotifierDeps): NotifierConte
 }
 
 /**
+ * Content of a custom test message (Plugins screen): lets the user check how a channel renders
+ * a link, an image, or a link without image. A missing title uses the translated default
+ * (notifiers need one), a missing text is sent empty, e.g. to send only a link.
+ */
+export interface TestMessageContent {
+  title?: string;
+  text?: string;
+  url?: string;
+  imageUrl?: string;
+}
+
+/**
  * "Send a test" (SPEC §7): the plugin's own `test` when it has one, otherwise a
  * translated test message sent with `send`. Throws when the message could not be sent.
- * `config` must already be validated by the plugin's configSchema.
+ * With `content`, the message is always sent with `send`, so it goes through the real
+ * rendering (link, photo…). `config` must already be validated by the plugin's configSchema.
  */
 export async function testNotifier(
   plugin: NotifierPlugin,
   config: unknown,
   deps: NotifierDeps & { locale: Locale },
+  content?: TestMessageContent,
 ): Promise<void> {
   const ctx = notifierContext(config, deps);
-  if (plugin.test) {
+  if (plugin.test && !content) {
     await plugin.test(ctx);
     return;
   }
@@ -37,7 +51,9 @@ export async function testNotifier(
   await plugin.send(ctx, {
     event: 'Test',
     locale: deps.locale,
-    title: t('notifications.test.title'),
-    text: t('notifications.test.text'),
+    title: content?.title ?? t('notifications.test.title'),
+    text: content ? (content.text ?? '') : t('notifications.test.text'),
+    ...(content?.url ? { url: content.url } : {}),
+    ...(content?.imageUrl ? { imageUrl: content.imageUrl } : {}),
   });
 }

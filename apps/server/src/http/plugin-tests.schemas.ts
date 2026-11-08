@@ -127,7 +127,26 @@ export const testSourcePluginSchema = {
 export const testNotifierPluginSchema = {
   tags: ['plugins'],
   summary: 'Test one notifier plugin',
-  description: 'Sends a test notification to every saved channel of this notifier.',
+  description:
+    'Sends a test notification to every saved channel of this notifier, or to one channel. With message, a custom message is sent through send(): use it to check how a link, an image, or a link without image is rendered.',
   params: idParams,
-  response: { ...results, 404: errorResponse },
+  body: {
+    type: ['object', 'null'],
+    properties: {
+      channelId: { type: 'string' },
+      locale: { type: 'string', examples: ['fr'] },
+      message: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', maxLength: 500 },
+          text: { type: 'string', maxLength: 4000 },
+          url: { type: 'string', examples: ['https://shop.example/products/wheel'] },
+          imageUrl: { type: 'string', examples: ['https://shop.example/wheel.jpg'] },
+        },
+        additionalProperties: false,
+      },
+    },
+    additionalProperties: false,
+  },
+  response: { ...results, 400: errorResponse, 404: errorResponse },
 } as const;

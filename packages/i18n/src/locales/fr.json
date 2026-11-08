@@ -47,7 +47,28 @@
       "incomplete": "liste incomplète (pagination arrêtée)",
       "notifier": "Notification de test envoyée."
     },
-    "summary": "{{passed}} réussi(s) · {{failed}} échec(s) · {{skipped}} ignoré(s)"
+    "summary": "{{passed}} réussi(s) · {{failed}} échec(s) · {{skipped}} ignoré(s)",
+    "message": {
+      "preset": "Message à envoyer",
+      "presets": {
+        "default": "Test standard",
+        "text": "Texte seul",
+        "textLink": "Texte + lien",
+        "textLinkImage": "Texte + lien + image",
+        "linkOnly": "Lien seul, sans image"
+      },
+      "fields": {
+        "title": "Titre",
+        "text": "Texte",
+        "url": "Lien",
+        "imageUrl": "URL de l'image"
+      },
+      "imageHint": "Laisse un champ vide pour ne pas l'envoyer (un titre vide reprend le titre par défaut). L'image n'apparaît que si le canal autorise les images.",
+      "channel": "Canal",
+      "allChannels": "Tous les canaux de ce notifieur",
+      "sampleTitle": "De retour en stock : Volant GT DD Pro",
+      "sampleText": "Ceci est un test. Le produit est de nouveau disponible."
+    }
   },
   "status": {
     "IN_STOCK": "en stock",

@@ -3,7 +3,9 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { CircleCheck, CircleMinus, CircleX, FlaskConical, LoaderCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { NotifierTestMessage } from '@/components/notifier-test-message';
 import { Button } from '@/components/ui/button';
+import type { NotifierTestOptions } from '@/lib/notifier-test-presets';
 import {
   fetchPlugins,
   testAllPlugins,
@@ -143,16 +145,27 @@ interface PluginRowProps {
 }
 
 function PluginRow({ kind, plugin, supports = [], results, onResults }: PluginRowProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [url, setUrl] = useState('');
   const [type, setType] = useState<WatchType | undefined>(supports[0]);
+  const [notifierOptions, setNotifierOptions] = useState<NotifierTestOptions>({
+    preset: 'default',
+    channelId: '',
+    message: { title: '', text: '', url: '', imageUrl: '' },
+  });
 
   const test = useMutation({
     mutationFn: () =>
-      testPlugin(kind, plugin.id, {
-        ...(type === undefined ? {} : { type }),
-        ...(url.trim() === '' ? {} : { url: url.trim() }),
-      }),
+      kind === 'source'
+        ? testPlugin(kind, plugin.id, {
+            ...(type === undefined ? {} : { type }),
+            ...(url.trim() === '' ? {} : { url: url.trim() }),
+          })
+        : testPlugin(kind, plugin.id, {
+            ...(i18n.resolvedLanguage ? { locale: i18n.resolvedLanguage } : {}),
+            ...(notifierOptions.channelId ? { channelId: notifierOptions.channelId } : {}),
+            ...(notifierOptions.preset === 'default' ? {} : { message: notifierOptions.message }),
+          }),
     onSuccess: onResults,
   });
 
@@ -201,6 +214,14 @@ function PluginRow({ kind, plugin, supports = [], results, onResults }: PluginRo
             </label>
           )}
         </div>
+      )}
+
+      {kind === 'notifier' && (
+        <NotifierTestMessage
+          notifierId={plugin.id}
+          value={notifierOptions}
+          onChange={setNotifierOptions}
+        />
       )}
 
       {test.isError && (

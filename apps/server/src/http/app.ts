@@ -96,8 +96,8 @@ export async function buildApp({
       ...pluginTests,
       html: htmlHelpers,
       logger: pluginTests.logger ?? pluginLogger(app.log, { component: 'plugin-test' }),
-      testNotifier: (plugin, config, deps) =>
-        testNotifier(plugin, config, { ...deps, locale: fallbackLocale }),
+      testNotifier: (plugin, config, { locale = fallbackLocale, ...deps }, content) =>
+        testNotifier(plugin, config, { ...deps, locale }, content),
     });
     registerPluginTestRoutes(app, tester);
   }

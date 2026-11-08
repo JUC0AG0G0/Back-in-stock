@@ -52,6 +52,21 @@ export interface SourceTestInput {
   type?: WatchType;
 }
 
+/** Custom test message. Empty fields are left out by the server. */
+export interface TestMessageContent {
+  title?: string;
+  text?: string;
+  url?: string;
+  imageUrl?: string;
+}
+
+export interface NotifierTestInput {
+  /** Only this channel. Defaults to every channel of the notifier. */
+  channelId?: string;
+  message?: TestMessageContent;
+  locale?: string;
+}
+
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
   if (!res.ok) {
@@ -79,10 +94,8 @@ export async function testAllPlugins(): Promise<PluginTestResult[]> {
 export async function testPlugin(
   kind: PluginKind,
   id: string,
-  input?: SourceTestInput,
+  input?: SourceTestInput | NotifierTestInput,
 ): Promise<PluginTestResult[]> {
   const path = `/api/plugins/${kind === 'source' ? 'sources' : 'notifiers'}/${encodeURIComponent(id)}/test`;
-  return (
-    await post<{ results: PluginTestResult[] }>(path, kind === 'source' ? (input ?? {}) : undefined)
-  ).results;
+  return (await post<{ results: PluginTestResult[] }>(path, input ?? {})).results;
 }
