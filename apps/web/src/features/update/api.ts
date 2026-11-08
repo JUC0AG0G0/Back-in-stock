@@ -21,11 +21,17 @@ export interface UpdateJob {
 
 export interface UpdateStatus {
   enabled: boolean;
+  /** disabled: turned off in Settings or by BIS_UPDATE_CHECK. not-a-release: edge or dev build. */
+  disabledReason: 'disabled' | 'not-a-release' | null;
   currentVersion: string;
   latestVersion: string | null;
   updateAvailable: boolean;
   breaking: boolean;
   releases: ReleaseSummary[];
+  /** Date of the last check (ISO), null before the first one. */
+  checkedAt: string | null;
+  /** Last check failed: the previous result is kept. */
+  error: string | null;
   /** The updater service answers: "Install" can update in one click. */
   oneClick: boolean;
   job: UpdateJob | null;

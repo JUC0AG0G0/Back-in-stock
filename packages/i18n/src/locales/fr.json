@@ -153,7 +153,8 @@
     "label": "Navigation principale",
     "home": "Accueil",
     "channels": "Canaux",
-    "plugins": "Plugins"
+    "plugins": "Plugins",
+    "settings": "Paramètres"
   },
   "channels": {
     "title": "Canaux de notification",
@@ -202,6 +203,56 @@
       "copied": "Copié",
       "scanWithPhone": "Scanner avec votre téléphone",
       "qrCode": "QR code vers {{url}}"
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "intro": "Les réglages enregistrés ici s'appliquent tout de suite, sans redémarrage. Ils remplacent les valeurs des variables d'environnement.",
+    "loadError": "Impossible de charger les paramètres. Vérifie que le serveur tourne.",
+    "saveError": "Le réglage n'a pas pu être enregistré. Réessaie.",
+    "save": "Enregistrer",
+    "reset": "Revenir à la valeur par défaut ({{value}})",
+    "on": "activé",
+    "off": "désactivé",
+    "updates": {
+      "title": "Mises à jour",
+      "description": "L'application regarde sur GitHub si une nouvelle version est sortie, et l'annonce par un bandeau en haut de l'écran. C'est sa seule requête sortante en dehors des sites surveillés et des canaux.",
+      "notARelease": "Cette installation n'est pas une version publiée (image edge ou build local) : elle ne cherche jamais de mise à jour.",
+      "current": "Tu utilises la version {{version}}",
+      "lastCheck": "Dernière vérification : {{date}}",
+      "neverChecked": "Pas encore vérifié",
+      "checkNow": "Vérifier maintenant",
+      "checkFailed": "La vérification n'a pas pu être lancée. Réessaie.",
+      "checkError": "GitHub n'a pas répondu : {{message}}",
+      "available": "La version {{version}} est disponible : le bandeau en haut de l'écran te permet de l'installer.",
+      "upToDate": "Tu as la dernière version.",
+      "disabled": "La vérification automatique est désactivée.",
+      "auto": "Vérifier automatiquement",
+      "autoHint": "Désactive-la si tu gères les mises à jour avec un autre outil.",
+      "interval": "Fréquence de vérification",
+      "intervalHint": "Toutes les combien d'heures, de {{min}} à {{max}}.",
+      "hoursUnit": "heures",
+      "hours_one": "{{count}} heure",
+      "hours_other": "{{count}} heures",
+      "channel": "Versions proposées",
+      "channelHint": "Les pré-versions arrivent plus tôt, mais peuvent contenir des bugs.",
+      "channels": {
+        "stable": "Stables uniquement",
+        "prerelease": "Stables et pré-versions"
+      }
+    },
+    "api": {
+      "title": "API",
+      "description": "La documentation de l'API (Swagger) liste toutes les routes de l'application et permet de les essayer. Elle sert surtout à développer.",
+      "enable": "Documentation de l'API",
+      "hint": "Quand elle est désactivée, l'adresse /api/docs n'existe plus.",
+      "unavailable": "La documentation de l'API n'est pas incluse dans cette installation.",
+      "open": "Ouvrir la documentation de l'API"
+    },
+    "docs": {
+      "title": "Documentation",
+      "description": "Installation, configuration, canaux de notification et mises à jour : tout est expliqué sur le site de la documentation.",
+      "open": "Ouvrir la documentation"
     }
   }
 }
