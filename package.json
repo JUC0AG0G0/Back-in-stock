@@ -1,6 +1,6 @@
 {
   "name": "back-in-stock",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "description": "Self-hosted, open source back-in-stock and new-listing monitor with pluggable sites and notifiers.",

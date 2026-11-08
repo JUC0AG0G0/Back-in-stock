@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.0](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.2.0...v0.3.0) (2026-11-08)
+
+
+### ✨ Nouveautés
+
+* **plugins:** tester les plugins depuis l'API et l'interface ([#14](https://github.com/JUC0AG0G0/Back-in-stock/issues/14)) ([0e9cc81](https://github.com/JUC0AG0G0/Back-in-stock/commit/0e9cc813d0563b25a1629ebcf86a66ffc7f76f6e))
+
+
+### 🐛 Corrections
+
+* **release:** SBOM via l'image syft avec retries, non bloquant ([#19](https://github.com/JUC0AG0G0/Back-in-stock/issues/19)) ([0e517d5](https://github.com/JUC0AG0G0/Back-in-stock/commit/0e517d5daa6348ef8f622ff5737d205ec61ae967))
+
+
+### 📚 Documentation
+
+* page d'accueil et mentions légales ([#21](https://github.com/JUC0AG0G0/Back-in-stock/issues/21)) ([03a979f](https://github.com/JUC0AG0G0/Back-in-stock/commit/03a979fc4199274b16aec85c5a40bcd8388d68ba))
+
 ## [0.2.0](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.1.1...v0.2.0) (2026-11-08)
 
 
