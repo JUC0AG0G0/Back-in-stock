@@ -28,10 +28,12 @@ Le titre de la PR devient le message du commit sur `main` et sert à générer l
 
 | Type | Effet sur la version |
 |---|---|
-| `fix:` | patch (1.2.**3**) |
-| `feat:` | mineure (1.**3**.0) |
+| `fix:`, `perf:`, `docs:`, `revert:` | patch (1.2.**3**) |
+| `feat:`, `refactor:` | mineure (1.**3**.0) |
 | `feat!:` ou `BREAKING CHANGE:` dans le corps | majeure (**2**.0.0) |
-| `docs:`, `refactor:`, `test:`, `ci:`, `chore:`, `build:`, `perf:` | pas de release seule |
+| `test:`, `ci:`, `chore:`, `build:` | pas de release seule (absents du changelog) |
+
+Tant que le projet est en `0.x`, un changement cassant donne une version mineure (0.**2**.0) et non majeure.
 
 Exemples : `feat(fanatec): detect new refurbished items`, `fix(telegram): escape markdown in product names`.
 
@@ -40,6 +42,7 @@ Exemples : `feat(fanatec): detect new refurbished items`, `fix(telegram): escape
 Les releases sont automatiques grâce à [release-please](https://github.com/googleapis/release-please) :
 
 1. À chaque fusion sur `main`, une PR **« chore(main): release x.y.z »** est créée ou mise à jour avec le changelog.
+   Les règles de version sont dans `release-please-config.json` (sections du changelog) et `scripts/release-please/versioning.ts` (`refactor:` compté comme une nouveauté).
 2. **Fusionner cette PR publie la version** : tag `vX.Y.Z`, release GitHub, images Docker sur GHCR (`latest`, `X.Y.Z`, `X.Y`, `X`), et en assets de la release : `docker-compose.yml` réglé sur la version, SBOM et sommes de contrôle.
    Chaque fusion sur `main` publie aussi l'image `edge` (version de développement).
 3. Les instances auto-hébergées voient alors le bandeau « Nouvelle version disponible ».

@@ -568,7 +568,9 @@ L'objectif est de **publier vite et souvent**.
 
 ### Releases automatiques (release-please)
 - À chaque fusion sur `main`, **release-please** met à jour une PR « Release vX.Y.Z » qui contient le changelog et la nouvelle version :
-  - `fix:` donne une version patch, `feat:` une version mineure, `feat!:` ou `BREAKING CHANGE:` une version majeure.
+  - `fix:`, `perf:`, `docs:` et `revert:` donnent une version patch, `feat:` et `refactor:` une version mineure, `feat!:` ou `BREAKING CHANGE:` une version majeure.
+  - `test:`, `ci:`, `chore:` et `build:` ne déclenchent pas de release : ils sont masqués dans le changelog, et release-please ne publie que s'il y a au moins une entrée visible.
+  - `refactor:` en mineure n'existe dans aucune stratégie de release-please : le dépôt enregistre sa propre stratégie (`scripts/release-please/versioning.ts`, `"versioning": "refactor-minor"`). C'est pour cela que `release-please.yml` lance release-please par un script Node (`scripts/release-please/run.ts`) au lieu de `googleapis/release-please-action`, qui ne sait pas charger de stratégie personnalisée.
 - **Fusionner cette PR publie la release** : tag `vX.Y.Z`, release GitHub avec les notes, et lancement de la chaîne de publication. On peut donc sortir une version plusieurs fois par jour en un clic.
 - Mode **monorepo** (manifest) : l'application et le SDK de plugins (`@back-in-stock/plugin-sdk`) ont chacun leur version et leur changelog. Release-please remplace Changesets, prévu dans la v0.3.
 - Tant que le projet est en `0.x`, un `feat` incrémente la version mineure et un changement cassant aussi.
@@ -579,7 +581,7 @@ L'objectif est de **publier vite et souvent**.
 |---|---|---|
 | `ci.yml` | PR uniquement (la branche doit être à jour avec `main` pour fusionner, donc pas de seconde exécution après fusion) | Installation pnpm avec cache, lint, typecheck, tests unitaires, vérification des clés i18n, build. Tests e2e Playwright sur les PR touchant le front. |
 | `pr-title.yml` | Ouverture ou modification de PR | Vérifie le titre Conventional Commits. |
-| `release-please.yml` | Push sur `main` | Met à jour la PR de release. Quand elle est fusionnée, crée le tag et la release GitHub. |
+| `release-please.yml` | Push sur `main` | Lance release-please (script `scripts/release-please/run.ts`, stratégie de version maison). Met à jour la PR de release. Quand elle est fusionnée, crée le tag et la release GitHub. |
 | `publish.yml` | Release créée | Build des images **multi-arch** (amd64, arm64) `slim` et `full`, plus l'image `updater`, push sur **GHCR** (`ghcr.io/juc0ag0g0/back-in-stock`) avec les tags `X.Y.Z`, `X.Y`, `X`, `latest` (et `-full`). Publication du SDK sur npm (provenance activée). Signature des images avec cosign et SBOM. |
 | `edge.yml` | Push sur `main` | Image `:edge` construite à chaque fusion, pour tester la toute dernière version avant release. |
 | `docs.yml` | Push sur `main` touchant `apps/docs` ou le SDK | Build Docusaurus et déploiement sur GitHub Pages. Build de vérification sur les PR. |

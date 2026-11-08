@@ -4,11 +4,12 @@
   "include-component-in-tag": false,
   "bump-minor-pre-major": true,
   "bump-patch-for-minor-pre-major": false,
+  "versioning": "refactor-minor",
   "changelog-sections": [
     { "type": "feat", "section": "✨ Nouveautés" },
     { "type": "fix", "section": "🐛 Corrections" },
     { "type": "perf", "section": "⚡ Performances" },
-    { "type": "refactor", "section": "♻️ Refactorisation", "hidden": true },
+    { "type": "refactor", "section": "♻️ Refactorisation" },
     { "type": "docs", "section": "📚 Documentation" },
     { "type": "build", "section": "🏗️ Build", "hidden": true },
     { "type": "ci", "section": "🔧 CI", "hidden": true },
