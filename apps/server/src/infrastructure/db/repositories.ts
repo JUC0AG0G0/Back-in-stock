@@ -299,6 +299,24 @@ export class SqliteSettingsRepository implements SettingsRepository {
       .onConflictDoUpdate({ target: settings.key, set: { valueJson } })
       .run();
   }
+
+  async getValue(key: string): Promise<unknown> {
+    const row = this.db.select().from(settings).where(eq(settings.key, key)).get();
+    return row ? (JSON.parse(row.valueJson) as unknown) : undefined;
+  }
+
+  async setValue(key: string, value: unknown): Promise<void> {
+    if (value === null || value === undefined) {
+      this.db.delete(settings).where(eq(settings.key, key)).run();
+      return;
+    }
+    const valueJson = JSON.stringify(value);
+    this.db
+      .insert(settings)
+      .values({ key, valueJson })
+      .onConflictDoUpdate({ target: settings.key, set: { valueJson } })
+      .run();
+  }
 }
 
 type StoredRules = Partial<Record<string, { enabled: boolean; channelIds?: string[] }>>;

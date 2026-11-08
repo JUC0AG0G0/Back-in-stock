@@ -19,7 +19,7 @@ Si une des versions contient des **changements cassants**, le bandeau est orange
 
 ### D'où vient l'information
 
-Le serveur interroge l'API GitHub Releases (`api.github.com/repos/JUC0AG0G0/Back-in-stock/releases`) **toutes les 6 heures**, sans compte ni jeton. Il envoie l'en-tête `If-None-Match` : quand rien n'a changé, GitHub répond « 304 » et rien n'est téléchargé.
+Le serveur interroge l'API GitHub Releases (`api.github.com/repos/JUC0AG0G0/Back-in-stock/releases`) **toutes les 6 heures** par défaut, sans compte ni jeton. Il envoie l'en-tête `If-None-Match` : quand rien n'a changé, GitHub répond « 304 » et rien n'est téléchargé.
 
 C'est la **seule requête sortante** de l'application en dehors des sites que tu surveilles et de tes canaux de notification. Elle n'envoie rien sur toi, à part ton adresse IP et la version installée (dans l'en-tête `User-Agent`).
 
@@ -27,11 +27,14 @@ La vérification ne se fait que sur les **images publiées** (`latest`, `1`, `1.
 
 ### Réglages {#settings}
 
-| Variable             | Défaut   | Rôle                                                                     |
-| -------------------- | -------- | ------------------------------------------------------------------------ |
-| `BIS_UPDATE_CHECK`   | `true`   | `false` coupe complètement la vérification (plus aucune requête GitHub). |
-| `BIS_UPDATE_CHANNEL` | `stable` | `prerelease` propose aussi les pré-versions (`-rc`, `-beta`).            |
-| `BIS_UPDATER_URL`    | (aucun)  | Adresse du service `updater`, par exemple `http://updater:8090`.         |
+Tout se règle dans l'écran **Paramètres** de l'interface : bouton **Vérifier maintenant**, vérification automatique activée ou non, fréquence (de 1 à 168 heures) et versions proposées. Les variables d'environnement ci-dessous donnent les valeurs par défaut ; un réglage enregistré dans l'interface les remplace, sans redémarrage, jusqu'à ce que tu cliques sur « Revenir à la valeur par défaut ».
+
+| Variable              | Défaut   | Rôle                                                                     |
+| --------------------- | -------- | ------------------------------------------------------------------------ |
+| `BIS_UPDATE_CHECK`    | `true`   | `false` coupe complètement la vérification (plus aucune requête GitHub). |
+| `BIS_UPDATE_CHANNEL`  | `stable` | `prerelease` propose aussi les pré-versions (`-rc`, `-beta`).            |
+| `BIS_UPDATE_INTERVAL` | `6`      | Heures entre deux vérifications, de 1 à 168.                             |
+| `BIS_UPDATER_URL`     | (aucun)  | Adresse du service `updater`, par exemple `http://updater:8090`.         |
 
 ## Mise à jour en un clic
 

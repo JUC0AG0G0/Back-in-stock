@@ -153,7 +153,8 @@
     "label": "Main navigation",
     "home": "Home",
     "channels": "Channels",
-    "plugins": "Plugins"
+    "plugins": "Plugins",
+    "settings": "Settings"
   },
   "channels": {
     "title": "Notification channels",
@@ -202,6 +203,56 @@
       "copied": "Copied",
       "scanWithPhone": "Scan with your phone",
       "qrCode": "QR code to {{url}}"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "intro": "Settings saved here apply right away, without a restart. They replace the values of the environment variables.",
+    "loadError": "Could not load the settings. Check that the server is running.",
+    "saveError": "The setting could not be saved. Try again.",
+    "save": "Save",
+    "reset": "Back to the default ({{value}})",
+    "on": "on",
+    "off": "off",
+    "updates": {
+      "title": "Updates",
+      "description": "The app checks GitHub for new versions and shows a banner at the top of the screen when one is out. It is its only outgoing request besides the watched sites and the channels.",
+      "notARelease": "This install is not a published version (edge image or local build): it never looks for updates.",
+      "current": "You are running version {{version}}",
+      "lastCheck": "Last check: {{date}}",
+      "neverChecked": "Not checked yet",
+      "checkNow": "Check now",
+      "checkFailed": "The check could not start. Try again.",
+      "checkError": "GitHub did not answer: {{message}}",
+      "available": "Version {{version}} is available: use the banner at the top of the screen to install it.",
+      "upToDate": "You have the latest version.",
+      "disabled": "Automatic checks are off.",
+      "auto": "Check automatically",
+      "autoHint": "Turn it off if another tool handles your updates.",
+      "interval": "Check frequency",
+      "intervalHint": "Every how many hours, from {{min}} to {{max}}.",
+      "hoursUnit": "hours",
+      "hours_one": "{{count}} hour",
+      "hours_other": "{{count}} hours",
+      "channel": "Versions offered",
+      "channelHint": "Pre-releases come out earlier, but can have bugs.",
+      "channels": {
+        "stable": "Stable only",
+        "prerelease": "Stable and pre-releases"
+      }
+    },
+    "api": {
+      "title": "API",
+      "description": "The API documentation (Swagger) lists every route of the app and lets you try them. It is mostly useful for development.",
+      "enable": "API documentation",
+      "hint": "When it is off, /api/docs no longer exists.",
+      "unavailable": "The API documentation is not included in this install.",
+      "open": "Open the API documentation"
+    },
+    "docs": {
+      "title": "Documentation",
+      "description": "Install, configuration, notification channels and updates: it is all explained on the documentation site.",
+      "open": "Open the documentation"
     }
   }
 }
