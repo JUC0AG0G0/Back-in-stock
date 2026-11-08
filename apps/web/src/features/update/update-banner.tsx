@@ -143,7 +143,7 @@ export function UpdateBanner() {
       >
         <DialogContent
           showCloseButton={false}
-          className="max-h-[85vh] overflow-y-auto sm:max-w-2xl"
+          className="max-h-[85vh] grid-cols-[minmax(0,1fr)] overflow-x-hidden overflow-y-auto sm:max-w-2xl"
         >
           <DialogHeader>
             <DialogTitle>

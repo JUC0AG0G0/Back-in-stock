@@ -1,5 +1,6 @@
 import type { Components } from 'react-markdown';
 import Markdown from 'react-markdown';
+import { withoutInstallSections } from './notes';
 
 // No typography plugin: give the few elements release-please writes a readable style.
 // Raw HTML in the notes is not rendered (react-markdown's default), only Markdown.
@@ -16,15 +17,21 @@ const components: Components = {
     </a>
   ),
   code: ({ children }) => (
-    <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">{children}</code>
+    <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs break-all">{children}</code>
   ),
+  // Wrapped, not scrolled: a long command must not widen the dialog.
   pre: ({ children }) => (
-    <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-3 text-xs [&_code]:bg-transparent [&_code]:p-0">
+    <pre className="mt-2 rounded-md bg-muted p-3 text-xs break-all whitespace-pre-wrap [&_code]:bg-transparent [&_code]:p-0">
       {children}
     </pre>
   ),
 };
 
 export function ReleaseNotes({ markdown }: { markdown: string }) {
-  return <Markdown components={components}>{markdown}</Markdown>;
+  // Long links and words wrap instead of pushing the dialog sideways.
+  return (
+    <div className="min-w-0 wrap-break-word">
+      <Markdown components={components}>{withoutInstallSections(markdown)}</Markdown>
+    </div>
+  );
 }
