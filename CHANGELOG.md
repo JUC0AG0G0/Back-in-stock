@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.3.0...v0.4.0) (2026-11-08)
+
+
+### ✨ Nouveautés
+
+* **settings:** page Paramètres (mises à jour, Swagger, documentation) ([#23](https://github.com/JUC0AG0G0/Back-in-stock/issues/23)) ([388b2b8](https://github.com/JUC0AG0G0/Back-in-stock/commit/388b2b81c0ffb5a27deeb6e0f78c7d113d99bdfa))
+
 ## [0.3.0](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.2.0...v0.3.0) (2026-11-08)
 
 
