@@ -32,6 +32,16 @@ const sourceSchema = z
     fetchMode: z.enum(['http', 'browser', 'auto']).optional(),
     checkProduct: fn.optional(),
     checkListing: fn.optional(),
+    testTargets: z
+      .array(
+        z.object({
+          url: z.url({ protocol: /^https?$/, error: 'must be an http(s) URL' }),
+          type: z.enum(['product', 'listing']),
+          config: z.unknown().optional(),
+          label: z.string().optional(),
+        }),
+      )
+      .optional(),
   })
   .superRefine((plugin, ctx) => {
     if (plugin.supports.includes('product') && !plugin.checkProduct) {
@@ -48,6 +58,15 @@ const sourceSchema = z
         message: 'required when supports includes "listing"',
       });
     }
+    plugin.testTargets?.forEach((target, index) => {
+      if (!plugin.supports.includes(target.type)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['testTargets', index, 'type'],
+          message: `"${target.type}" is not in supports`,
+        });
+      }
+    });
   });
 
 const notifierSchema = z.object({

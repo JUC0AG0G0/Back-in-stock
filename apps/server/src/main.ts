@@ -22,6 +22,7 @@ const database = openDatabase(config.databasePath);
 const plugins = { sources: new SourceRegistry(), notifiers: new NotifierRegistry() };
 plugins.notifiers.register(telegram);
 const fetcher = new HttpFetcher();
+const channels = new SqliteChannelRepository(database.db);
 
 const version = readVersion();
 
@@ -60,7 +61,8 @@ const app = await buildApp({
     updater,
     readLastJob: () => readLastJob(config.dataDir),
   },
-  channels: { repository: new SqliteChannelRepository(database.db), fetch: fetcher },
+  channels: { repository: channels, fetch: fetcher },
+  pluginTests: { fetch: fetcher, channels },
 });
 if (config.apiDocs) app.log.info(`API docs: http://localhost:${config.port}/api/docs`);
 app.log.info({ database: config.databasePath }, 'database ready');

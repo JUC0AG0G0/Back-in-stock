@@ -23,7 +23,10 @@ export async function registerApiDocs(app: FastifyInstance, version: string): Pr
         description: 'Internal API of the web UI. Not stable yet: it can change in any release.',
         version,
       },
-      tags: [{ name: 'system', description: 'Health and installed plugins' }],
+      tags: [
+        { name: 'system', description: 'Health and installed plugins' },
+        { name: 'plugins', description: 'Plugin self-tests' },
+      ],
     },
   });
   await app.register(swaggerUi, { routePrefix: API_DOCS_PREFIX });
