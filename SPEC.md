@@ -441,19 +441,26 @@ services:
 Un script permet à un nouvel utilisateur d'installer et de démarrer l'application sans écrire de configuration à la main :
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/juc0ag0g0/back-in-stock/main/scripts/install.sh | sh
+curl -fsSL https://github.com/JUC0AG0G0/Back-in-stock/releases/latest/download/install.sh | sh
+```
+
+Sur Windows, l'équivalent PowerShell (`scripts/install.ps1`) fait les mêmes étapes et écrit les mêmes fichiers :
+
+```powershell
+irm https://github.com/JUC0AG0G0/Back-in-stock/releases/latest/download/install.ps1 | iex
 ```
 
 1. **Vérifie les prérequis** : Docker est installé, le démon répond et Docker Compose v2 (`docker compose`) est disponible. Sinon, le script s'arrête avec un message clair et le lien vers la doc d'installation de Docker.
 2. **Demande le port** d'écoute en proposant **8080** par défaut (Entrée pour accepter). Il vérifie que le port est libre et redemande sinon.
-3. **Génère une configuration prête à l'emploi** dans un dossier dédié (par défaut `./back-in-stock`) : `docker-compose.yml` de la version choisie (la dernière publiée par défaut), `.env` (port, fuseau horaire détecté, fréquence par défaut) et dossier `data/`.
+3. **Génère une configuration prête à l'emploi** dans un dossier dédié (par défaut `~/back-in-stock`) : `docker-compose.yml`, `.env` (`BIS_IMAGE_TAG`, `BIS_PORT`, `BIS_TZ` détecté) et dossier `data/`. Il propose aussi la mise à jour en un clic (service `updater`, accès au socket Docker) dès que son image est publiée.
 4. **Démarre le projet** (`docker compose up -d`), attend que `/api/health` réponde, puis affiche l'URL de l'interface (`http://localhost:<port>`), où l'assistant de premier lancement prend le relais.
 
 Règles :
-- Script POSIX `sh` (Linux, macOS, WSL), sans dépendance autre que Docker et `curl`.
-- Idempotent : relancé sur une installation existante, il ne touche pas à `data/` et propose seulement de mettre à jour l'image ou de changer le port.
+- Script POSIX `sh` (Linux, macOS, WSL), sans dépendance autre que Docker et `curl`. Questions lues sur le terminal même via `curl | sh`, messages en français ou en anglais selon la langue du système.
+- Idempotent : relancé sur une installation existante, il ne touche pas à `data/`, reprend les réponses précédentes comme valeurs par défaut et met l'image à jour.
 - **Choix de la version** : `--version 1.2.3` installe une version précise au lieu de la dernière (l'image est alors épinglée sur le tag `1.2.3`, pas `latest`). Les tags partiels sont acceptés (`--version 1.2` suit les correctifs de la 1.2). Le script vérifie que la version existe sur ghcr.io avant de continuer. Exemple : `curl -fsSL …/install.sh | sh -s -- --version 1.2.3`.
-- Mode non interactif pour l'automatisation : `--port 8080 --dir /opt/back-in-stock --version 1.2.3 --yes`.
+- Mode non interactif pour l'automatisation : `--port 8080 --dir /opt/back-in-stock --version 1.2.3 --yes` (ou les variables `BIS_PORT`, `BIS_DIR`, `BIS_TZ`, `BIS_VERSION`, `BIS_UPDATER`). `--no-updater` n'ajoute pas le service `updater`.
+- Testé en CI : `shellcheck`, puis les deux scripts installent l'image de la PR et doivent produire les mêmes fichiers.
 - Publié comme asset de chaque release, avec sa somme sha256, et documenté dans le guide de démarrage.
 
 ## 13. Notifications : comportement

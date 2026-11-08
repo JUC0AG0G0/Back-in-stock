@@ -31,6 +31,11 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm run lint
+      - name: Lint shell scripts
+        run: shellcheck scripts/*.sh
+      # Windows PowerShell 5.1 may decode a downloaded script with a legacy code page.
+      - name: install.ps1 stays ASCII
+        run: "! grep -nP '[^\\x00-\\x7F]' scripts/install.ps1"
       - run: pnpm run format:check
       - run: pnpm run typecheck
       - run: pnpm run test
@@ -58,3 +63,26 @@ jobs:
 
       - name: Smoke test Docker image
         run: scripts/docker-smoke.sh back-in-stock:ci
+
+      # The installers, end to end, against the image built above (no download: BIS_SKIP_PULL).
+      # Both must write the same files; only the port differs.
+      - name: Test the installers
+        env:
+          BIS_VERSION: ci
+          BIS_SKIP_PULL: '1'
+          BIS_TZ: Europe/Paris
+          BIS_LANG: en
+          BIS_YES: '1'
+        run: |
+          docker tag back-in-stock:ci ghcr.io/juc0ag0g0/back-in-stock:ci
+          BIS_DIR="$RUNNER_TEMP/bis-sh" BIS_PORT=18081 sh scripts/install.sh --yes
+          BIS_DIR="$RUNNER_TEMP/bis-ps" BIS_PORT=18082 pwsh -NoProfile -File scripts/install.ps1
+          curl -fsS http://127.0.0.1:18081/api/health
+          curl -fsS http://127.0.0.1:18082/api/health
+          diff "$RUNNER_TEMP/bis-sh/docker-compose.yml" "$RUNNER_TEMP/bis-ps/docker-compose.yml"
+          diff <(sed /^BIS_PORT=/d "$RUNNER_TEMP/bis-sh/.env") <(sed /^BIS_PORT=/d "$RUNNER_TEMP/bis-ps/.env")
+          # A second run updates in place and keeps the settings.
+          BIS_DIR="$RUNNER_TEMP/bis-sh" BIS_PORT= sh scripts/install.sh --yes
+          grep -qx BIS_PORT=18081 "$RUNNER_TEMP/bis-sh/.env"
+          (cd "$RUNNER_TEMP/bis-sh" && docker compose down)
+          (cd "$RUNNER_TEMP/bis-ps" && docker compose down)

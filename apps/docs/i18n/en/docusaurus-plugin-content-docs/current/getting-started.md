@@ -7,6 +7,48 @@ title: Getting started
 
 You need a machine with [Docker](https://docs.docker.com/get-docker/) and Docker Compose: a NAS, a Raspberry Pi 4 or newer, a small server or your own computer.
 
+## One-command install
+
+On macOS or Linux, in a terminal:
+
+```bash
+curl -fsSL https://github.com/JUC0AG0G0/Back-in-stock/releases/latest/download/install.sh | sh
+```
+
+On Windows, in PowerShell:
+
+```powershell
+irm https://github.com/JUC0AG0G0/Back-in-stock/releases/latest/download/install.ps1 | iex
+```
+
+The script checks that Docker is installed and running, then asks a few questions, each with a suggested value (press Enter to keep it):
+
+| Question           | Suggested value                       |
+| ------------------ | ------------------------------------- |
+| Install folder     | `~/back-in-stock`                     |
+| Web interface port | `8080`, or the next free one if taken |
+| Time zone          | Your machine's                        |
+| One-click updates  | Yes (as soon as they are available)   |
+
+It then writes `docker-compose.yml` and `.env` in that folder, starts the app, waits until it answers and shows you its address. Settings live in `.env`: edit it, then run `docker compose up -d` to apply them.
+
+Running the same command again **updates** an existing install: your data and your answers are kept.
+
+<details>
+<summary>Without questions (scripts, remote servers)</summary>
+
+Answers can come from environment variables: `BIS_DIR`, `BIS_PORT`, `BIS_TZ`, `BIS_VERSION` (default `latest`) and `BIS_UPDATER` (`yes` or `no`).
+
+```bash
+curl -fsSL https://github.com/JUC0AG0G0/Back-in-stock/releases/latest/download/install.sh | BIS_PORT=9000 sh -s -- --yes
+```
+
+`install.sh` options: `--yes` (no questions), `--version 0.2.0` (a specific version), `--no-updater` (no one-click updates), `--dir` and `--port`. On Windows, `$env:BIS_YES = '1'` replaces `--yes`.
+
+</details>
+
+Prefer to do it by hand? Follow the steps below.
+
 ## 1. Create `docker-compose.yml`
 
 ```yaml title="docker-compose.yml"
