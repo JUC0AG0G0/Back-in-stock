@@ -85,7 +85,7 @@ const telegram = defineNotifierPlugin<TelegramConfig>({
 
   async validate({ config, fetch, signal }) {
     const token = config.botToken?.trim();
-    if (!token || !TOKEN_PATTERN.test(token)) return { ok: false, error: 'invalid bot token' };
+    if (!token || !TOKEN_PATTERN.test(token)) return { ok: false, error: 'errors.invalidToken' };
     try {
       const bot = await new TelegramClient(fetch, token, signal).getMe();
       return {
@@ -94,7 +94,7 @@ const telegram = defineNotifierPlugin<TelegramConfig>({
       };
     } catch (err) {
       if (err instanceof TelegramApiError && err.code === 401) {
-        return { ok: false, error: 'token rejected by Telegram (401 Unauthorized)' };
+        return { ok: false, error: 'errors.tokenRejected' };
       }
       return { ok: false, error: err instanceof Error ? err.message : String(err) };
     }
@@ -110,12 +110,7 @@ const telegram = defineNotifierPlugin<TelegramConfig>({
       updates = await client.getUpdates();
     } catch (err) {
       if (err instanceof TelegramApiError && err.code === 409) {
-        throw new Error(
-          'this bot uses a webhook: remove it to detect the chat, or enter the chat id',
-          {
-            cause: err,
-          },
-        );
+        throw new Error('errors.webhookSet', { cause: err });
       }
       throw err;
     }

@@ -19,5 +19,8 @@
   "guide.chat.description": "Ouvrez votre bot et envoyez-lui /start, puis cliquez sur « Détecter ». Pour un groupe : ajoutez le bot au groupe et écrivez-y un message. Pour un canal : ajoutez le bot comme administrateur et publiez un message.",
   "guide.chat.link": "Ouvrir mon bot",
   "guide.test.title": "Envoyez un message de test",
-  "guide.test.description": "Nous envoyons un message de test dans la discussion choisie. Vérifiez que vous l'avez bien reçu avant d'enregistrer le canal."
+  "guide.test.description": "Nous envoyons un message de test dans la discussion choisie. Vérifiez que vous l'avez bien reçu avant d'enregistrer le canal.",
+  "errors.invalidToken": "Ce token n'a pas le bon format. Il ressemble à 123456789:AAH… (copiez-le en entier depuis BotFather).",
+  "errors.tokenRejected": "Telegram refuse ce token. Vérifiez qu'il est complet, ou générez-en un nouveau avec /token dans BotFather.",
+  "errors.webhookSet": "Ce bot utilise un webhook, la détection automatique est impossible. Saisissez l'identifiant de la discussion à la main, ou supprimez le webhook."
 }

@@ -19,5 +19,8 @@
   "guide.chat.description": "Open your bot and send it /start, then click \"Detect\". For a group: add the bot to the group and write a message there. For a channel: add the bot as an administrator and post a message.",
   "guide.chat.link": "Open my bot",
   "guide.test.title": "Send a test message",
-  "guide.test.description": "We send a test message to the chosen chat. Check that you received it before saving the channel."
+  "guide.test.description": "We send a test message to the chosen chat. Check that you received it before saving the channel.",
+  "errors.invalidToken": "This token does not look right. It looks like 123456789:AAH… (copy all of it from BotFather).",
+  "errors.tokenRejected": "Telegram rejects this token. Check that it is complete, or create a new one with /token in BotFather.",
+  "errors.webhookSet": "This bot uses a webhook, so automatic detection is not possible. Type the chat id by hand, or remove the webhook."
 }

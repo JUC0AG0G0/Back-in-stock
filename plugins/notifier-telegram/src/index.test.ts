@@ -54,12 +54,13 @@ describe('telegram plugin', () => {
     expect(Object.keys(fr).sort()).toEqual(Object.keys(en).sort());
   });
 
-  it('defines every text used by the setup guide', () => {
+  it('defines every text used by the setup guide and the errors', () => {
     const keys = (telegram.setupGuide ?? []).flatMap((step) => [
       step.title,
       ...(step.description ? [step.description] : []),
       ...(step.links ?? []).map((link) => link.label),
     ]);
+    keys.push('errors.invalidToken', 'errors.tokenRejected', 'errors.webhookSet');
     for (const key of keys) expect(en, key).toHaveProperty([key]);
   });
 });
@@ -92,7 +93,7 @@ describe('validate', () => {
   it('reports a token rejected by Telegram', async () => {
     const { fetcher } = fakeFetcher({ getMe: { error: 401, description: 'Unauthorized' } });
     const result = await telegram.validate?.({ config, fetch: fetcher, logger, signal });
-    expect(result).toMatchObject({ ok: false });
+    expect(result).toEqual({ ok: false, error: 'errors.tokenRejected' });
   });
 
   it('does not call Telegram for a malformed token', async () => {
@@ -127,7 +128,7 @@ describe('discover', () => {
   it('explains a webhook conflict', async () => {
     const { fetcher } = fakeFetcher({ getUpdates: { error: 409, description: 'Conflict' } });
     await expect(telegram.discover?.({ config, fetch: fetcher, logger, signal })).rejects.toThrow(
-      /webhook/,
+      'errors.webhookSet',
     );
   });
 });

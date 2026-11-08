@@ -55,7 +55,10 @@ export interface NotifierPlugin<Config = unknown> {
    * Returned `info` is shown to the user and usable in the setup guide links (`{{botUsername}}`).
    */
   validate?(ctx: NotifierContext<Partial<Config>>): Promise<ValidationResult>;
-  /** Finds settings the user would otherwise look up by hand (e.g. the Telegram chat id). */
+  /**
+   * Finds settings the user would otherwise look up by hand (e.g. the Telegram chat id).
+   * Like `validate`, an error message may be a translation key of the plugin.
+   */
   discover?(ctx: NotifierContext<Partial<Config>>): Promise<DiscoveryResult<Config>>;
   /** Steps of the guided setup shown by the UI. Without it, the UI shows a plain form. */
   setupGuide?: SetupStep[];
@@ -67,6 +70,7 @@ export interface NotifierPlugin<Config = unknown> {
   translations?: Partial<Record<string, Record<string, string>>>;
 }
 
+/** `error` may be a key of the plugin's `translations`: the UI then shows it translated. */
 export type ValidationResult =
   { ok: true; info?: Record<string, string> } | { ok: false; error: string };
 
