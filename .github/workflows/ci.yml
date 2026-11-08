@@ -145,7 +145,10 @@ jobs:
           tags: |
             back-in-stock-updater:ci
             ghcr.io/juc0ag0g0/back-in-stock-updater:latest
+          # Like the app image: reads the cache of main, and writes one that the next runs of
+          # this PR reuse.
           cache-from: type=gha,scope=updater
+          cache-to: type=gha,scope=updater,mode=max
 
       # Starts, answers /health, and refuses calls without the token.
       - name: Smoke test updater image
