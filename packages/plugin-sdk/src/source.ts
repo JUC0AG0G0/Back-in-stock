@@ -51,6 +51,20 @@ export interface SourceContext<Config> {
 
 export type FetchMode = 'http' | 'browser' | 'auto';
 
+/**
+ * A real page the plugin knows how to read, used by the "Test" button and by "Test all plugins":
+ * the core fetches and parses it like a check, shows the result and saves nothing.
+ * Pick a stable page (a category, a long-lived product) so the test keeps working.
+ */
+export interface SourceTestTarget<Config> {
+  url: string;
+  type: WatchType;
+  /** Plugin options to use for this page. Defaults to an empty config. */
+  config?: Config;
+  /** Short label shown in the UI, e.g. "Refurbished EU". Defaults to the URL. */
+  label?: string;
+}
+
 export interface SourcePlugin<Config = unknown> {
   kind: 'source';
   apiVersion: number;
@@ -67,6 +81,11 @@ export interface SourcePlugin<Config = unknown> {
   fetchMode?: FetchMode;
   checkProduct?(ctx: SourceContext<Config>): Promise<ProductSnapshot>;
   checkListing?(ctx: SourceContext<Config>): Promise<ListingSnapshot>;
+  /**
+   * Example pages for the self-test. Optional: without them, a test needs a URL typed in the UI,
+   * and "Test all plugins" skips this plugin.
+   */
+  testTargets?: readonly SourceTestTarget<Config>[];
 }
 
 export type SourcePluginDefinition<Config> = Omit<SourcePlugin<Config>, 'kind' | 'apiVersion'>;

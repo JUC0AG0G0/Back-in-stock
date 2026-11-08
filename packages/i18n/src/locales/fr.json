@@ -10,6 +10,45 @@
       "retry": "Vérifier à nouveau"
     }
   },
+  "pluginTests": {
+    "title": "Tester les plugins",
+    "intro": "Vérifie que chaque plugin fonctionne. Une source lit une page sans rien enregistrer, un notifieur envoie une notification de test à chacun de ses canaux.",
+    "testAll": "Tester tous les plugins",
+    "test": "Tester",
+    "testing": "Test en cours…",
+    "sources": "Sources",
+    "notifiers": "Notifieurs",
+    "none": "Aucun plugin installé pour l'instant.",
+    "pluginMeta": "{{id}} · v{{version}}",
+    "loadError": "Impossible de charger la liste des plugins.",
+    "runError": "Le test n'a pas pu être lancé : {{message}}",
+    "urlLabel": "URL à tester (facultatif)",
+    "typeLabel": "Type de veille",
+    "type": {
+      "product": "Produit",
+      "listing": "Liste"
+    },
+    "status": {
+      "passed": "Réussi",
+      "failed": "Échec",
+      "skipped": "Ignoré"
+    },
+    "skip": {
+      "no-test-target": "Ce plugin n'a pas de page d'exemple : saisis une URL pour le tester.",
+      "no-channel": "Aucun canal n'utilise ce notifieur pour l'instant."
+    },
+    "duration": "{{ms}} ms",
+    "result": {
+      "product": "Statut détecté : {{status}}",
+      "unknown": "inconnu",
+      "signal": "Indice : {{signal}}",
+      "listing_one": "{{count}} article trouvé",
+      "listing_other": "{{count}} articles trouvés",
+      "incomplete": "liste incomplète (pagination arrêtée)",
+      "notifier": "Notification de test envoyée."
+    },
+    "summary": "{{passed}} réussi(s) · {{failed}} échec(s) · {{skipped}} ignoré(s)"
+  },
   "status": {
     "IN_STOCK": "en stock",
     "OUT_OF_STOCK": "en rupture",
@@ -92,7 +131,8 @@
   "nav": {
     "label": "Navigation principale",
     "home": "Accueil",
-    "channels": "Canaux"
+    "channels": "Canaux",
+    "plugins": "Plugins"
   },
   "channels": {
     "title": "Canaux de notification",

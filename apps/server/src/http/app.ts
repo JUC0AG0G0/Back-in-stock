@@ -4,10 +4,15 @@ import fastifyStatic from '@fastify/static';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
 import type { Fetcher, Logger } from '@back-in-stock/plugin-sdk';
 import type { ChannelRepository } from '../application/ports.js';
+import { fallbackLocale } from '@back-in-stock/i18n';
+import { testNotifier } from '../application/test-notifier.js';
+import { PluginTester } from '../application/test-plugins.js';
+import { htmlHelpers } from '../infrastructure/html/html-helpers.js';
 import { pluginLogger } from '../infrastructure/plugin-logger.js';
 import type { NotifierRegistry, SourceRegistry } from '../infrastructure/plugins/registry.js';
 import { registerApiDocs } from './api-docs.js';
 import { registerChannelRoutes } from './channels.js';
+import { registerPluginTestRoutes } from './plugin-tests.js';
 import { healthSchema, pluginsSchema } from './schemas.js';
 import { registerUpdateRoutes, type UpdateRoutesOptions } from './update-routes.js';
 
@@ -25,6 +30,14 @@ export interface AppOptions {
   updates?: UpdateRoutesOptions;
   /** Enables the channel routes (/api/channels, /api/notifiers). Needs `plugins`. */
   channels?: { repository: ChannelRepository; fetch: Fetcher; logger?: Logger };
+  /** Enables the plugin test routes (/api/plugins/.../test). Needs `plugins`. */
+  pluginTests?: {
+    fetch: Fetcher;
+    /** Saved channels, tested for each notifier. */
+    channels?: Pick<ChannelRepository, 'list'>;
+    logger?: Logger;
+    timeoutMs?: number;
+  };
 }
 
 /**
@@ -40,6 +53,7 @@ export async function buildApp({
   apiDocs = false,
   updates,
   channels,
+  pluginTests,
 }: AppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger });
 
@@ -75,6 +89,17 @@ export async function buildApp({
       fetch: channels.fetch,
       logger: channels.logger ?? pluginLogger(app.log, { component: 'notifier' }),
     });
+  }
+  if (plugins && pluginTests) {
+    const tester = new PluginTester({
+      ...plugins,
+      ...pluginTests,
+      html: htmlHelpers,
+      logger: pluginTests.logger ?? pluginLogger(app.log, { component: 'plugin-test' }),
+      testNotifier: (plugin, config, deps) =>
+        testNotifier(plugin, config, { ...deps, locale: fallbackLocale }),
+    });
+    registerPluginTestRoutes(app, tester);
   }
 
   const serveWeb = webDir !== undefined && existsSync(join(webDir, 'index.html'));
