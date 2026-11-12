@@ -2,13 +2,7 @@
   "app": {
     "name": "Back in stock !",
     "tagline": "Get notified as soon as a product is back in stock.",
-    "language": "Language",
-    "health": {
-      "checking": "Connecting to the server…",
-      "ok": "Server OK · v{{version}}",
-      "error": "Server unreachable",
-      "retry": "Check again"
-    }
+    "language": "Language"
   },
   "pluginTests": {
     "test": "Test",
@@ -252,6 +246,48 @@
       "testAll": "Test all sites",
       "none": "No source plugin installed yet.",
       "loadError": "Could not load the source plugin list."
+    }
+  },
+  "watches": {
+    "paste": {
+      "label": "Link to watch",
+      "placeholder": "Paste the link of a product or a shop page",
+      "submit": "Watch",
+      "invalid": "This is not a web link. Paste an address that starts with https://"
+    },
+    "type": {
+      "product": {
+        "title": "Back in stock",
+        "description": "One product: get notified as soon as it is available again.",
+        "short": "Product"
+      },
+      "listing": {
+        "title": "New items",
+        "description": "A list page (refurbished, category, search): get notified as soon as an item shows up.",
+        "short": "Listing"
+      }
+    },
+    "add": {
+      "title": "What do you want to watch?",
+      "analysing": "Looking for the right plugin…",
+      "matchError": "Could not analyse this link: {{error}}",
+      "noPlugin": "No installed plugin can read pages from {{hostname}}.",
+      "pluginDocs": "Add a plugin for this site",
+      "close": "Close",
+      "whatLegend": "What you want to watch",
+      "typeUnavailable": "No installed plugin can do this for this site.",
+      "pluginLegend": "Plugin that reads the page",
+      "suggested": "Suggested",
+      "siteSpecific": "Made for this site",
+      "generic": "Generic, works on many shops",
+      "nameLabel": "Name (optional)",
+      "cancel": "Cancel",
+      "submit": "Start watching",
+      "createError": "The watch was not created: {{error}}",
+      "created": "“{{name}}” is now being watched."
+    },
+    "list": {
+      "title": "Your watches"
     }
   }
 }

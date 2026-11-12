@@ -8,6 +8,7 @@ import { openDatabase } from './infrastructure/db/database.js';
 import {
   SqliteChannelRepository,
   SqliteSettingsRepository,
+  SqliteWatchRepository,
 } from './infrastructure/db/repositories.js';
 import { HttpFetcher } from './infrastructure/http/http-fetcher.js';
 import { NotifierRegistry, SourceRegistry } from './infrastructure/plugins/registry.js';
@@ -88,6 +89,7 @@ const app = await buildApp({
     updateCheckSupported: config.updates.buildChannel === 'release',
   },
   channels: { repository: channels, fetch: fetcher },
+  watches: { repository: new SqliteWatchRepository(database.db) },
   pluginTests: { fetch: fetcher, channels },
 });
 if (settings.get('apiDocs')) {

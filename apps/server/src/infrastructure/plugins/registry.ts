@@ -92,12 +92,17 @@ export class SourceRegistry extends PluginRegistry<SourcePlugin> {
     let best: SourceMatch | undefined;
     for (const plugin of this.list()) {
       if (!plugin.supports.includes(type)) continue;
-      const score = safeScore(plugin, url);
+      const score = this.score(plugin, url);
       if (score > 0 && (best === undefined || score > best.score)) {
         best = { plugin, score };
       }
     }
     return best;
+  }
+
+  /** `match()` score clamped to 0..1, or 0 when it throws or returns garbage. */
+  score(plugin: SourcePlugin, url: URL): number {
+    return safeScore(plugin, url);
   }
 }
 

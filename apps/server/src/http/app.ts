@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import fastifyStatic from '@fastify/static';
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
 import type { Fetcher, Logger } from '@back-in-stock/plugin-sdk';
-import type { ChannelRepository } from '../application/ports.js';
+import type { ChannelRepository, WatchRepository } from '../application/ports.js';
 import { fallbackLocale } from '@back-in-stock/i18n';
 import { testNotifier } from '../application/test-notifier.js';
 import { PluginTester } from '../application/test-plugins.js';
@@ -16,6 +16,7 @@ import { registerPluginTestRoutes } from './plugin-tests.js';
 import { registerSettingsRoutes, type SettingsRoutesOptions } from './settings-routes.js';
 import { healthSchema, pluginsSchema } from './schemas.js';
 import { registerUpdateRoutes, type UpdateRoutesOptions } from './update-routes.js';
+import { registerWatchRoutes } from './watch-routes.js';
 
 export interface AppOptions {
   version: string;
@@ -36,6 +37,11 @@ export interface AppOptions {
   settings?: SettingsRoutesOptions;
   /** Enables the channel routes (/api/channels, /api/notifiers). Needs `plugins`. */
   channels?: { repository: ChannelRepository; fetch: Fetcher; logger?: Logger };
+  /**
+   * Enables the watch routes (/api/watches, /api/sources/match). Needs `plugins`.
+   * Default channels come from `channels.repository` when set.
+   */
+  watches?: { repository: WatchRepository; newId?: () => string };
   /** Enables the plugin test routes (/api/plugins/.../test). Needs `plugins`. */
   pluginTests?: {
     fetch: Fetcher;
@@ -60,6 +66,7 @@ export async function buildApp({
   updates,
   settings,
   channels,
+  watches,
   pluginTests,
 }: AppOptions): Promise<FastifyInstance> {
   const app = Fastify({ logger });
@@ -98,6 +105,14 @@ export async function buildApp({
       channels: channels.repository,
       fetch: channels.fetch,
       logger: channels.logger ?? pluginLogger(app.log, { component: 'notifier' }),
+    });
+  }
+  if (plugins && watches) {
+    registerWatchRoutes(app, {
+      sources: plugins.sources,
+      watches: watches.repository,
+      ...(channels ? { channels: channels.repository } : {}),
+      ...(watches.newId ? { newId: watches.newId } : {}),
     });
   }
   if (plugins && pluginTests) {

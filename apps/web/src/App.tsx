@@ -1,23 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/components/language-switcher';
-import { Button } from '@/components/ui/button';
 import { UpdateBanner } from '@/features/update/update-banner';
+import { HomePage } from '@/features/watches/home-page';
 import { cn } from '@/lib/utils';
 import { ChannelsPage } from '@/pages/channels-page';
 import { SettingsPage } from '@/pages/settings-page';
-
-interface Health {
-  status: 'ok';
-  version: string;
-}
-
-async function fetchHealth(): Promise<Health> {
-  const res = await fetch('/api/health');
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return (await res.json()) as Health;
-}
 
 type Page = 'home' | 'channels' | 'settings';
 
@@ -73,29 +61,8 @@ export function App() {
       <main className="mx-auto max-w-3xl px-4 py-8">
         {page === 'channels' && <ChannelsPage />}
         {page === 'settings' && <SettingsPage />}
-        {page === 'home' && <Home />}
+        {page === 'home' && <HomePage />}
       </main>
-    </div>
-  );
-}
-
-// Placeholder home screen: proves the SPA builds, is translated and can reach the API.
-function Home() {
-  const { t } = useTranslation();
-  const health = useQuery({ queryKey: ['health'], queryFn: fetchHealth, retry: false });
-
-  return (
-    <div className="flex flex-col items-center gap-6 py-16 text-center">
-      <h1 className="text-4xl font-bold tracking-tight">{t('app.name')}</h1>
-      <p>{t('app.tagline')}</p>
-      <p className="text-muted-foreground">
-        {health.isPending && t('app.health.checking')}
-        {health.isSuccess && t('app.health.ok', { version: health.data.version })}
-        {health.isError && t('app.health.error')}
-      </p>
-      <Button onClick={() => void health.refetch()} disabled={health.isFetching}>
-        {t('app.health.retry')}
-      </Button>
     </div>
   );
 }
