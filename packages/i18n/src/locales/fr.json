@@ -88,6 +88,7 @@
       "text": "N'est plus proposé sur {{watch}}."
     },
     "price": "Prix : {{price}}",
+    "priceOnSale": "Prix : {{price}} au lieu de {{regularPrice}}",
     "test": {
       "title": "Message de test",
       "text": "Si vous lisez ceci, ce canal fonctionne. Vous recevrez ici vos alertes Back in stock !."

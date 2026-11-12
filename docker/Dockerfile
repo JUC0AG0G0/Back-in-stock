@@ -12,6 +12,7 @@ COPY apps/web/package.json apps/web/
 COPY packages/plugin-sdk/package.json packages/plugin-sdk/
 COPY packages/i18n/package.json packages/i18n/
 COPY plugins/notifier-telegram/package.json plugins/notifier-telegram/
+COPY plugins/source-fanatec/package.json plugins/source-fanatec/
 RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 

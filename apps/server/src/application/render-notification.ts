@@ -28,10 +28,18 @@ function translatorFor(locale: Locale): TFunction {
 export function renderNotification(event: DomainEvent, ctx: RenderContext): NotificationMessage {
   const t = translatorFor(ctx.locale);
   const watch = ctx.watchName;
-  const withPrice = (text: string, price: Price | undefined) =>
-    price
-      ? `${text}\n${t('notifications.price', { price: formatPrice(price.amountCents, price.currency, ctx.locale) })}`
-      : text;
+  const format = (price: Price) => formatPrice(price.amountCents, price.currency, ctx.locale);
+  const withPrice = (text: string, price: Price | undefined, regularPrice?: Price) => {
+    if (!price) return text;
+    const line =
+      regularPrice && regularPrice.amountCents > price.amountCents
+        ? t('notifications.priceOnSale', {
+            price: format(price),
+            regularPrice: format(regularPrice),
+          })
+        : t('notifications.price', { price: format(price) });
+    return `${text}\n${line}`;
+  };
 
   const base = { event: event.type, locale: ctx.locale, watchName: watch, url: ctx.watchUrl };
 
@@ -46,7 +54,11 @@ export function renderNotification(event: DomainEvent, ctx: RenderContext): Noti
       return {
         ...base,
         title,
-        text: withPrice(t('notifications.watchStarted.product', { status }), event.price),
+        text: withPrice(
+          t('notifications.watchStarted.product', { status }),
+          event.price,
+          event.regularPrice,
+        ),
         ...optional({ price: event.price, imageUrl: event.imageUrl }),
       };
     }
@@ -63,7 +75,11 @@ export function renderNotification(event: DomainEvent, ctx: RenderContext): Noti
       return {
         ...base,
         title: t(`notifications.${key}.title`, { watch }),
-        text: withPrice(t(`notifications.${key}.text`, { product }), event.price),
+        text: withPrice(
+          t(`notifications.${key}.text`, { product }),
+          event.price,
+          event.regularPrice,
+        ),
         ...optional({ price: event.price, imageUrl: event.imageUrl }),
       };
     }

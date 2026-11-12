@@ -51,6 +51,7 @@ function details(snapshot: ProductSnapshot): ProductDetails {
   const result: ProductDetails = {};
   if (snapshot.title !== undefined) result.title = snapshot.title;
   if (snapshot.price !== undefined) result.price = snapshot.price;
+  if (snapshot.regularPrice !== undefined) result.regularPrice = snapshot.regularPrice;
   if (snapshot.imageUrl !== undefined) result.imageUrl = snapshot.imageUrl;
   return result;
 }

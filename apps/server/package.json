@@ -19,6 +19,7 @@
     "@back-in-stock/i18n": "workspace:*",
     "@back-in-stock/plugin-notifier-telegram": "workspace:*",
     "@back-in-stock/plugin-sdk": "workspace:*",
+    "@back-in-stock/plugin-source-fanatec": "workspace:*",
     "@fastify/static": "^10.1.10",
     "@fastify/swagger": "^9.9.3",
     "@fastify/swagger-ui": "^6.1.3",

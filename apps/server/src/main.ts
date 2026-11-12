@@ -1,4 +1,5 @@
 import telegram from '@back-in-stock/plugin-notifier-telegram';
+import fanatec from '@back-in-stock/plugin-source-fanatec';
 import { RuntimeSettings } from './application/runtime-settings.js';
 import { UpdateChecker } from './application/update-checker.js';
 import { UpdateScheduler } from './application/update-scheduler.js';
@@ -26,6 +27,7 @@ const config = loadConfig();
 const database = openDatabase(config.databasePath);
 // Built-in plugins (plugins/*) and external ones (npm, /data/plugins) will register here (M1, M4).
 const plugins = { sources: new SourceRegistry(), notifiers: new NotifierRegistry() };
+plugins.sources.register(fanatec);
 plugins.notifiers.register(telegram);
 const fetcher = new HttpFetcher();
 const channels = new SqliteChannelRepository(database.db);

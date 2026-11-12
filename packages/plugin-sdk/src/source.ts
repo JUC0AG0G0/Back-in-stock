@@ -12,7 +12,10 @@ export type StockStatus = 'IN_STOCK' | 'OUT_OF_STOCK' | 'PREORDER' | 'UNKNOWN';
 export interface ProductSnapshot {
   status: StockStatus;
   title?: string;
+  /** Price to pay now, discount included. */
   price?: Price;
+  /** Price before discount, only when the product is on sale (higher than `price`). */
+  regularPrice?: Price;
   imageUrl?: string;
   /** Selected variant, e.g. "Taille 42". */
   variant?: string;
