@@ -1,5 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BellRing, ExternalLink, LayoutList, Loader2, Package } from 'lucide-react';
+import {
+  BellRing,
+  ExternalLink,
+  LayoutList,
+  Loader2,
+  MessageSquarePlus,
+  Package,
+} from 'lucide-react';
 import { useId, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -17,6 +24,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { docsUrl } from '@/features/update/api';
 import { api, type ChannelView } from '@/lib/api';
+import { newSiteIssueUrl } from '@/lib/issues';
 import { cn } from '@/lib/utils';
 import { createWatch, matchSources, type SourceMatch, type WatchType, type WatchView } from './api';
 import { ProductPreview } from './product-preview';
@@ -126,6 +134,7 @@ function AddWatchForm({ match, onCancel, onCreated }: AddWatchFormProps) {
         <Alert>
           <AlertDescription className="flex flex-col gap-2">
             <span>{t('watches.add.noPlugin', { hostname: match.hostname })}</span>
+            <span className="text-muted-foreground">{t('watches.add.requestHint')}</span>
             <a
               href={docsUrl(i18n.language, 'plugins/overview')}
               target="_blank"
@@ -140,6 +149,12 @@ function AddWatchForm({ match, onCancel, onCreated }: AddWatchFormProps) {
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>
             {t('watches.add.close')}
+          </Button>
+          <Button asChild>
+            <a href={newSiteIssueUrl(match.url)} target="_blank" rel="noreferrer">
+              <MessageSquarePlus aria-hidden />
+              {t('watches.add.requestSite')}
+            </a>
           </Button>
         </DialogFooter>
       </>
@@ -212,6 +227,20 @@ function AddWatchForm({ match, onCancel, onCreated }: AddWatchFormProps) {
             }
           />
         ))}
+        {!match.candidates.some((candidate) => candidate.score >= 1) && (
+          <p className="text-sm text-muted-foreground">
+            {t('watches.add.genericOnly')}{' '}
+            <a
+              href={newSiteIssueUrl(match.url)}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 underline"
+            >
+              {t('watches.add.requestSite')}
+              <ExternalLink className="size-3" aria-hidden />
+            </a>
+          </p>
+        )}
       </fieldset>
 
       <div className="flex flex-col gap-2">

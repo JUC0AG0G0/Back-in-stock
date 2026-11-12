@@ -1,6 +1,6 @@
 {
   "name": "back-in-stock",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "private": true,
   "type": "module",
   "description": "Self-hosted, open source back-in-stock and new-listing monitor with pluggable sites and notifiers.",
@@ -10,7 +10,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "pnpm --parallel --filter @back-in-stock/server --filter @back-in-stock/web run dev",
+    "dev": "node scripts/dev.mjs",
     "docs:dev": "pnpm --filter @back-in-stock/docs run dev",
     "lint": "eslint .",
     "format": "prettier --write .",

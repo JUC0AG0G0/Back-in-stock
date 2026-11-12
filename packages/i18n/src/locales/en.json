@@ -190,7 +190,9 @@
       "qrCode": "QR code to {{url}}"
     },
     "customizeTest": "Customize the test message",
-    "pluginMeta": "{{name}} · v{{version}}"
+    "pluginMeta": "{{name}} · v{{version}}",
+    "request": "Request a new channel",
+    "requestHint": "The service you want isn't listed? Open a request on GitHub."
   },
   "settings": {
     "title": "Settings",
@@ -246,7 +248,9 @@
       "description": "The installed source plugins, that is the sites the app can watch. A test reads a page (an example page, or the URL you type) without saving anything.",
       "testAll": "Test all sites",
       "none": "No source plugin installed yet.",
-      "loadError": "Could not load the source plugin list."
+      "loadError": "Could not load the source plugin list.",
+      "request": "Request a new site",
+      "requestHint": "Your site isn't listed? Open a request on GitHub."
     }
   },
   "watches": {
@@ -290,7 +294,10 @@
       "noChannel": "No alert channel is set up yet: the watch will run, but without telling you.",
       "addChannel": "Add a channel (Telegram…)",
       "channelDisabled": "Disabled",
-      "noChannelPicked": "No channel picked: you will not be alerted."
+      "noChannelPicked": "No channel picked: you will not be alerted.",
+      "requestSite": "Request support for this site",
+      "requestHint": "You can ask for it to be supported: the request opens on GitHub with this link already filled in.",
+      "genericOnly": "No plugin is made specifically for this site. If the generic plugin reads it poorly, you can request a dedicated one."
     },
     "list": {
       "title": "Your watches"

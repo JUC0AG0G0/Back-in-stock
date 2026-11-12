@@ -18,9 +18,18 @@ pnpm install
 pnpm dev
 ```
 
-- Web interface: [http://localhost:5173](http://localhost:5173) (Vite, hot reload).
-- API: [http://localhost:8080](http://localhost:8080).
-- API documentation (Swagger): [http://localhost:8080/api/docs](http://localhost:8080/api/docs), on by default in development (in production, from the **Settings** screen or with `BIS_API_DOCS=true`).
+One command starts the API and the web interface, both with hot reload:
+
+- Web interface: [http://localhost:5173](http://localhost:5173). Vite reloads the page on every change and forwards `/api` to the API.
+- API: [http://localhost:8081](http://localhost:8081), restarted by `tsx watch` on every server change.
+- API documentation (Swagger): [http://localhost:8081/api/docs](http://localhost:8081/api/docs), on by default in development (in production, from the **Settings** screen or with `BIS_API_DOCS=true`).
+
+Good to know:
+
+- The API takes the first free port from **8081** upwards, so it does not clash with a Docker instance on 8080. The chosen port is printed at startup. To force one: `BIS_DEV_API_PORT=9000 pnpm dev`.
+- The repository's packages (`packages/*`, `plugins/*`) are read straight from their TypeScript sources: nothing to build, and editing them reloads the API or the page like any other file.
+- The development database lives in `apps/server/data/` (ignored by Git). Delete that folder to start from scratch.
+- `Ctrl+C` stops everything. If one of the two stops (a startup error, for example), the other one is stopped too.
 
 ## Check before a PR
 
