@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.6.0](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.5.0...v0.6.0) (2026-11-12)
+
+
+### ✨ Nouveautés
+
+* **fanatec:** plugin Fanatec, aperçu du produit et cartes de surveillance ([#35](https://github.com/JUC0AG0G0/Back-in-stock/issues/35)) ([e704385](https://github.com/JUC0AG0G0/Back-in-stock/commit/e704385aedc092cc94579090477516f32951a47b))
+* **watches:** modifier une surveillance (canaux, pause, fréquence) ([#37](https://github.com/JUC0AG0G0/Back-in-stock/issues/37)) ([8255c0b](https://github.com/JUC0AG0G0/Back-in-stock/commit/8255c0b182f95a901c3d5788bd7fd9b9899e8d13))
+* **web:** proposer d'ouvrir une demande de nouveau site ou de nouveau canal ([#32](https://github.com/JUC0AG0G0/Back-in-stock/issues/32)) ([0941309](https://github.com/JUC0AG0G0/Back-in-stock/commit/0941309f1ac55214998aa66952027cb4c9aea951))
+
+
+### 🐛 Corrections
+
+* **web:** distinguer la demande de prise en charge du guide des plugins ([#36](https://github.com/JUC0AG0G0/Back-in-stock/issues/36)) ([52e7c61](https://github.com/JUC0AG0G0/Back-in-stock/commit/52e7c614fd4dd4ea5406ec6de4a0e0e679b62a6f))
+
 ## [0.5.0](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.4.1...v0.5.0) (2026-11-12)
 
 
