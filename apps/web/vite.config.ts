@@ -12,7 +12,8 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    // In dev, the API runs separately on :8080. In production the server serves the built SPA.
-    proxy: { '/api': 'http://localhost:8080' },
+    // In dev, the API runs separately: `pnpm dev` (scripts/dev.mjs) picks its port and passes it here.
+    // In production the server serves the built SPA.
+    proxy: { '/api': `http://127.0.0.1:${process.env.BIS_DEV_API_PORT ?? 8081}` },
   },
 });

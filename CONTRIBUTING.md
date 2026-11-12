@@ -47,6 +47,15 @@ Les releases sont automatiques grâce à [release-please](https://github.com/goo
    Chaque fusion sur `main` publie aussi l'image `edge` (version de développement).
 3. Les instances auto-hébergées voient alors le bandeau « Nouvelle version disponible ».
 
+## Lancer le projet en local
+
+```bash
+pnpm install
+pnpm dev
+```
+
+L'interface est sur <http://localhost:5173> et l'API sur <http://localhost:8081> (premier port libre à partir de 8081, pour ne pas gêner une instance Docker sur 8080), toutes deux avec rechargement à chaud. Détails dans [Développement](https://juc0ag0g0.github.io/Back-in-stock/contributing/development).
+
 ## Avant d'ouvrir une PR
 
 ```bash
