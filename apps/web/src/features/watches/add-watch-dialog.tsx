@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ExternalLink, LayoutList, Loader2, Package } from 'lucide-react';
+import { BellRing, ExternalLink, LayoutList, Loader2, Package } from 'lucide-react';
 import { useId, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -16,9 +16,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { docsUrl } from '@/features/update/api';
+import { api, type ChannelView } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { createWatch, matchSources, type SourceMatch, type WatchType, type WatchView } from './api';
+import { ProductPreview } from './product-preview';
 import { guessWatchType } from './url';
+import { previewedProduct, useProductPreview } from './use-product-preview';
 
 const WATCH_TYPES: WatchType[] = ['product', 'listing'];
 
@@ -97,6 +100,16 @@ function AddWatchForm({ match, onCancel, onCreated }: AddWatchFormProps) {
   const [sourceId, setSourceId] = useState(match.suggested[type]);
   const [name, setName] = useState('');
   const plugins = match.candidates.filter((candidate) => candidate.supports.includes(type));
+  const channels = useQuery({ queryKey: ['channels'], queryFn: api.channels });
+  const preview = useProductPreview(match.url, type === 'product' ? sourceId : undefined);
+  // The product name read on the page is a better default name than the site's hostname.
+  const productTitle = type === 'product' ? previewedProduct(preview.data)?.title : undefined;
+  const defaultName = productTitle ?? match.hostname;
+  // Undefined until the user changes it: the enabled default channels are pre-checked.
+  const [picked, setPicked] = useState<string[]>();
+  const usable = (channels.data ?? []).filter((channel) => channel.available);
+  const channelIds =
+    picked ?? usable.filter((channel) => channel.enabled && channel.isDefault).map((c) => c.id);
 
   const create = useMutation({
     mutationFn: createWatch,
@@ -142,10 +155,13 @@ function AddWatchForm({ match, onCancel, onCreated }: AddWatchFormProps) {
           url: match.url,
           type,
           sourceId,
-          ...(name.trim() === '' ? {} : { name: name.trim() }),
+          name: name.trim() || defaultName,
+          ...(channels.data ? { channelIds } : {}),
         });
       }}
     >
+      {type === 'product' && sourceId && <ProductPreview url={match.url} sourceId={sourceId} />}
+
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-2 font-medium">{t('watches.add.whatLegend')}</legend>
         <div className="grid gap-2 sm:grid-cols-2">
@@ -202,10 +218,17 @@ function AddWatchForm({ match, onCancel, onCreated }: AddWatchFormProps) {
           id={nameId}
           value={name}
           maxLength={200}
-          placeholder={match.hostname}
+          placeholder={defaultName}
           onChange={(event) => setName(event.target.value)}
         />
       </div>
+
+      <ChannelPicker
+        channels={usable}
+        loading={channels.isPending}
+        selected={channelIds}
+        onChange={setPicked}
+      />
 
       {create.isError && (
         <Alert variant="destructive">
@@ -225,6 +248,80 @@ function AddWatchForm({ match, onCancel, onCreated }: AddWatchFormProps) {
         </Button>
       </DialogFooter>
     </form>
+  );
+}
+
+interface ChannelPickerProps {
+  channels: ChannelView[];
+  loading: boolean;
+  selected: string[];
+  onChange: (ids: string[]) => void;
+}
+
+/** Where the alerts of this watch go: one or more of the saved channels. */
+function ChannelPicker({ channels, loading, selected, onChange }: ChannelPickerProps) {
+  const { t } = useTranslation();
+  const formId = useId();
+  if (loading) return null;
+
+  return (
+    <fieldset className="flex flex-col gap-2">
+      <legend className="mb-2 font-medium">{t('watches.add.channelsLegend')}</legend>
+      {channels.length === 0 ? (
+        <Alert>
+          <BellRing aria-hidden />
+          <AlertDescription className="flex flex-col gap-1">
+            <span>{t('watches.add.noChannel')}</span>
+            <a href="#/channels" className="underline">
+              {t('watches.add.addChannel')}
+            </a>
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <>
+          {channels.map((channel) => {
+            const id = `${formId}-${channel.id}`;
+            const checked = selected.includes(channel.id);
+            return (
+              <label
+                key={channel.id}
+                htmlFor={id}
+                className={cn(
+                  'flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50 has-focus-visible:ring-3 has-focus-visible:ring-ring/50',
+                  checked && 'border-primary bg-muted/50',
+                )}
+              >
+                <input
+                  id={id}
+                  type="checkbox"
+                  className="size-4 accent-primary"
+                  checked={checked}
+                  onChange={() =>
+                    onChange(
+                      checked
+                        ? selected.filter((other) => other !== channel.id)
+                        : [...selected, channel.id],
+                    )
+                  }
+                />
+                <span className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                  <span className="truncate font-medium">{channel.name}</span>
+                  <span className="text-sm text-muted-foreground capitalize">
+                    {channel.notifierId}
+                  </span>
+                  {!channel.enabled && (
+                    <Badge variant="secondary">{t('watches.add.channelDisabled')}</Badge>
+                  )}
+                </span>
+              </label>
+            );
+          })}
+          {selected.length === 0 && (
+            <p className="text-sm text-muted-foreground">{t('watches.add.noChannelPicked')}</p>
+          )}
+        </>
+      )}
+    </fieldset>
   );
 }
 

@@ -22,6 +22,8 @@ interface CreateWatchBody {
   type: WatchType;
   sourceId: string;
   name?: string;
+  /** Channels to notify. Defaults to the enabled default channels. */
+  channelIds?: string[];
 }
 
 const watchType = { type: 'string', enum: ['product', 'listing'] } as const;
@@ -146,7 +148,8 @@ export function registerWatchRoutes(
       schema: {
         tags: ['watches'],
         summary: 'Start monitoring a URL',
-        description: 'Enabled default channels are attached to the new watch.',
+        description:
+          'Without channelIds, the enabled default channels are attached to the new watch.',
         body: {
           type: 'object',
           required: ['url', 'type', 'sourceId'],
@@ -155,21 +158,36 @@ export function registerWatchRoutes(
             type: watchType,
             sourceId: { type: 'string', minLength: 1 },
             name: { type: 'string', maxLength: 200 },
+            channelIds: {
+              type: 'array',
+              maxItems: 50,
+              items: { type: 'string', minLength: 1 },
+              description: 'Channels to notify. Omitted: the enabled default channels.',
+            },
           },
         },
         response: { 201: watchView, 400: errorView },
       },
     },
     async (request, reply) => {
-      const { url, type, sourceId, name } = request.body;
+      const { url, type, sourceId, name, channelIds } = request.body;
       const plugin = sources.get(sourceId);
       if (!plugin) return reply.code(400).send({ error: `Unknown source plugin: ${sourceId}` });
       if (!plugin.supports.includes(type)) {
         return reply.code(400).send({ error: `${plugin.name} cannot watch a ${type}` });
       }
-      const defaults = channels
-        ? (await channels.list()).filter((c) => c.enabled && c.isDefault).map((c) => c.id)
-        : [];
+      const saved = channels ? await channels.list() : [];
+      let selected: string[];
+      if (channelIds === undefined) {
+        selected = saved.filter((c) => c.enabled && c.isDefault).map((c) => c.id);
+      } else {
+        const known = new Set(saved.map((c) => c.id));
+        const unknown = channelIds.filter((id) => !known.has(id));
+        if (unknown.length > 0) {
+          return reply.code(400).send({ error: `Unknown channel: ${unknown.join(', ')}` });
+        }
+        selected = channelIds;
+      }
       let watch: Watch;
       try {
         watch = createWatch({
@@ -177,7 +195,7 @@ export function registerWatchRoutes(
           type,
           url,
           sourceId,
-          channelIds: defaults,
+          channelIds: selected,
           ...(name === undefined ? {} : { name }),
         });
       } catch (err) {

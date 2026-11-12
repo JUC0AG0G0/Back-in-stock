@@ -285,10 +285,24 @@
       "cancel": "Annuler",
       "submit": "Lancer la surveillance",
       "createError": "La surveillance n'a pas été créée : {{error}}",
-      "created": "« {{name}} » est maintenant surveillé."
+      "created": "« {{name}} » est maintenant surveillé.",
+      "channelsLegend": "Où vous prévenir",
+      "noChannel": "Aucun canal d'alerte n'est configuré : la surveillance tournera, mais sans vous prévenir.",
+      "addChannel": "Ajouter un canal (Telegram…)",
+      "channelDisabled": "Désactivé",
+      "noChannelPicked": "Aucun canal choisi : vous ne serez pas prévenu."
     },
     "list": {
       "title": "Vos surveillances"
+    },
+    "preview": {
+      "label": "Aperçu du produit",
+      "loading": "Lecture de la page produit…",
+      "failed": "Impossible de lire le produit pour l'instant. Vous pouvez quand même lancer la surveillance.",
+      "retry": "Réessayer",
+      "unknown": "statut inconnu",
+      "noTitle": "Produit sans nom",
+      "regularPrice": "Prix normal :"
     }
   }
 }

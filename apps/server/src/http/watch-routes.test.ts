@@ -168,6 +168,48 @@ describe('/api/watches', () => {
     expect(list.json()).toHaveLength(1);
   });
 
+  it('creates a watch with the channels picked in the dialog', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/watches',
+      payload: {
+        url: 'https://www.fanatec.com/eu/fr/refurbished',
+        type: 'listing',
+        sourceId: 'fanatec',
+        channelIds: ['other', 'other'],
+      },
+    });
+    expect(res.statusCode).toBe(201);
+    expect(res.json().channelIds).toEqual(['other']);
+
+    const none = await app.inject({
+      method: 'POST',
+      url: '/api/watches',
+      payload: {
+        url: 'https://www.fanatec.com/eu',
+        type: 'listing',
+        sourceId: 'fanatec',
+        channelIds: [],
+      },
+    });
+    expect(none.json().channelIds).toEqual([]);
+  });
+
+  it('refuses an unknown channel', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/watches',
+      payload: {
+        url: 'https://www.fanatec.com/eu',
+        type: 'listing',
+        sourceId: 'fanatec',
+        channelIds: ['nope'],
+      },
+    });
+    expect(res.statusCode).toBe(400);
+    expect(watches.rows.size).toBe(0);
+  });
+
   it('refuses a plugin that cannot watch this type', async () => {
     const res = await app.inject({
       method: 'POST',

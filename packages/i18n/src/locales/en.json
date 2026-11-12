@@ -285,10 +285,24 @@
       "cancel": "Cancel",
       "submit": "Start watching",
       "createError": "The watch was not created: {{error}}",
-      "created": "“{{name}}” is now being watched."
+      "created": "“{{name}}” is now being watched.",
+      "channelsLegend": "Where to alert you",
+      "noChannel": "No alert channel is set up yet: the watch will run, but without telling you.",
+      "addChannel": "Add a channel (Telegram…)",
+      "channelDisabled": "Disabled",
+      "noChannelPicked": "No channel picked: you will not be alerted."
     },
     "list": {
       "title": "Your watches"
+    },
+    "preview": {
+      "label": "Product preview",
+      "loading": "Reading the product page…",
+      "failed": "The product could not be read right now. You can still start watching it.",
+      "retry": "Try again",
+      "unknown": "unknown status",
+      "noTitle": "Untitled product",
+      "regularPrice": "Regular price:"
     }
   }
 }
