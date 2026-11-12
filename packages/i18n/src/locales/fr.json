@@ -277,7 +277,8 @@
       "analysing": "Recherche du plugin adapté…",
       "matchError": "Impossible d'analyser ce lien : {{error}}",
       "noPlugin": "Aucun plugin installé ne sait lire les pages de {{hostname}}.",
-      "pluginDocs": "Ajouter un plugin pour ce site",
+      "pluginDocs": "Lire le guide pour écrire un plugin",
+      "devHint": "Vous savez coder ? Vous pouvez aussi écrire le plugin vous-même.",
       "close": "Fermer",
       "whatLegend": "Ce que vous voulez surveiller",
       "typeUnavailable": "Aucun plugin installé ne sait le faire pour ce site.",
@@ -296,7 +297,7 @@
       "channelDisabled": "Désactivé",
       "noChannelPicked": "Aucun canal choisi : vous ne serez pas prévenu.",
       "requestSite": "Demander la prise en charge de ce site",
-      "requestHint": "Vous pouvez demander qu'il soit pris en charge : la demande s'ouvre sur GitHub avec ce lien déjà rempli.",
+      "requestHint": "Demandez sa prise en charge : la demande s'ouvre sur GitHub avec ce lien déjà rempli.",
       "genericOnly": "Aucun plugin n'est fait spécialement pour ce site. Si le plugin générique le lit mal, vous pouvez demander un plugin dédié."
     },
     "list": {
