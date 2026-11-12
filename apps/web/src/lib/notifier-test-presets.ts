@@ -16,8 +16,6 @@ export const MESSAGE_PRESETS: readonly MessagePreset[] = [
 
 export interface NotifierTestOptions {
   preset: MessagePreset;
-  /** Empty: every channel of the notifier. */
-  channelId: string;
   message: Required<TestMessageContent>;
 }
 

@@ -52,7 +52,7 @@ export interface SourceContext<Config> {
 export type FetchMode = 'http' | 'browser' | 'auto';
 
 /**
- * A real page the plugin knows how to read, used by the "Test" button and by "Test all plugins":
+ * A real page the plugin knows how to read, used by the "Test" and "Test all sites" buttons:
  * the core fetches and parses it like a check, shows the result and saves nothing.
  * Pick a stable page (a category, a long-lived product) so the test keeps working.
  */
@@ -83,7 +83,7 @@ export interface SourcePlugin<Config = unknown> {
   checkListing?(ctx: SourceContext<Config>): Promise<ListingSnapshot>;
   /**
    * Example pages for the self-test. Optional: without them, a test needs a URL typed in the UI,
-   * and "Test all plugins" skips this plugin.
+   * and "Test all sites" skips this plugin.
    */
   testTargets?: readonly SourceTestTarget<Config>[];
 }

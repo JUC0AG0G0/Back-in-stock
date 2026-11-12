@@ -1,6 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { api } from '@/lib/api';
 import {
   MESSAGE_PRESETS,
   presetMessage,
@@ -15,20 +13,16 @@ const TEXT_INPUT = 'text';
 
 /**
  * What a notifier test sends: the standard test message, or a custom one (text, link, picture,
- * link without picture…) to check how the channel renders it, to every channel or only one.
+ * link without picture…) to check how the channel renders it.
  */
 export function NotifierTestMessage({
-  notifierId,
   value,
   onChange,
 }: {
-  notifierId: string;
   value: NotifierTestOptions;
   onChange(value: NotifierTestOptions): void;
 }) {
   const { t } = useTranslation();
-  const channels = useQuery({ queryKey: ['channels'], queryFn: api.channels, retry: false });
-  const own = (channels.data ?? []).filter((c) => c.notifierId === notifierId);
   const sample = {
     title: t('pluginTests.message.sampleTitle'),
     text: t('pluginTests.message.sampleText'),
@@ -96,24 +90,6 @@ export function NotifierTestMessage({
             {t('pluginTests.message.imageHint')}
           </p>
         </div>
-      )}
-
-      {own.length > 1 && (
-        <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-          {t('pluginTests.message.channel')}
-          <select
-            value={value.channelId}
-            onChange={(e) => onChange({ ...value, channelId: e.target.value })}
-            className={fieldClass}
-          >
-            <option value="">{t('pluginTests.message.allChannels')}</option>
-            {own.map((channel) => (
-              <option key={channel.id} value={channel.id}>
-                {channel.name}
-              </option>
-            ))}
-          </select>
-        </label>
       )}
     </div>
   );

@@ -1,20 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '@/components/language-switcher';
-import { PluginTests } from '@/components/plugin-tests';
 import { UpdateBanner } from '@/features/update/update-banner';
 import { HomePage } from '@/features/watches/home-page';
 import { cn } from '@/lib/utils';
 import { ChannelsPage } from '@/pages/channels-page';
 import { SettingsPage } from '@/pages/settings-page';
 
-type Page = 'home' | 'channels' | 'plugins' | 'settings';
+type Page = 'home' | 'channels' | 'settings';
 
 /** Hash routing until the app gets TanStack Router with more screens. */
 function usePage(): Page {
   const read = (): Page => {
     if (window.location.hash === '#/channels') return 'channels';
-    if (window.location.hash === '#/plugins') return 'plugins';
     if (window.location.hash === '#/settings') return 'settings';
     return 'home';
   };
@@ -33,7 +31,6 @@ export function App() {
   const links: Array<{ page: Page; href: string; label: string }> = [
     { page: 'home', href: '#/', label: t('nav.home') },
     { page: 'channels', href: '#/channels', label: t('nav.channels') },
-    { page: 'plugins', href: '#/plugins', label: t('nav.plugins') },
     { page: 'settings', href: '#/settings', label: t('nav.settings') },
   ];
 
@@ -63,7 +60,6 @@ export function App() {
       </header>
       <main className="mx-auto max-w-3xl px-4 py-8">
         {page === 'channels' && <ChannelsPage />}
-        {page === 'plugins' && <PluginTests />}
         {page === 'settings' && <SettingsPage />}
         {page === 'home' && <HomePage />}
       </main>

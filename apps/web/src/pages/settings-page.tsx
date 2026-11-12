@@ -16,6 +16,7 @@ import {
   type SettingsPatch,
   type UpdateChannel,
 } from '@/features/settings/api';
+import { SourcesCard } from '@/features/sources/sources-card';
 import { docsUrl, fetchUpdateStatus, type UpdateStatus } from '@/features/update/api';
 
 const UPDATE_CHANNELS: UpdateChannel[] = ['stable', 'prerelease'];
@@ -66,6 +67,7 @@ export function SettingsPage() {
           />
         </>
       )}
+      <SourcesCard />
       <DocumentationCard />
     </div>
   );

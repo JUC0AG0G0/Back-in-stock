@@ -5,14 +5,8 @@
     "language": "Language"
   },
   "pluginTests": {
-    "title": "Test plugins",
-    "intro": "Check that every plugin works. A source reads a page without saving anything, a notifier sends a test notification to each of its channels.",
-    "testAll": "Test all plugins",
     "test": "Test",
     "testing": "Testing…",
-    "sources": "Sources",
-    "notifiers": "Notifiers",
-    "none": "No plugin installed yet.",
     "pluginMeta": "{{id}} · v{{version}}",
     "loadError": "Could not load the plugin list.",
     "runError": "The test could not start: {{message}}",
@@ -38,8 +32,7 @@
       "signal": "Signal: {{signal}}",
       "listing_one": "{{count}} item found",
       "listing_other": "{{count}} items found",
-      "incomplete": "incomplete list (pagination stopped)",
-      "notifier": "Test notification sent."
+      "incomplete": "incomplete list (pagination stopped)"
     },
     "summary": "{{passed}} passed · {{failed}} failed · {{skipped}} skipped",
     "message": {
@@ -58,8 +51,6 @@
         "imageUrl": "Image URL"
       },
       "imageHint": "Leave a field empty to leave it out (an empty title uses the default title). The image only shows if the channel allows images.",
-      "channel": "Channel",
-      "allChannels": "Every channel of this notifier",
       "sampleTitle": "Back in stock: GT DD Pro wheel",
       "sampleText": "This is a test. The product is available again."
     }
@@ -147,7 +138,6 @@
     "label": "Main navigation",
     "home": "Home",
     "channels": "Channels",
-    "plugins": "Plugins",
     "settings": "Settings"
   },
   "channels": {
@@ -197,7 +187,9 @@
       "copied": "Copied",
       "scanWithPhone": "Scan with your phone",
       "qrCode": "QR code to {{url}}"
-    }
+    },
+    "customizeTest": "Customize the test message",
+    "pluginMeta": "{{name}} · v{{version}}"
   },
   "settings": {
     "title": "Settings",
@@ -247,6 +239,13 @@
       "title": "Documentation",
       "description": "Install, configuration, notification channels and updates: it is all explained on the documentation site.",
       "open": "Open the documentation"
+    },
+    "sources": {
+      "title": "Supported sites",
+      "description": "The installed source plugins, that is the sites the app can watch. A test reads a page (an example page, or the URL you type) without saving anything.",
+      "testAll": "Test all sites",
+      "none": "No source plugin installed yet.",
+      "loadError": "Could not load the source plugin list."
     }
   },
   "watches": {

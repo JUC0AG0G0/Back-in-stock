@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Pencil, Send, Star, Trash2 } from 'lucide-react';
+import { Loader2, MessageSquareText, Pencil, Send, Star, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { NotifierTestMessage } from '@/components/notifier-test-message';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { api, ApiError, type ChannelConfig, type ChannelView, type NotifierInfo } from '@/lib/api';
+import type { NotifierTestOptions } from '@/lib/notifier-test-presets';
+import { testPlugin } from '@/lib/plugin-tests-api';
 import { ConfigFields } from './config-fields';
 
 interface ChannelCardProps {
@@ -34,6 +37,11 @@ export function ChannelCard({ channel, notifier }: ChannelCardProps) {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
+  const [customizing, setCustomizing] = useState(false);
+  const [testOptions, setTestOptions] = useState<NotifierTestOptions>({
+    preset: 'default',
+    message: { title: '', text: '', url: '', imageUrl: '' },
+  });
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['channels'] });
 
   const update = useMutation({
@@ -45,8 +53,18 @@ export function ChannelCard({ channel, notifier }: ChannelCardProps) {
     mutationFn: () => api.deleteChannel(channel.id),
     onSuccess: refresh,
   });
+  // Same test as the plugin test API, limited to this channel, with an optional custom message.
   const test = useMutation({
-    mutationFn: () => api.testChannel(channel.id, i18n.resolvedLanguage ?? 'en'),
+    mutationFn: async () => {
+      const [result] = await testPlugin('notifier', channel.notifierId, {
+        channelId: channel.id,
+        locale: i18n.resolvedLanguage ?? 'en',
+        ...(customizing && testOptions.preset !== 'default'
+          ? { message: testOptions.message }
+          : {}),
+      });
+      return result;
+    },
   });
 
   const enabledId = `channel-${channel.id}-enabled`;
@@ -65,7 +83,11 @@ export function ChannelCard({ channel, notifier }: ChannelCardProps) {
           {!channel.enabled && <Badge variant="outline">{t('channels.disabled')}</Badge>}
           {!channel.available && <Badge variant="destructive">{t('channels.pluginMissing')}</Badge>}
         </CardTitle>
-        <CardDescription>{notifier?.name ?? channel.notifierId}</CardDescription>
+        <CardDescription>
+          {notifier
+            ? t('channels.pluginMeta', { name: notifier.name, version: notifier.version })
+            : channel.notifierId}
+        </CardDescription>
         <CardAction className="flex items-center gap-2">
           <Label htmlFor={enabledId} className="sr-only">
             {t('channels.enabled')}
@@ -92,6 +114,16 @@ export function ChannelCard({ channel, notifier }: ChannelCardProps) {
               <Send aria-hidden />
             )}
             {t('channels.sendTest')}
+          </Button>
+          <Button
+            variant={customizing ? 'secondary' : 'ghost'}
+            size="sm"
+            aria-pressed={customizing}
+            onClick={() => setCustomizing(!customizing)}
+            disabled={!channel.available}
+          >
+            <MessageSquareText aria-hidden />
+            {t('channels.customizeTest')}
           </Button>
           <Button
             variant="outline"
@@ -127,13 +159,20 @@ export function ChannelCard({ channel, notifier }: ChannelCardProps) {
             {t('channels.delete')}
           </Button>
         </div>
-        {test.data?.ok === true && (
+        {customizing && (
+          <div className="rounded-lg border p-3">
+            <NotifierTestMessage value={testOptions} onChange={setTestOptions} />
+          </div>
+        )}
+        {test.data?.status === 'passed' && (
           <p className="text-sm text-green-700 dark:text-green-400">{t('channels.testSent')}</p>
         )}
-        {test.data?.ok === false && (
+        {(test.data?.status === 'failed' || test.isError) && (
           <Alert variant="destructive">
             <AlertDescription>
-              {t('channels.testFailed', { error: test.data.error })}
+              {t('channels.testFailed', {
+                error: test.data?.error?.message ?? test.error?.message ?? '',
+              })}
             </AlertDescription>
           </Alert>
         )}
