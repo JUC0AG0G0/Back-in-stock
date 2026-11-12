@@ -14,16 +14,14 @@ L'application sait tester ses plugins en direct, depuis l'interface ou l'API. Ri
 
 ## Depuis l'interface
 
-La page **Plugins** de l’interface liste les plugins chargés.
+- **Sources** : la carte **Sites pris en charge** de la page **Paramètres** liste les plugins de source chargés. **Tester** sur une ligne ne teste que ce site : tu peux saisir une URL et choisir le type de veille, la page saisie est alors lue à la place des pages d'exemple. **Tester tous les sites** lance tous les tests d'un coup et affiche un récapitulatif (réussis, échecs, ignorés).
+- **Notifieurs** : sur la page **Canaux**, chaque canal a un bouton **Envoyer un test**. **Personnaliser le message de test** permet d'envoyer un texte seul, un lien, une image… pour vérifier le rendu sur ce canal.
 
-- **Tester tous les plugins** lance tous les tests d'un coup et affiche un récapitulatif (réussis, échecs, ignorés).
-- **Tester** sur une ligne ne teste que ce plugin. Pour une source, tu peux saisir une URL et choisir le type de veille : la page saisie est lue à la place des pages d'exemple.
-
-Un test est **ignoré** quand il n'y a rien à tester : une source sans page d'exemple (et sans URL saisie), ou un notifieur sans canal. Chaque test est coupé au bout de 30 secondes.
+Un test est **ignoré** quand il n'y a rien à tester : une source sans page d'exemple (et sans URL saisie). Chaque test est coupé au bout de 30 secondes.
 
 ## Donner des pages d'exemple à une source
 
-Pour qu'une source soit testée par « Tester tous les plugins », déclare une ou plusieurs pages d'exemple avec `testTargets` :
+Pour qu'une source soit testée sans URL saisie (bouton **Tester** ou « Tester tous les sites »), déclare une ou plusieurs pages d'exemple avec `testTargets` :
 
 ```ts
 export default defineSourcePlugin({
