@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.4.1...v0.5.0) (2026-11-12)
+
+
+### ✨ Nouveautés
+
+* **web:** ajout d'une surveillance en collant un lien sur l'accueil ([#30](https://github.com/JUC0AG0G0/Back-in-stock/issues/30)) ([e8e7950](https://github.com/JUC0AG0G0/Back-in-stock/commit/e8e79502a49c3334adb12e25e975be5370953842))
+* **web:** retirer l'onglet Plugins, tests déplacés dans Canaux et Paramètres ([#29](https://github.com/JUC0AG0G0/Back-in-stock/issues/29)) ([3fe067c](https://github.com/JUC0AG0G0/Back-in-stock/commit/3fe067cc1d41b0722e838cb74e338ef2c96b83ff))
+
 ## [0.4.1](https://github.com/JUC0AG0G0/Back-in-stock/compare/v0.4.0...v0.4.1) (2026-11-08)
 
 
