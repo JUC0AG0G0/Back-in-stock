@@ -1,7 +1,16 @@
-name: 🔔 Demande de moyen de notification
-description: Proposer un nouveau canal (Discord, Gotify, Pushover, SMS…).
+name: 🔔 Demande de canal de notification
+description: Proposer un nouveau canal (Discord, Gotify, Pushover, SMS…). / Request a new notification channel.
+title: "[Canal] "
 labels: ["new-notifier"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci ! Un canal est envoyé par un **plugin de notification**. Vérifie sur la page **Canaux**
+        qu'il n'est pas déjà proposé.
+
+        Thanks! A channel is sent by a **notifier plugin**. Check the **Channels** page that it isn't
+        offered already. English is welcome.
   - type: input
     id: service
     attributes:
@@ -9,14 +18,20 @@ body:
       placeholder: "Discord"
     validations:
       required: true
+  - type: input
+    id: api-docs
+    attributes:
+      label: Doc de l'API / API docs
+      description: Lien vers la doc qui explique comment envoyer un message. / Link to the docs on sending a message.
+      placeholder: "https://…"
   - type: textarea
     id: why
     attributes:
-      label: Pourquoi ce canal ?
-      description: Lien vers la doc de son API si possible.
+      label: Pourquoi ce canal ? / Why this channel?
+      description: Ton usage, et ce que le message devrait contenir (lien, image, prix…). / Your use, and what the message should show (link, image, price…).
   - type: checkboxes
     id: help
     attributes:
       label: Contribution
       options:
-        - label: Je veux bien écrire ce plugin moi-même (voir la doc « Ajouter un notifier »).
+        - label: Je veux bien écrire ce plugin moi-même (voir la doc « Ajouter un notifier »). / I'd like to write this plugin myself.
