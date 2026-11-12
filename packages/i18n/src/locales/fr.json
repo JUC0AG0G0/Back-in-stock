@@ -2,13 +2,7 @@
   "app": {
     "name": "Back in stock !",
     "tagline": "Soyez prévenu dès qu'un produit revient en stock.",
-    "language": "Langue",
-    "health": {
-      "checking": "Connexion au serveur…",
-      "ok": "Serveur OK · v{{version}}",
-      "error": "Serveur injoignable",
-      "retry": "Vérifier à nouveau"
-    }
+    "language": "Langue"
   },
   "pluginTests": {
     "title": "Tester les plugins",
@@ -253,6 +247,48 @@
       "title": "Documentation",
       "description": "Installation, configuration, canaux de notification et mises à jour : tout est expliqué sur le site de la documentation.",
       "open": "Ouvrir la documentation"
+    }
+  },
+  "watches": {
+    "paste": {
+      "label": "Lien à surveiller",
+      "placeholder": "Collez le lien d'un produit ou d'une page de la boutique",
+      "submit": "Surveiller",
+      "invalid": "Ce n'est pas un lien web. Collez une adresse qui commence par https://"
+    },
+    "type": {
+      "product": {
+        "title": "Retour en stock",
+        "description": "Un produit précis : prévenu dès qu'il redevient disponible.",
+        "short": "Produit"
+      },
+      "listing": {
+        "title": "Nouveaux articles",
+        "description": "Une page de liste (reconditionnés, catégorie, recherche) : prévenu dès qu'un article apparaît.",
+        "short": "Liste"
+      }
+    },
+    "add": {
+      "title": "Que voulez-vous surveiller ?",
+      "analysing": "Recherche du plugin adapté…",
+      "matchError": "Impossible d'analyser ce lien : {{error}}",
+      "noPlugin": "Aucun plugin installé ne sait lire les pages de {{hostname}}.",
+      "pluginDocs": "Ajouter un plugin pour ce site",
+      "close": "Fermer",
+      "whatLegend": "Ce que vous voulez surveiller",
+      "typeUnavailable": "Aucun plugin installé ne sait le faire pour ce site.",
+      "pluginLegend": "Plugin qui lit la page",
+      "suggested": "Suggéré",
+      "siteSpecific": "Fait pour ce site",
+      "generic": "Générique, marche sur beaucoup de boutiques",
+      "nameLabel": "Nom (facultatif)",
+      "cancel": "Annuler",
+      "submit": "Lancer la surveillance",
+      "createError": "La surveillance n'a pas été créée : {{error}}",
+      "created": "« {{name}} » est maintenant surveillé."
+    },
+    "list": {
+      "title": "Vos surveillances"
     }
   }
 }
