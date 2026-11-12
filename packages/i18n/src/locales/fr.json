@@ -189,7 +189,9 @@
       "qrCode": "QR code vers {{url}}"
     },
     "customizeTest": "Personnaliser le message de test",
-    "pluginMeta": "{{name}} · v{{version}}"
+    "pluginMeta": "{{name}} · v{{version}}",
+    "request": "Demander un nouveau canal",
+    "requestHint": "Le service que vous voulez n'est pas dans la liste ? Ouvrez une demande sur GitHub."
   },
   "settings": {
     "title": "Paramètres",
@@ -245,7 +247,9 @@
       "description": "Les plugins de source installés, c'est-à-dire les sites que l'application sait surveiller. Un test lit une page (une page d'exemple, ou l'URL saisie) sans rien enregistrer.",
       "testAll": "Tester tous les sites",
       "none": "Aucun plugin de source installé pour l'instant.",
-      "loadError": "Impossible de charger la liste des plugins de source."
+      "loadError": "Impossible de charger la liste des plugins de source.",
+      "request": "Demander un nouveau site",
+      "requestHint": "Ton site n'est pas dans la liste ? Ouvre une demande sur GitHub."
     }
   },
   "watches": {
@@ -284,7 +288,10 @@
       "cancel": "Annuler",
       "submit": "Lancer la surveillance",
       "createError": "La surveillance n'a pas été créée : {{error}}",
-      "created": "« {{name}} » est maintenant surveillé."
+      "created": "« {{name}} » est maintenant surveillé.",
+      "requestSite": "Demander la prise en charge de ce site",
+      "requestHint": "Vous pouvez demander qu'il soit pris en charge : la demande s'ouvre sur GitHub avec ce lien déjà rempli.",
+      "genericOnly": "Aucun plugin n'est fait spécialement pour ce site. Si le plugin générique le lit mal, vous pouvez demander un plugin dédié."
     },
     "list": {
       "title": "Vos surveillances"

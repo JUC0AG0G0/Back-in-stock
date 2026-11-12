@@ -1,24 +1,52 @@
 name: 🛒 Demande de nouveau site
-description: Proposer le support d'une nouvelle boutique.
+description: Proposer le support d'une nouvelle boutique. / Request support for a new shop.
+title: "[Site] "
 labels: ["new-site"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci ! Un site est lu par un **plugin de source**. Avant d'ouvrir la demande, vérifie dans
+        **Paramètres › Sites pris en charge** qu'aucun plugin installé ne le lit déjà.
+
+        Thanks! A site is read by a **source plugin**. Before asking, check **Settings › Supported sites**
+        that no installed plugin already reads it. English is welcome.
   - type: input
     id: shop
     attributes:
-      label: Boutique
-      placeholder: "Fanatec EU"
+      label: Boutique / Shop
+      description: Nom ou domaine du site. / Name or domain of the site.
+      placeholder: "fanatec.com"
     validations:
       required: true
   - type: textarea
     id: urls
     attributes:
-      label: URLs d'exemple
-      description: Une page produit et/ou une page liste (ex. reconditionné).
+      label: URLs d'exemple / Example URLs
+      description: |
+        Une page produit et/ou une page liste (reconditionné, catégorie, recherche), une par ligne.
+        A product page and/or a listing page (refurbished, category, search), one per line.
+      placeholder: "https://www.fanatec.com/eu/fr/p/…"
     validations:
       required: true
+  - type: dropdown
+    id: watch-type
+    attributes:
+      label: Que veux-tu surveiller ? / What do you want to watch?
+      multiple: true
+      options:
+        - Retour en stock d'un produit / A product back in stock
+        - Nouveaux articles sur une page liste / New items on a listing page
+  - type: textarea
+    id: details
+    attributes:
+      label: Précisions / Details
+      description: |
+        Comment le site affiche la rupture de stock, pays ou langue, connexion nécessaire…
+        How the site shows "out of stock", country or language, login required…
   - type: checkboxes
     id: help
     attributes:
       label: Contribution
       options:
-        - label: Je veux bien écrire ce plugin moi-même (voir la doc « Ajouter un site »).
+        - label: Je veux bien écrire ce plugin moi-même (voir la doc « Ajouter un site »). / I'd like to write this plugin myself.

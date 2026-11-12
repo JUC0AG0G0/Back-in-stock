@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
+import { MessageSquarePlus, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChannelCard } from '@/components/channels/channel-card';
@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { api, type NotifierInfo } from '@/lib/api';
+import { newChannelIssueUrl } from '@/lib/issues';
 import { usePluginText } from '@/lib/plugin-text';
 
 /** First step of adding a channel: choosing its notifier. */
@@ -57,6 +58,7 @@ export function ChannelsPage() {
               />
             ))}
           </div>
+          <RequestChannel />
           <Button variant="ghost" className="self-start" onClick={close}>
             {t('channels.cancel')}
           </Button>
@@ -81,6 +83,24 @@ export function ChannelsPage() {
           <ChannelCard key={channel.id} channel={channel} notifier={byId.get(channel.notifierId)} />
         ))}
       </div>
+
+      {adding === undefined && <RequestChannel />}
+    </div>
+  );
+}
+
+/** Link to the GitHub issue form asking for a notifier the app does not have yet. */
+function RequestChannel() {
+  const { t } = useTranslation();
+  return (
+    <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+      <span>{t('channels.requestHint')}</span>
+      <Button variant="outline" size="sm" asChild>
+        <a href={newChannelIssueUrl()} target="_blank" rel="noreferrer">
+          <MessageSquarePlus aria-hidden />
+          {t('channels.request')}
+        </a>
+      </Button>
     </div>
   );
 }

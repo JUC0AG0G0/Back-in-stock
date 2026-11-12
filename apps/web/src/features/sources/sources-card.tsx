@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, MessageSquarePlus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PluginTestResultCard } from '@/components/plugin-test-result';
@@ -9,6 +9,7 @@ import {
   CardAction,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -19,6 +20,7 @@ import {
   type PluginTestResult,
   type WatchType,
 } from '@/lib/plugin-tests-api';
+import { newSiteIssueUrl } from '@/lib/issues';
 
 type SourceInfo = PluginList['sources'][number];
 type ResultsBySource = Record<string, PluginTestResult[]>;
@@ -99,6 +101,15 @@ export function SourcesCard() {
           </ul>
         )}
       </CardContent>
+      <CardFooter className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">{t('settings.sources.requestHint')}</p>
+        <Button {...rowButton} asChild>
+          <a href={newSiteIssueUrl()} target="_blank" rel="noreferrer">
+            <MessageSquarePlus aria-hidden />
+            {t('settings.sources.request')}
+          </a>
+        </Button>
+      </CardFooter>
     </Card>
   );
 }
