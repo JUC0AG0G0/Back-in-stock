@@ -277,7 +277,8 @@
       "analysing": "Looking for the right plugin…",
       "matchError": "Could not analyse this link: {{error}}",
       "noPlugin": "No installed plugin can read pages from {{hostname}}.",
-      "pluginDocs": "Add a plugin for this site",
+      "pluginDocs": "Read the guide to writing a plugin",
+      "devHint": "Comfortable with code? You can also write the plugin yourself.",
       "close": "Close",
       "whatLegend": "What you want to watch",
       "typeUnavailable": "No installed plugin can do this for this site.",
@@ -296,7 +297,7 @@
       "channelDisabled": "Disabled",
       "noChannelPicked": "No channel picked: you will not be alerted.",
       "requestSite": "Request support for this site",
-      "requestHint": "You can ask for it to be supported: the request opens on GitHub with this link already filled in.",
+      "requestHint": "Ask for it to be supported: the request opens on GitHub with this link already filled in.",
       "genericOnly": "No plugin is made specifically for this site. If the generic plugin reads it poorly, you can request a dedicated one."
     },
     "list": {

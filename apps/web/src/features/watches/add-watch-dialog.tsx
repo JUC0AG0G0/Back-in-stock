@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   BellRing,
+  BookOpen,
   ExternalLink,
   LayoutList,
   Loader2,
@@ -132,18 +133,24 @@ function AddWatchForm({ match, onCancel, onCreated }: AddWatchFormProps) {
     return (
       <>
         <Alert>
-          <AlertDescription className="flex flex-col gap-2">
-            <span>{t('watches.add.noPlugin', { hostname: match.hostname })}</span>
-            <span className="text-muted-foreground">{t('watches.add.requestHint')}</span>
-            <a
-              href={docsUrl(i18n.language, 'plugins/overview')}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 underline"
-            >
-              {t('watches.add.pluginDocs')}
-              <ExternalLink className="size-3" aria-hidden />
-            </a>
+          <AlertDescription className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <span>{t('watches.add.noPlugin', { hostname: match.hostname })}</span>
+              <span className="text-muted-foreground">{t('watches.add.requestHint')}</span>
+            </div>
+            <div className="flex flex-col gap-1 border-t pt-3 text-muted-foreground">
+              <span>{t('watches.add.devHint')}</span>
+              <a
+                href={docsUrl(i18n.language, 'plugins/overview')}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 underline"
+              >
+                <BookOpen className="size-3" aria-hidden />
+                {t('watches.add.pluginDocs')}
+                <ExternalLink className="size-3" aria-hidden />
+              </a>
+            </div>
           </AlertDescription>
         </Alert>
         <DialogFooter>
