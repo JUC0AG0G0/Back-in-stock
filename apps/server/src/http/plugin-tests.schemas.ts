@@ -52,6 +52,7 @@ const result = {
             status: { type: 'string', enum: ['IN_STOCK', 'OUT_OF_STOCK', 'PREORDER', 'UNKNOWN'] },
             title: { type: 'string' },
             price,
+            regularPrice: { ...price, description: 'Price before discount, when on sale.' },
             imageUrl: { type: 'string' },
             variant: { type: 'string' },
             signal: { type: 'string' },

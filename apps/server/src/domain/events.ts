@@ -6,6 +6,8 @@ export type ProductStatus = Exclude<StockStatus, 'UNKNOWN'>;
 export interface ProductDetails {
   title?: string;
   price?: Price;
+  /** Price before discount, when on sale. */
+  regularPrice?: Price;
   imageUrl?: string;
 }
 

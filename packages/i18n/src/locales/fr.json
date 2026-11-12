@@ -88,6 +88,7 @@
       "text": "N'est plus proposé sur {{watch}}."
     },
     "price": "Prix : {{price}}",
+    "priceOnSale": "Prix : {{price}} au lieu de {{regularPrice}}",
     "test": {
       "title": "Message de test",
       "text": "Si vous lisez ceci, ce canal fonctionne. Vous recevrez ici vos alertes Back in stock !."
@@ -289,12 +290,39 @@
       "submit": "Lancer la surveillance",
       "createError": "La surveillance n'a pas été créée : {{error}}",
       "created": "« {{name}} » est maintenant surveillé.",
+      "channelsLegend": "Où vous prévenir",
+      "noChannel": "Aucun canal d'alerte n'est configuré : la surveillance tournera, mais sans vous prévenir.",
+      "addChannel": "Ajouter un canal (Telegram…)",
+      "channelDisabled": "Désactivé",
+      "noChannelPicked": "Aucun canal choisi : vous ne serez pas prévenu.",
       "requestSite": "Demander la prise en charge de ce site",
       "requestHint": "Vous pouvez demander qu'il soit pris en charge : la demande s'ouvre sur GitHub avec ce lien déjà rempli.",
       "genericOnly": "Aucun plugin n'est fait spécialement pour ce site. Si le plugin générique le lit mal, vous pouvez demander un plugin dédié."
     },
     "list": {
       "title": "Vos surveillances"
+    },
+    "preview": {
+      "label": "Aperçu du produit",
+      "loading": "Lecture de la page produit…",
+      "failed": "Impossible de lire le produit pour l'instant. Vous pouvez quand même lancer la surveillance.",
+      "retry": "Réessayer",
+      "unknown": "statut inconnu",
+      "noTitle": "Produit sans nom",
+      "regularPrice": "Prix normal :"
+    },
+    "card": {
+      "paused": "En pause",
+      "checked": "Vérifié {{when}}",
+      "neverChecked": "Pas encore vérifié",
+      "noChannel": "Aucun canal : pas d'alerte",
+      "channels_one": "{{count}} canal",
+      "channels_other": "{{count}} canaux",
+      "refresh": "Actualiser",
+      "delete": "Supprimer",
+      "confirmDelete": "Confirmer la suppression",
+      "refreshError": "Lecture impossible : {{error}}",
+      "deleteError": "Suppression impossible : {{error}}"
     }
   }
 }

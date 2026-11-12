@@ -50,6 +50,21 @@ describe('renderNotification', () => {
     );
   });
 
+  it('shows the regular price next to a discounted one', () => {
+    const event = {
+      title: 'ClubSport Steering Wheel Drift V2 for XBOX',
+      price: { amountCents: 44995, currency: 'EUR' },
+      regularPrice: { amountCents: 53985, currency: 'EUR' },
+    };
+    expect(renderNotification({ type: 'ProductRestocked', ...event }, fr).text).toBe(
+      'ClubSport Steering Wheel Drift V2 for XBOX est de nouveau disponible.\n' +
+        'Prix : 449,95 € au lieu de 539,85 €',
+    );
+    expect(renderNotification({ type: 'ProductRestocked', ...event }, en).text).toContain(
+      'Price: €449.95 instead of €539.85',
+    );
+  });
+
   it('falls back to the watch name when the product has no title', () => {
     expect(renderNotification({ type: 'ProductRestocked' }, en).text).toBe(
       'Fanatec reconditionné is available again.',

@@ -1,4 +1,4 @@
-import type { Logger } from '@back-in-stock/plugin-sdk';
+import type { Logger, ProductSnapshot } from '@back-in-stock/plugin-sdk';
 import type {
   DomainEvent,
   ListingState,
@@ -41,6 +41,18 @@ export interface WatchRepository {
   list(): Promise<Watch[]>;
   save(watch: Watch): Promise<void>;
   delete(id: string): Promise<void>;
+}
+
+/** What the plugin last read on a product page, for display only (it never drives alerts). */
+export interface ProductReading {
+  snapshot: ProductSnapshot;
+  checkedAt: Date;
+}
+
+export interface ProductReadingRepository {
+  /** Last reading of every watch that has one, by watch id. */
+  list(): Promise<Map<string, ProductReading>>;
+  save(watchId: string, reading: ProductReading): Promise<void>;
 }
 
 /** Tracker state between two checks (state machine, known listing items). */

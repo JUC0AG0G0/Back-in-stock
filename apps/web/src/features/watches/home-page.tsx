@@ -1,14 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle2, ExternalLink, Link2 } from 'lucide-react';
+import { CheckCircle2, Link2 } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { api } from '@/lib/api';
 import { AddWatchDialog } from './add-watch-dialog';
 import { fetchWatches, type WatchView } from './api';
 import { extractUrl } from './url';
+import { WatchCard } from './watch-card';
 
 const URL_KEYBOARD = 'url';
 const PLAIN_TEXT = 'text/plain';
@@ -110,28 +111,18 @@ export function HomePage() {
 function WatchList() {
   const { t } = useTranslation();
   const watches = useQuery({ queryKey: ['watches'], queryFn: fetchWatches });
+  const channels = useQuery({ queryKey: ['channels'], queryFn: api.channels });
   if (!watches.data || watches.data.length === 0) return null;
 
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold">{t('watches.list.title')}</h2>
-      <ul className="divide-y rounded-lg border">
+      <h2 className="text-lg font-semibold">
+        {t('watches.list.title')}{' '}
+        <span className="font-normal text-muted-foreground">({watches.data.length})</span>
+      </h2>
+      <ul className="flex flex-col gap-3">
         {watches.data.map((watch) => (
-          <li key={watch.id} className="flex items-center gap-3 p-3">
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="truncate font-medium">{watch.name}</span>
-              <a
-                href={watch.url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex min-w-0 items-center gap-1 text-sm text-muted-foreground hover:underline"
-              >
-                <span className="truncate">{watch.url}</span>
-                <ExternalLink className="size-3 shrink-0" aria-hidden />
-              </a>
-            </div>
-            <Badge variant="secondary">{t(`watches.type.${watch.type}.short`)}</Badge>
-          </li>
+          <WatchCard key={watch.id} watch={watch} channels={channels.data} />
         ))}
       </ul>
     </section>

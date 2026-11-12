@@ -39,6 +39,12 @@ export default defineSourcePlugin({
 });
 ```
 
+## Prix et promotions
+
+`price` est le prix à payer maintenant, remise comprise. Si le produit est en promotion, renvoie aussi `regularPrice`, le prix avant remise : l'aperçu et les notifications affichent alors « 449,95 € au lieu de 539,85 € ». Laisse `regularPrice` vide quand il n'y a pas de remise.
+
+L'aperçu affiché quand on colle un lien utilise aussi `title` et `imageUrl` : renvoie-les dès que la page les contient, pour que l'utilisateur reconnaisse son produit.
+
 ## Choisir le plugin d'une URL
 
 Quand l'utilisateur ajoute une URL, le cœur appelle `match(url)` sur chaque plugin et garde le meilleur score. Un plugin dédié à un site renvoie `1` pour son domaine. Un plugin générique (par exemple « toute boutique Shopify ») renvoie un score plus faible, pour laisser la priorité aux plugins dédiés.

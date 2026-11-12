@@ -30,6 +30,9 @@ export type SourceTestOutput =
         status: StockStatus;
         title?: string;
         price?: Price;
+        /** Price before discount, when on sale. */
+        regularPrice?: Price;
+        imageUrl?: string;
         variant?: string;
         signal?: string;
       };

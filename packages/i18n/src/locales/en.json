@@ -88,6 +88,7 @@
       "text": "No longer listed on {{watch}}."
     },
     "price": "Price: {{price}}",
+    "priceOnSale": "Price: {{price}} instead of {{regularPrice}}",
     "test": {
       "title": "Test message",
       "text": "If you can read this, this channel works. Your Back in stock ! alerts will arrive here."
@@ -289,12 +290,39 @@
       "submit": "Start watching",
       "createError": "The watch was not created: {{error}}",
       "created": "“{{name}}” is now being watched.",
+      "channelsLegend": "Where to alert you",
+      "noChannel": "No alert channel is set up yet: the watch will run, but without telling you.",
+      "addChannel": "Add a channel (Telegram…)",
+      "channelDisabled": "Disabled",
+      "noChannelPicked": "No channel picked: you will not be alerted.",
       "requestSite": "Request support for this site",
       "requestHint": "You can ask for it to be supported: the request opens on GitHub with this link already filled in.",
       "genericOnly": "No plugin is made specifically for this site. If the generic plugin reads it poorly, you can request a dedicated one."
     },
     "list": {
       "title": "Your watches"
+    },
+    "preview": {
+      "label": "Product preview",
+      "loading": "Reading the product page…",
+      "failed": "The product could not be read right now. You can still start watching it.",
+      "retry": "Try again",
+      "unknown": "unknown status",
+      "noTitle": "Untitled product",
+      "regularPrice": "Regular price:"
+    },
+    "card": {
+      "paused": "Paused",
+      "checked": "Checked {{when}}",
+      "neverChecked": "Not checked yet",
+      "noChannel": "No channel: no alerts",
+      "channels_one": "{{count}} channel",
+      "channels_other": "{{count}} channels",
+      "refresh": "Refresh",
+      "delete": "Delete",
+      "confirmDelete": "Confirm delete",
+      "refreshError": "Could not read the page: {{error}}",
+      "deleteError": "Could not delete: {{error}}"
     }
   }
 }

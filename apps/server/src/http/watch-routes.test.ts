@@ -1,7 +1,13 @@
-import { defineSourcePlugin, type SourcePlugin } from '@back-in-stock/plugin-sdk';
+import { SourceError, defineSourcePlugin, type SourcePlugin } from '@back-in-stock/plugin-sdk';
 import type { FastifyInstance } from 'fastify';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { Channel, ChannelRepository, WatchRepository } from '../application/ports.js';
+import type {
+  Channel,
+  ChannelRepository,
+  ProductReading,
+  ProductReadingRepository,
+  WatchRepository,
+} from '../application/ports.js';
 import type { Watch } from '../domain/index.js';
 import { NotifierRegistry, SourceRegistry } from '../infrastructure/plugins/registry.js';
 import { buildApp } from './app.js';
@@ -19,6 +25,16 @@ class MemoryWatches implements WatchRepository {
   }
   async delete(id: string) {
     this.rows.delete(id);
+  }
+}
+
+class MemoryReadings implements ProductReadingRepository {
+  readonly rows = new Map<string, ProductReading>();
+  async list() {
+    return new Map(this.rows);
+  }
+  async save(watchId: string, reading: ProductReading) {
+    this.rows.set(watchId, reading);
   }
 }
 
@@ -57,6 +73,7 @@ const channel = (id: string, enabled: boolean, isDefault: boolean): Channel => (
 
 let app: FastifyInstance;
 let watches: MemoryWatches;
+let readings: MemoryReadings;
 
 beforeEach(async () => {
   const sources = new SourceRegistry();
@@ -64,8 +81,26 @@ beforeEach(async () => {
     source('fanatec', (url) => (url.hostname.endsWith('fanatec.com') ? 1 : 0), ['listing']),
   );
   sources.register(source('structured-data', () => 0.5, ['product']));
+  sources.register(
+    defineSourcePlugin({
+      id: 'shop',
+      name: 'Shop',
+      version: '1.0.0',
+      supports: ['product'],
+      match: (url) => (url.hostname === 'shop.test' ? 1 : 0),
+      checkProduct: async ({ url }) => {
+        if (url.pathname === '/broken') throw new SourceError('blocked', 'captcha');
+        return {
+          status: 'IN_STOCK',
+          title: 'Volant',
+          price: { amountCents: 34995, currency: 'EUR' },
+        };
+      },
+    }),
+  );
   sources.register(source('css-rule', () => 0.1, ['product', 'listing']));
   watches = new MemoryWatches();
+  readings = new MemoryReadings();
   app = await buildApp({
     version: '1.0.0',
     plugins: { sources, notifiers: new NotifierRegistry() },
@@ -80,7 +115,15 @@ beforeEach(async () => {
         post: () => Promise.reject(new Error('no network')),
       },
     },
-    watches: { repository: watches, newId: () => 'w1' },
+    watches: {
+      repository: watches,
+      newId: () => 'w1',
+      readings,
+      fetch: {
+        get: () => Promise.reject(new Error('no network')),
+        post: () => Promise.reject(new Error('no network')),
+      },
+    },
   });
 });
 afterEach(async () => {
@@ -168,6 +211,48 @@ describe('/api/watches', () => {
     expect(list.json()).toHaveLength(1);
   });
 
+  it('creates a watch with the channels picked in the dialog', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/watches',
+      payload: {
+        url: 'https://www.fanatec.com/eu/fr/refurbished',
+        type: 'listing',
+        sourceId: 'fanatec',
+        channelIds: ['other', 'other'],
+      },
+    });
+    expect(res.statusCode).toBe(201);
+    expect(res.json().channelIds).toEqual(['other']);
+
+    const none = await app.inject({
+      method: 'POST',
+      url: '/api/watches',
+      payload: {
+        url: 'https://www.fanatec.com/eu',
+        type: 'listing',
+        sourceId: 'fanatec',
+        channelIds: [],
+      },
+    });
+    expect(none.json().channelIds).toEqual([]);
+  });
+
+  it('refuses an unknown channel', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/watches',
+      payload: {
+        url: 'https://www.fanatec.com/eu',
+        type: 'listing',
+        sourceId: 'fanatec',
+        channelIds: ['nope'],
+      },
+    });
+    expect(res.statusCode).toBe(400);
+    expect(watches.rows.size).toBe(0);
+  });
+
   it('refuses a plugin that cannot watch this type', async () => {
     const res = await app.inject({
       method: 'POST',
@@ -191,5 +276,62 @@ describe('/api/watches', () => {
       payload: { url: 'not a url', type: 'product', sourceId: 'css-rule' },
     });
     expect(invalid.statusCode).toBe(400);
+  });
+});
+
+describe('product readings', () => {
+  const create = (payload: Record<string, unknown>) =>
+    app.inject({ method: 'POST', url: '/api/watches', payload });
+
+  it('keeps the preview of the dialog as the first reading', async () => {
+    const snapshot = {
+      status: 'OUT_OF_STOCK',
+      title: 'Drift V2',
+      price: { amountCents: 44995, currency: 'EUR' },
+      regularPrice: { amountCents: 53985, currency: 'EUR' },
+    };
+    const res = await create({
+      url: 'https://shop.test/p',
+      type: 'product',
+      sourceId: 'shop',
+      snapshot,
+    });
+    expect(res.statusCode).toBe(201);
+    expect(res.json().lastReading.snapshot).toEqual(snapshot);
+    const list = await app.inject({ method: 'GET', url: '/api/watches' });
+    expect(list.json()[0].lastReading.snapshot.title).toBe('Drift V2');
+  });
+
+  it('reads the page again on refresh', async () => {
+    await create({ url: 'https://shop.test/p', type: 'product', sourceId: 'shop' });
+    const res = await app.inject({ method: 'POST', url: '/api/watches/w1/refresh' });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().lastReading.snapshot).toMatchObject({ status: 'IN_STOCK', title: 'Volant' });
+    expect(readings.rows.get('w1')?.snapshot.title).toBe('Volant');
+  });
+
+  it('reports a page that cannot be read without saving anything', async () => {
+    await create({ url: 'https://shop.test/broken', type: 'product', sourceId: 'shop' });
+    const res = await app.inject({ method: 'POST', url: '/api/watches/w1/refresh' });
+    expect(res.statusCode).toBe(502);
+    expect(res.json().error).toBe('[blocked] captcha');
+    expect(readings.rows.size).toBe(0);
+  });
+
+  it('refuses to refresh a listing or an unknown watch', async () => {
+    const unknown = await app.inject({ method: 'POST', url: '/api/watches/nope/refresh' });
+    expect(unknown.statusCode).toBe(404);
+    await create({ url: 'https://www.fanatec.com/eu', type: 'listing', sourceId: 'fanatec' });
+    const listing = await app.inject({ method: 'POST', url: '/api/watches/w1/refresh' });
+    expect(listing.statusCode).toBe(400);
+  });
+
+  it('deletes a watch', async () => {
+    await create({ url: 'https://shop.test/p', type: 'product', sourceId: 'shop' });
+    const res = await app.inject({ method: 'DELETE', url: '/api/watches/w1' });
+    expect(res.statusCode).toBe(204);
+    expect(watches.rows.size).toBe(0);
+    const again = await app.inject({ method: 'DELETE', url: '/api/watches/w1' });
+    expect(again.statusCode).toBe(404);
   });
 });

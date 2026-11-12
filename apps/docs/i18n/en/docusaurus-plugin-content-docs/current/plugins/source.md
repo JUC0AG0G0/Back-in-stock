@@ -39,6 +39,12 @@ export default defineSourcePlugin({
 });
 ```
 
+## Prices and discounts
+
+`price` is the price to pay now, discount included. When the product is on sale, also return `regularPrice`, the price before the discount: the preview and the notifications then show "€449.95 instead of €539.85". Leave `regularPrice` out when there is no discount.
+
+The preview shown when a link is pasted also uses `title` and `imageUrl`: return them whenever the page has them, so the user recognizes their product.
+
 ## Picking the plugin for a URL
 
 When the user adds a URL, the core calls `match(url)` on every plugin and keeps the best score. A plugin dedicated to one site returns `1` for its domain. A generic plugin (for example "any Shopify store") returns a lower score, so dedicated plugins win.

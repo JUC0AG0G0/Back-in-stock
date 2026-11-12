@@ -1,10 +1,12 @@
-import type { ListingItem } from '@back-in-stock/plugin-sdk';
-import { and, asc, desc, eq, inArray, notInArray } from 'drizzle-orm';
+import type { ListingItem, ProductSnapshot } from '@back-in-stock/plugin-sdk';
+import { and, asc, desc, eq, inArray, isNotNull, notInArray } from 'drizzle-orm';
 import type {
   Channel,
   ChannelRepository,
   EventRepository,
   IdGenerator,
+  ProductReading,
+  ProductReadingRepository,
   SettingsRepository,
   StoredEvent,
   WatchRepository,
@@ -99,6 +101,40 @@ export class SqliteWatchRepository implements WatchRepository {
       channelIds,
       notificationOverrides: JSON.parse(row.notificationOverridesJson) as NotificationOverrides,
     });
+  }
+}
+
+/** Last product read of each watch, kept on the watch row. */
+export class SqliteProductReadingRepository implements ProductReadingRepository {
+  constructor(private readonly db: Db) {}
+
+  async list(): Promise<Map<string, ProductReading>> {
+    const rows = this.db
+      .select({
+        id: watches.id,
+        snapshot: watches.lastSnapshotJson,
+        checkedAt: watches.lastCheckedAt,
+      })
+      .from(watches)
+      .where(isNotNull(watches.lastSnapshotJson))
+      .all();
+    const readings = new Map<string, ProductReading>();
+    for (const row of rows) {
+      if (!row.snapshot || !row.checkedAt) continue;
+      readings.set(row.id, {
+        snapshot: JSON.parse(row.snapshot) as ProductSnapshot,
+        checkedAt: row.checkedAt,
+      });
+    }
+    return readings;
+  }
+
+  async save(watchId: string, reading: ProductReading): Promise<void> {
+    this.db
+      .update(watches)
+      .set({ lastSnapshotJson: JSON.stringify(reading.snapshot), lastCheckedAt: reading.checkedAt })
+      .where(eq(watches.id, watchId))
+      .run();
   }
 }
 
