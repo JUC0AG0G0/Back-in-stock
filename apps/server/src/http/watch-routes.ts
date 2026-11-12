@@ -13,7 +13,15 @@ import type {
   ProductReadingRepository,
   WatchRepository,
 } from '../application/ports.js';
-import { createWatch, DomainError, Url, type Watch } from '../domain/index.js';
+import {
+  createWatch,
+  DomainError,
+  updateWatch,
+  Url,
+  WATCH_INTERVAL_LIMITS,
+  type Watch,
+  type WatchChanges,
+} from '../domain/index.js';
 import { htmlHelpers } from '../infrastructure/html/html-helpers.js';
 import type { SourceRegistry } from '../infrastructure/plugins/registry.js';
 
@@ -69,7 +77,7 @@ const productSnapshot = {
 
 const watchView = {
   type: 'object',
-  required: ['id', 'type', 'url', 'name', 'sourceId', 'active', 'channelIds'],
+  required: ['id', 'type', 'url', 'name', 'sourceId', 'active', 'channelIds', 'intervalSeconds'],
   properties: {
     lastReading: {
       type: 'object',
@@ -84,6 +92,10 @@ const watchView = {
     sourceId: { type: 'string' },
     active: { type: 'boolean' },
     channelIds: { type: 'array', items: { type: 'string' } },
+    intervalSeconds: {
+      type: ['integer', 'null'],
+      description: 'Check frequency of this watch. Null: follows the global default.',
+    },
   },
 } as const;
 
@@ -139,6 +151,7 @@ function toView(watch: Watch, reading?: ProductReading) {
   return {
     ...watch,
     url: watch.url.value,
+    intervalSeconds: watch.interval?.seconds ?? null,
     ...(reading
       ? {
           lastReading: {
@@ -258,11 +271,8 @@ export function registerWatchRoutes(
       if (channelIds === undefined) {
         selected = saved.filter((c) => c.enabled && c.isDefault).map((c) => c.id);
       } else {
-        const known = new Set(saved.map((c) => c.id));
-        const unknown = channelIds.filter((id) => !known.has(id));
-        if (unknown.length > 0) {
-          return reply.code(400).send({ error: `Unknown channel: ${unknown.join(', ')}` });
-        }
+        const unknown = unknownChannels(channelIds, saved);
+        if (unknown) return reply.code(400).send({ error: unknown });
         selected = channelIds;
       }
       let watch: Watch;
@@ -322,6 +332,62 @@ export function registerWatchRoutes(
     },
   );
 
+  app.patch<{ Params: { id: string }; Body: WatchChanges }>(
+    '/api/watches/:id',
+    {
+      schema: {
+        tags: ['watches'],
+        summary: 'Edit a watch',
+        description:
+          'Changes the channels, pauses or resumes, or sets the check frequency. ' +
+          'Fields left out stay as they are.',
+        params: idParams,
+        body: {
+          type: 'object',
+          minProperties: 1,
+          properties: {
+            name: { type: 'string', maxLength: 200 },
+            active: { type: 'boolean', description: 'False pauses the watch.' },
+            channelIds: {
+              type: 'array',
+              maxItems: 50,
+              items: { type: 'string', minLength: 1 },
+              description: 'Channels to notify. Empty: no alert.',
+            },
+            intervalSeconds: {
+              type: ['integer', 'null'],
+              minimum: WATCH_INTERVAL_LIMITS.min,
+              maximum: WATCH_INTERVAL_LIMITS.max,
+              description: 'Check frequency of this watch. Null: back to the global default.',
+            },
+          },
+        },
+        response: { 200: watchView, 400: errorView, 404: errorView },
+      },
+    },
+    async (request, reply) => {
+      const watch = await watches.get(request.params.id);
+      if (!watch) return reply.code(404).send({ error: 'Unknown watch' });
+      if (request.body.channelIds !== undefined) {
+        const unknown = unknownChannels(
+          request.body.channelIds,
+          channels ? await channels.list() : [],
+        );
+        if (unknown) return reply.code(400).send({ error: unknown });
+      }
+      let updated: Watch;
+      try {
+        updated = updateWatch(watch, request.body);
+      } catch (err) {
+        if (err instanceof DomainError) return reply.code(400).send({ error: err.message });
+        throw err;
+      }
+      await watches.save(updated);
+      const latest = await readings?.list();
+      return toView(updated, latest?.get(updated.id));
+    },
+  );
+
   app.delete<{ Params: { id: string } }>(
     '/api/watches/:id',
     {
@@ -339,6 +405,13 @@ export function registerWatchRoutes(
       return reply.code(204).send();
     },
   );
+}
+
+/** Error message when some ids are not saved channels, undefined when all are known. */
+function unknownChannels(ids: readonly string[], saved: readonly { id: string }[]) {
+  const known = new Set(saved.map((c) => c.id));
+  const unknown = ids.filter((id) => !known.has(id));
+  return unknown.length > 0 ? `Unknown channel: ${unknown.join(', ')}` : undefined;
 }
 
 const CHECK_TIMEOUT_MS = 30_000;

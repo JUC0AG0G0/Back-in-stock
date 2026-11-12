@@ -323,7 +323,35 @@
       "delete": "Supprimer",
       "confirmDelete": "Confirmer la suppression",
       "refreshError": "Lecture impossible : {{error}}",
-      "deleteError": "Suppression impossible : {{error}}"
+      "deleteError": "Suppression impossible : {{error}}",
+      "edit": "Modifier",
+      "pause": "Mettre en pause",
+      "resume": "Reprendre"
+    },
+    "every": {
+      "minute_one": "Toutes les minutes",
+      "minute_other": "Toutes les {{count}} minutes",
+      "hour_one": "Toutes les heures",
+      "hour_other": "Toutes les {{count}} heures",
+      "day_one": "Tous les jours",
+      "day_other": "Tous les {{count}} jours"
+    },
+    "edit": {
+      "title": "Modifier la surveillance",
+      "activeLabel": "Surveillance active",
+      "activeHint": "En pause, la page n'est plus vérifiée et aucune alerte ne part.",
+      "frequencyLabel": "Fréquence de vérification",
+      "frequencyDefault": "Fréquence par défaut",
+      "frequencyHint": "Par défaut, la surveillance suit la fréquence globale, et ses changements.",
+      "channelsLegend": "Canaux à prévenir",
+      "noChannel": "Aucun canal enregistré : cette surveillance n'enverra pas d'alerte.",
+      "addChannel": "Ajouter un canal",
+      "noChannelPicked": "Aucun canal coché : pas d'alerte pour cette surveillance.",
+      "channelDisabled": "Désactivé",
+      "channelUnavailable": "Plugin absent",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saveError": "Enregistrement impossible : {{error}}"
     }
   }
 }

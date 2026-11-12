@@ -323,7 +323,35 @@
       "delete": "Delete",
       "confirmDelete": "Confirm delete",
       "refreshError": "Could not read the page: {{error}}",
-      "deleteError": "Could not delete: {{error}}"
+      "deleteError": "Could not delete: {{error}}",
+      "edit": "Edit",
+      "pause": "Pause",
+      "resume": "Resume"
+    },
+    "every": {
+      "minute_one": "Every minute",
+      "minute_other": "Every {{count}} minutes",
+      "hour_one": "Every hour",
+      "hour_other": "Every {{count}} hours",
+      "day_one": "Every day",
+      "day_other": "Every {{count}} days"
+    },
+    "edit": {
+      "title": "Edit watch",
+      "activeLabel": "Watch active",
+      "activeHint": "While paused, the page is not checked and no alert is sent.",
+      "frequencyLabel": "Check frequency",
+      "frequencyDefault": "Default frequency",
+      "frequencyHint": "By default, the watch follows the global frequency, and its changes.",
+      "channelsLegend": "Channels to notify",
+      "noChannel": "No channel saved yet: this watch will not send alerts.",
+      "addChannel": "Add a channel",
+      "noChannelPicked": "No channel checked: no alert for this watch.",
+      "channelDisabled": "Disabled",
+      "channelUnavailable": "Plugin missing",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saveError": "Could not save: {{error}}"
     }
   }
 }

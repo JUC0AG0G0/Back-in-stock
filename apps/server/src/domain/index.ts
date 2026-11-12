@@ -30,4 +30,12 @@ export {
   type ProductTransition,
 } from './product-tracker.js';
 export { Interval, ItemId, Money, Url } from './value-objects.js';
-export { createWatch, effectiveInterval, type NewWatch, type Watch } from './watch.js';
+export {
+  createWatch,
+  effectiveInterval,
+  updateWatch,
+  WATCH_INTERVAL_LIMITS,
+  type NewWatch,
+  type Watch,
+  type WatchChanges,
+} from './watch.js';

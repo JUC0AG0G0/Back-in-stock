@@ -204,6 +204,7 @@ describe('/api/watches', () => {
       sourceId: 'fanatec',
       active: true,
       channelIds: ['default-on'],
+      intervalSeconds: null,
     });
     expect(watches.rows.has('w1')).toBe(true);
 
@@ -333,5 +334,54 @@ describe('product readings', () => {
     expect(watches.rows.size).toBe(0);
     const again = await app.inject({ method: 'DELETE', url: '/api/watches/w1' });
     expect(again.statusCode).toBe(404);
+  });
+});
+
+describe('PATCH /api/watches/:id', () => {
+  const edit = (payload: object, id = 'w1') =>
+    app.inject({ method: 'PATCH', url: `/api/watches/${id}`, payload });
+
+  beforeEach(async () => {
+    await app.inject({
+      method: 'POST',
+      url: '/api/watches',
+      payload: { url: 'https://shop.test/p', type: 'product', sourceId: 'shop' },
+    });
+  });
+
+  it('changes the channels, pauses and sets a frequency', async () => {
+    const res = await edit({ channelIds: ['other', 'other'], active: false, intervalSeconds: 900 });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toMatchObject({
+      channelIds: ['other'],
+      active: false,
+      intervalSeconds: 900,
+    });
+    const saved = watches.rows.get('w1')!;
+    expect(saved.active).toBe(false);
+    expect(saved.interval?.seconds).toBe(900);
+    expect(saved.channelIds).toEqual(['other']);
+  });
+
+  it('leaves out fields as they are and goes back to the default frequency', async () => {
+    await edit({ intervalSeconds: 3600 });
+    const res = await edit({ intervalSeconds: null });
+    expect(res.json()).toMatchObject({
+      active: true,
+      channelIds: ['default-on'],
+      intervalSeconds: null,
+    });
+    expect((await edit({ channelIds: [] })).json().channelIds).toEqual([]);
+  });
+
+  it('refuses an unknown channel, a too short frequency or an empty change', async () => {
+    expect((await edit({ channelIds: ['nope'] })).statusCode).toBe(400);
+    expect((await edit({ intervalSeconds: 10 })).statusCode).toBe(400);
+    expect((await edit({})).statusCode).toBe(400);
+    expect(watches.rows.get('w1')!.channelIds).toEqual(['default-on']);
+  });
+
+  it('answers 404 for an unknown watch', async () => {
+    expect((await edit({ active: false }, 'missing')).statusCode).toBe(404);
   });
 });

@@ -46,6 +46,8 @@ export interface WatchView {
   sourceId: string;
   active: boolean;
   channelIds: string[];
+  /** Check frequency of this watch. Null: follows the global default. */
+  intervalSeconds: number | null;
   /** Last product read on the page, for display. */
   lastReading?: { snapshot: ProductSnapshot; checkedAt: string };
 }
@@ -59,6 +61,15 @@ export interface NewWatchInput {
   channelIds?: string[];
   /** Product info of the dialog preview, kept as the first reading. */
   snapshot?: ProductSnapshot;
+}
+
+/** What the edit panel changes. Missing fields stay as they are. */
+export interface WatchChanges {
+  name?: string;
+  active?: boolean;
+  channelIds?: string[];
+  /** Null: back to the global default frequency. */
+  intervalSeconds?: number | null;
 }
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
@@ -82,6 +93,13 @@ export const fetchWatches = () => request<WatchView[]>('/api/watches');
 export const createWatch = (input: NewWatchInput) => postJson<WatchView>('/api/watches', input);
 export const refreshWatch = (id: string) =>
   postJson<WatchView>(`/api/watches/${encodeURIComponent(id)}/refresh`, {});
+
+export const updateWatch = (id: string, changes: WatchChanges) =>
+  request<WatchView>(`/api/watches/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(changes),
+  });
 
 export async function deleteWatch(id: string): Promise<void> {
   const res = await fetch(`/api/watches/${encodeURIComponent(id)}`, { method: 'DELETE' });

@@ -64,3 +64,40 @@ export function effectiveInterval(
 ): Interval {
   return (watch.interval ?? globalDefault).max(floor);
 }
+
+/**
+ * Bounds of a per watch interval, in seconds. The floor is the default BIS_MIN_INTERVAL
+ * (1 min, SPEC §6), the ceiling a week.
+ */
+export const WATCH_INTERVAL_LIMITS = { min: 60, max: 7 * 24 * 3600 } as const;
+
+/** What the edit panel of a watch can change. Missing fields stay as they are. */
+export interface WatchChanges {
+  name?: string;
+  active?: boolean;
+  channelIds?: readonly string[];
+  /** Null: back to the global default interval. */
+  intervalSeconds?: number | null;
+}
+
+export function updateWatch(watch: Watch, changes: WatchChanges): Watch {
+  const { intervalSeconds } = changes;
+  if (
+    intervalSeconds != null &&
+    (intervalSeconds < WATCH_INTERVAL_LIMITS.min || intervalSeconds > WATCH_INTERVAL_LIMITS.max)
+  ) {
+    throw new DomainError(
+      `Interval must be between ${WATCH_INTERVAL_LIMITS.min} and ${WATCH_INTERVAL_LIMITS.max} seconds`,
+    );
+  }
+  const name = changes.name?.trim();
+  return {
+    ...watch,
+    ...(name ? { name } : {}),
+    ...(changes.active === undefined ? {} : { active: changes.active }),
+    ...(changes.channelIds === undefined ? {} : { channelIds: [...new Set(changes.channelIds)] }),
+    ...(intervalSeconds === undefined
+      ? {}
+      : { interval: intervalSeconds === null ? null : Interval.ofSeconds(intervalSeconds) }),
+  };
+}

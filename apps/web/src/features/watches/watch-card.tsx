@@ -7,7 +7,11 @@ import {
   ExternalLink,
   LayoutList,
   Package,
+  Pause,
+  Pencil,
+  Play,
   RefreshCw,
+  Timer,
   Trash2,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -16,9 +20,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { ChannelView } from '@/lib/api';
 import { cn } from '@/lib/utils';
-import { deleteWatch, refreshWatch, type WatchView } from './api';
+import { deleteWatch, refreshWatch, updateWatch, type WatchView } from './api';
+import { EditWatchDialog } from './edit-watch-dialog';
 import { PriceTag, ProductImage, StockBadge } from './product-parts';
-import { formatTimeAgo } from './time';
+import { formatTimeAgo, intervalParts } from './time';
 
 const CONFIRM_DELAY_MS = 4000;
 
@@ -45,6 +50,11 @@ export function WatchCard({ watch, channels }: WatchCardProps) {
     mutationFn: () => deleteWatch(watch.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['watches'] }),
   });
+  const toggle = useMutation({
+    mutationFn: () => updateWatch(watch.id, { active: !watch.active }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['watches'] }),
+  });
+  const [editing, setEditing] = useState(false);
 
   // Deleting takes two clicks; the confirmation goes away by itself.
   const [confirming, setConfirming] = useState(false);
@@ -110,6 +120,14 @@ export function WatchCard({ watch, channels }: WatchCardProps) {
                 : t('watches.card.neverChecked')}
             </span>
           )}
+          {watch.intervalSeconds !== null && (
+            <span className="inline-flex items-center gap-1">
+              <Timer className="size-3.5" aria-hidden />
+              {t(`watches.every.${intervalParts(watch.intervalSeconds).unit}`, {
+                count: intervalParts(watch.intervalSeconds).count,
+              })}
+            </span>
+          )}
           <span
             className="inline-flex min-w-0 items-center gap-1"
             title={channelNames.join(', ') || undefined}
@@ -129,11 +147,13 @@ export function WatchCard({ watch, channels }: WatchCardProps) {
           </span>
         </div>
 
-        {(refresh.isError || remove.isError) && (
+        {(refresh.isError || remove.isError || toggle.isError) && (
           <p className="text-xs break-words text-destructive">
             {refresh.isError
               ? t('watches.card.refreshError', { error: refresh.error.message })
-              : t('watches.card.deleteError', { error: remove.error?.message ?? '' })}
+              : toggle.isError
+                ? t('watches.edit.saveError', { error: toggle.error.message })
+                : t('watches.card.deleteError', { error: remove.error?.message ?? '' })}
           </p>
         )}
 
@@ -150,6 +170,20 @@ export function WatchCard({ watch, channels }: WatchCardProps) {
               {t('watches.card.refresh')}
             </Button>
           )}
+          <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(true)}>
+            <Pencil aria-hidden />
+            {t('watches.card.edit')}
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => toggle.mutate()}
+            disabled={toggle.isPending}
+          >
+            {watch.active ? <Pause aria-hidden /> : <Play aria-hidden />}
+            {watch.active ? t('watches.card.pause') : t('watches.card.resume')}
+          </Button>
           <Button
             type="button"
             variant="ghost"
@@ -163,6 +197,8 @@ export function WatchCard({ watch, channels }: WatchCardProps) {
           </Button>
         </div>
       </div>
+
+      <EditWatchDialog watch={editing ? watch : undefined} onClose={() => setEditing(false)} />
     </li>
   );
 }
