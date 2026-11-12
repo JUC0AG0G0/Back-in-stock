@@ -71,7 +71,15 @@ La documentation complète (installation, configuration de chaque canal, écrire
 
 ## Contribuer
 
-Les contributions sont les bienvenues, surtout pour **ajouter de nouveaux sites** ou **de nouveaux moyens de notification**. Commence par [CONTRIBUTING.md](./CONTRIBUTING.md). Pour proposer un site ou un canal, ouvre une [issue](https://github.com/JUC0AG0G0/Back-in-stock/issues/new/choose).
+Les contributions sont les bienvenues, surtout pour **ajouter de nouveaux sites** ou **de nouveaux moyens de notification**. Commence par [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+Pour lancer le projet en local, avec rechargement à chaud de l'API et de l'interface :
+
+```bash
+pnpm install
+pnpm dev   # interface sur http://localhost:5173, API sur http://localhost:8081
+```
+ Pour proposer un site ou un canal, ouvre une [issue](https://github.com/JUC0AG0G0/Back-in-stock/issues/new/choose).
 
 ## Licence
 
