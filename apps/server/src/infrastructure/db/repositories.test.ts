@@ -12,6 +12,7 @@ import { openDatabase, type Database } from './database.js';
 import {
   SqliteChannelRepository,
   SqliteEventRepository,
+  SqliteProductReadingRepository,
   SqliteSettingsRepository,
   SqliteWatchRepository,
   SqliteWatchStateRepository,
@@ -229,5 +230,22 @@ describe('SqliteSettingsRepository', () => {
     expect(await repo.getValue('updates.interval_hours')).toBe(24);
     await repo.setValue('updates.interval_hours', null);
     expect(await repo.getValue('updates.interval_hours')).toBeUndefined();
+  });
+});
+
+describe('SqliteProductReadingRepository', () => {
+  it('keeps the last product read of a watch, and survives a watch update', async () => {
+    await seed();
+    const repo = new SqliteProductReadingRepository(database.db);
+    expect((await repo.list()).size).toBe(0);
+    const checkedAt = new Date('2026-11-12T21:00:00Z');
+    const snapshot = {
+      status: 'IN_STOCK' as const,
+      title: 'ClubSport Formula V3',
+      price: { amountCents: 34995, currency: 'EUR' },
+    };
+    await repo.save('w1', { snapshot, checkedAt });
+    await new SqliteWatchRepository(database.db).save({ ...fanatec, name: 'Renamed' });
+    expect((await repo.list()).get('w1')).toEqual({ snapshot, checkedAt });
   });
 });

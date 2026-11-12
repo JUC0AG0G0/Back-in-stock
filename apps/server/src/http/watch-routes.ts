@@ -1,8 +1,20 @@
 import { randomUUID } from 'node:crypto';
-import type { WatchType } from '@back-in-stock/plugin-sdk';
+import {
+  SourceError,
+  type Fetcher,
+  type Logger,
+  type ProductSnapshot,
+  type WatchType,
+} from '@back-in-stock/plugin-sdk';
 import type { FastifyInstance } from 'fastify';
-import type { ChannelRepository, WatchRepository } from '../application/ports.js';
+import type {
+  ChannelRepository,
+  ProductReading,
+  ProductReadingRepository,
+  WatchRepository,
+} from '../application/ports.js';
 import { createWatch, DomainError, Url, type Watch } from '../domain/index.js';
+import { htmlHelpers } from '../infrastructure/html/html-helpers.js';
 import type { SourceRegistry } from '../infrastructure/plugins/registry.js';
 
 export interface WatchRoutesOptions {
@@ -11,6 +23,11 @@ export interface WatchRoutesOptions {
   /** Enabled default channels are attached to every new watch. */
   channels?: Pick<ChannelRepository, 'list'>;
   newId?: () => string;
+  /** Last product read of each watch, shown on its card. */
+  readings?: ProductReadingRepository;
+  /** Reads a product watch's page now (the "Refresh" button). */
+  checkProduct?: (watch: Watch) => Promise<ProductSnapshot>;
+  now?: () => Date;
 }
 
 interface MatchBody {
@@ -24,14 +41,42 @@ interface CreateWatchBody {
   name?: string;
   /** Channels to notify. Defaults to the enabled default channels. */
   channelIds?: string[];
+  /** Product info shown in the dialog preview, kept as the first reading of the watch. */
+  snapshot?: ProductSnapshot;
 }
 
 const watchType = { type: 'string', enum: ['product', 'listing'] } as const;
+
+const price = {
+  type: 'object',
+  required: ['amountCents', 'currency'],
+  properties: { amountCents: { type: 'integer' }, currency: { type: 'string' } },
+} as const;
+
+const productSnapshot = {
+  type: 'object',
+  required: ['status'],
+  properties: {
+    status: { type: 'string', enum: ['IN_STOCK', 'OUT_OF_STOCK', 'PREORDER', 'UNKNOWN'] },
+    title: { type: 'string', maxLength: 500 },
+    price,
+    regularPrice: price,
+    imageUrl: { type: 'string', maxLength: 2048 },
+    variant: { type: 'string', maxLength: 200 },
+    signal: { type: 'string', maxLength: 500 },
+  },
+} as const;
 
 const watchView = {
   type: 'object',
   required: ['id', 'type', 'url', 'name', 'sourceId', 'active', 'channelIds'],
   properties: {
+    lastReading: {
+      type: 'object',
+      description: 'Last product read on the page, for display. Missing until a first reading.',
+      required: ['snapshot', 'checkedAt'],
+      properties: { snapshot: productSnapshot, checkedAt: { type: 'string', format: 'date-time' } },
+    },
     id: { type: 'string' },
     type: watchType,
     url: { type: 'string' },
@@ -90,14 +135,39 @@ const matchSchema = {
   },
 } as const;
 
-function toView(watch: Watch) {
-  return { ...watch, url: watch.url.value };
+function toView(watch: Watch, reading?: ProductReading) {
+  return {
+    ...watch,
+    url: watch.url.value,
+    ...(reading
+      ? {
+          lastReading: {
+            snapshot: reading.snapshot,
+            checkedAt: reading.checkedAt.toISOString(),
+          },
+        }
+      : {}),
+  };
 }
+
+const idParams = {
+  type: 'object',
+  required: ['id'],
+  properties: { id: { type: 'string' } },
+} as const;
 
 /** Watches (SPEC §2): created from the home page, by pasting a link. */
 export function registerWatchRoutes(
   app: FastifyInstance,
-  { sources, watches, channels, newId = randomUUID }: WatchRoutesOptions,
+  {
+    sources,
+    watches,
+    channels,
+    newId = randomUUID,
+    readings,
+    checkProduct,
+    now = () => new Date(),
+  }: WatchRoutesOptions,
 ): void {
   app.post<{ Body: MatchBody }>(
     '/api/sources/match',
@@ -139,7 +209,10 @@ export function registerWatchRoutes(
         response: { 200: { type: 'array', items: watchView } },
       },
     },
-    async () => (await watches.list()).map(toView),
+    async () => {
+      const latest = (await readings?.list()) ?? new Map<string, ProductReading>();
+      return (await watches.list()).map((watch) => toView(watch, latest.get(watch.id)));
+    },
   );
 
   app.post<{ Body: CreateWatchBody }>(
@@ -164,13 +237,17 @@ export function registerWatchRoutes(
               items: { type: 'string', minLength: 1 },
               description: 'Channels to notify. Omitted: the enabled default channels.',
             },
+            snapshot: {
+              ...productSnapshot,
+              description: 'Product info read by the dialog preview, kept as the first reading.',
+            },
           },
         },
         response: { 201: watchView, 400: errorView },
       },
     },
     async (request, reply) => {
-      const { url, type, sourceId, name, channelIds } = request.body;
+      const { url, type, sourceId, name, channelIds, snapshot } = request.body;
       const plugin = sources.get(sourceId);
       if (!plugin) return reply.code(400).send({ error: `Unknown source plugin: ${sourceId}` });
       if (!plugin.supports.includes(type)) {
@@ -203,7 +280,95 @@ export function registerWatchRoutes(
         throw err;
       }
       await watches.save(watch);
-      return reply.code(201).send(toView(watch));
+      let reading: ProductReading | undefined;
+      if (snapshot && type === 'product' && readings) {
+        reading = { snapshot, checkedAt: now() };
+        await readings.save(watch.id, reading);
+      }
+      return reply.code(201).send(toView(watch, reading));
     },
   );
+
+  app.post<{ Params: { id: string } }>(
+    '/api/watches/:id/refresh',
+    {
+      schema: {
+        tags: ['watches'],
+        summary: 'Read a product page now',
+        description:
+          'Updates the product info shown on the card. Display only: it never sends an alert ' +
+          'nor changes the tracked stock state.',
+        params: idParams,
+        response: { 200: watchView, 400: errorView, 404: errorView, 502: errorView },
+      },
+    },
+    async (request, reply) => {
+      const watch = await watches.get(request.params.id);
+      if (!watch) return reply.code(404).send({ error: 'Unknown watch' });
+      if (watch.type !== 'product' || !checkProduct || !readings) {
+        return reply.code(400).send({ error: 'Only a product watch can be refreshed' });
+      }
+      let snapshot: ProductSnapshot;
+      try {
+        snapshot = await checkProduct(watch);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        const kind = err instanceof SourceError ? `[${err.kind}] ` : '';
+        return reply.code(502).send({ error: `${kind}${message}` });
+      }
+      const reading = { snapshot, checkedAt: now() };
+      await readings.save(watch.id, reading);
+      return toView(watch, reading);
+    },
+  );
+
+  app.delete<{ Params: { id: string } }>(
+    '/api/watches/:id',
+    {
+      schema: {
+        tags: ['watches'],
+        summary: 'Stop watching',
+        params: idParams,
+        response: { 204: { type: 'null' }, 404: errorView },
+      },
+    },
+    async (request, reply) => {
+      const watch = await watches.get(request.params.id);
+      if (!watch) return reply.code(404).send({ error: 'Unknown watch' });
+      await watches.delete(watch.id);
+      return reply.code(204).send();
+    },
+  );
+}
+
+const CHECK_TIMEOUT_MS = 30_000;
+
+/** Reads a product watch's page with its source plugin, like a real check. */
+export function productChecker(
+  sources: Pick<SourceRegistry, 'get'>,
+  fetch: Fetcher,
+  logger: Logger,
+  timeoutMs = CHECK_TIMEOUT_MS,
+): (watch: Watch) => Promise<ProductSnapshot> {
+  return async (watch) => {
+    const plugin = sources.get(watch.sourceId);
+    if (!plugin?.checkProduct) {
+      throw new Error(`Source plugin "${watch.sourceId}" is not installed`);
+    }
+    const parsed = plugin.configSchema?.safeParse({});
+    const signal = AbortSignal.timeout(timeoutMs);
+    const check = plugin.checkProduct({
+      url: watch.url.toURL(),
+      config: parsed?.success ? parsed.data : {},
+      fetch,
+      html: htmlHelpers,
+      logger,
+      signal,
+    });
+    // A plugin that ignores the signal must still be cut off at the timeout.
+    const timeout = new Promise<never>((_, reject) => {
+      signal.addEventListener('abort', () => reject(new Error('timed out')), { once: true });
+    });
+    return Promise.race([check, timeout]);
+  };
 }

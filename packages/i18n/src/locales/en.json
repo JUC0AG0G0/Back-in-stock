@@ -303,6 +303,19 @@
       "unknown": "unknown status",
       "noTitle": "Untitled product",
       "regularPrice": "Regular price:"
+    },
+    "card": {
+      "paused": "Paused",
+      "checked": "Checked {{when}}",
+      "neverChecked": "Not checked yet",
+      "noChannel": "No channel: no alerts",
+      "channels_one": "{{count}} channel",
+      "channels_other": "{{count}} channels",
+      "refresh": "Refresh",
+      "delete": "Delete",
+      "confirmDelete": "Confirm delete",
+      "refreshError": "Could not read the page: {{error}}",
+      "deleteError": "Could not delete: {{error}}"
     }
   }
 }

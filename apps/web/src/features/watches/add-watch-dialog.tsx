@@ -98,13 +98,14 @@ function AddWatchForm({ match, onCancel, onCreated }: AddWatchFormProps) {
   const nameId = `${formId}-name`;
   const [type, setType] = useState<WatchType>(() => guessWatchType(match));
   const [sourceId, setSourceId] = useState(match.suggested[type]);
-  const [name, setName] = useState('');
+  // Undefined until the user types: the name read on the product page is pre-filled.
+  const [typedName, setTypedName] = useState<string>();
   const plugins = match.candidates.filter((candidate) => candidate.supports.includes(type));
   const channels = useQuery({ queryKey: ['channels'], queryFn: api.channels });
   const preview = useProductPreview(match.url, type === 'product' ? sourceId : undefined);
   // The product name read on the page is a better default name than the site's hostname.
-  const productTitle = type === 'product' ? previewedProduct(preview.data)?.title : undefined;
-  const defaultName = productTitle ?? match.hostname;
+  const product = type === 'product' ? previewedProduct(preview.data) : undefined;
+  const name = typedName ?? product?.title ?? '';
   // Undefined until the user changes it: the enabled default channels are pre-checked.
   const [picked, setPicked] = useState<string[]>();
   const usable = (channels.data ?? []).filter((channel) => channel.available);
@@ -155,7 +156,8 @@ function AddWatchForm({ match, onCancel, onCreated }: AddWatchFormProps) {
           url: match.url,
           type,
           sourceId,
-          name: name.trim() || defaultName,
+          name: name.trim() || match.hostname,
+          ...(product ? { snapshot: product } : {}),
           ...(channels.data ? { channelIds } : {}),
         });
       }}
@@ -218,8 +220,8 @@ function AddWatchForm({ match, onCancel, onCreated }: AddWatchFormProps) {
           id={nameId}
           value={name}
           maxLength={200}
-          placeholder={defaultName}
-          onChange={(event) => setName(event.target.value)}
+          placeholder={match.hostname}
+          onChange={(event) => setTypedName(event.target.value)}
         />
       </div>
 

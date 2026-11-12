@@ -54,6 +54,8 @@ export const watches = sqliteTable(
     /** Listing reference recorded (domain/listing-tracker.ts). */
     listingBaselined: integer('listing_baselined', { mode: 'boolean' }).notNull().default(false),
     lastCheckedAt: integer('last_checked_at', { mode: 'timestamp_ms' }),
+    /** Last product read on the page (ProductSnapshot), shown on the watch card. */
+    lastSnapshotJson: text('last_snapshot_json'),
     nextCheckAt: integer('next_check_at', { mode: 'timestamp_ms' }),
     errorCount: integer('error_count').notNull().default(0),
     createdAt: createdAt(),

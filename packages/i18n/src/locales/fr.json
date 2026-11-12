@@ -303,6 +303,19 @@
       "unknown": "statut inconnu",
       "noTitle": "Produit sans nom",
       "regularPrice": "Prix normal :"
+    },
+    "card": {
+      "paused": "En pause",
+      "checked": "Vérifié {{when}}",
+      "neverChecked": "Pas encore vérifié",
+      "noChannel": "Aucun canal : pas d'alerte",
+      "channels_one": "{{count}} canal",
+      "channels_other": "{{count}} canaux",
+      "refresh": "Actualiser",
+      "delete": "Supprimer",
+      "confirmDelete": "Confirmer la suppression",
+      "refreshError": "Lecture impossible : {{error}}",
+      "deleteError": "Suppression impossible : {{error}}"
     }
   }
 }

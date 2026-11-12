@@ -8,6 +8,7 @@ import { buildApp } from './http/app.js';
 import { openDatabase } from './infrastructure/db/database.js';
 import {
   SqliteChannelRepository,
+  SqliteProductReadingRepository,
   SqliteSettingsRepository,
   SqliteWatchRepository,
 } from './infrastructure/db/repositories.js';
@@ -91,7 +92,11 @@ const app = await buildApp({
     updateCheckSupported: config.updates.buildChannel === 'release',
   },
   channels: { repository: channels, fetch: fetcher },
-  watches: { repository: new SqliteWatchRepository(database.db) },
+  watches: {
+    repository: new SqliteWatchRepository(database.db),
+    readings: new SqliteProductReadingRepository(database.db),
+    fetch: fetcher,
+  },
   pluginTests: { fetch: fetcher, channels },
 });
 if (settings.get('apiDocs')) {
