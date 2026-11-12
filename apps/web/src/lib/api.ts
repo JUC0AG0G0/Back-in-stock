@@ -105,6 +105,4 @@ export const api = {
     body: Partial<{ name: string; config: ChannelConfig; enabled: boolean; isDefault: boolean }>,
   ) => request<ChannelView>('PATCH', `/api/channels/${id}`, body),
   deleteChannel: (id: string) => request<void>('DELETE', `/api/channels/${id}`),
-  testChannel: (id: string, locale: string) =>
-    request<ActionResult>('POST', `/api/channels/${id}/test`, { locale }),
 };

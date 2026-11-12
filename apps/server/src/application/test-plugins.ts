@@ -14,7 +14,7 @@ import type { ChannelRepository } from './ports.js';
 import type { TestMessageContent } from './test-notifier.js';
 
 /**
- * Generic plugin self-test (Plugins screen, "Test" and "Test all plugins" buttons).
+ * Generic plugin self-test (sources in Settings, "Send a test" on each channel).
  * - A source fetches and parses a page like a real check, and nothing is saved.
  * - A notifier sends a test notification through each channel configured with it.
  * A failing plugin never throws here: every outcome becomes a result the UI can show.

@@ -14,16 +14,14 @@ The app can test its plugins live, from the UI or the API. Nothing is saved: no 
 
 ## From the UI
 
-The **Plugins** page of the UI lists the loaded plugins.
+- **Sources**: the **Supported sites** card of the **Settings** page lists the loaded source plugins. **Test** on a row tests only that site: you can type a URL and pick the watch type, and that page is read instead of the example pages. **Test all sites** runs every test at once and shows a summary (passed, failed, skipped).
+- **Notifiers**: on the **Channels** page, each channel has a **Send a test** button. **Customize the test message** lets you send text only, a link, a picture… to check how that channel renders it.
 
-- **Test all plugins** runs every test at once and shows a summary (passed, failed, skipped).
-- **Test** on a row tests only that plugin. For a source, you can type a URL and pick the watch type: that page is read instead of the example pages.
-
-A test is **skipped** when there is nothing to test: a source without example pages (and no URL typed), or a notifier without channels. Each test is cut off after 30 seconds.
+A test is **skipped** when there is nothing to test: a source without example pages (and no URL typed). Each test is cut off after 30 seconds.
 
 ## Give a source example pages
 
-For a source to be tested by "Test all plugins", declare one or more example pages with `testTargets`:
+For a source to be tested without a typed URL (the **Test** button or "Test all sites"), declare one or more example pages with `testTargets`:
 
 ```ts
 export default defineSourcePlugin({
